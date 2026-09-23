@@ -3,6 +3,15 @@
 ## الهدف
 الريبو ده لمذاكرة تخصص **AI Engineer** بالكامل، خطوة بخطوة حسب `ROADMAP.md`.
 
+## ⚠️ النطاق: AI Engineer مش ML Engineer
+- **AI Engineer** بيبني تطبيقات فوق موديلات جاهزة: LLM APIs، prompts، RAG، embeddings، vector DBs، tool use، agents، MCP، evals، deployment.
+- **ممنوع نخلط بـ ML Engineer**: مفيش تدريب موديلات من الصفر، ولا رياضيات الـ ML (linear algebra، gradients، backprop)، ولا scikit-learn/PyTorch training، ولا بناء neural networks.
+- لو محتاجين نلمس حاجة من دول (زي cosine similarity أو fine-tuning) بنشرحها **على مستوى الاستخدام والقرار** بس، مش النظرية الرياضية ولا تفاصيل التدريب.
+
+## خلفية المتعلّم
+- عارف أساسيات Python و OOP كويس، فمتشرحهمش من الأول.
+- أدوات Python الأكثر تقدماً (`async`، `httpx`، `pydantic`، `FastAPI`، `uv`) بنشرحها جوه الخطوة اللي بتحتاجها لما تظهر لأول مرة.
+
 ## القواعد الأساسية (لازم تتبع دايماً)
 
 1. **كل خطوة في الـ roadmap = branch لوحده** باسم `step/NN-short-name` (الأسماء الرسمية في `ROADMAP.md`).
