@@ -1,34 +1,45 @@
 # 🤖 AI Engineer — Study Guide
 
-ريبو لمذاكرة تخصص **AI Engineer** خطوة بخطوة، شرح بالعربي مع أمثلة وتطبيقات عملية.
+ريبو لمذاكرة تخصص **AI Engineer** لحد مستوى professional، والهدف إنك تقدر **تبني أي tool قايمة على AI لوحدك**.
+المنهج مبني على **مصادر حقيقية** (كتب ومقالات ودوكس وفيديوهات)، والكود **بتكتبه بإيدك** ويتراجع على الـ PR.
 
-## 🌳 طريقة تنظيم الريبو
+## 🧑‍🏫 الطريقة
 
-- **`main`**: الفهرس — فيه الـ roadmap والقوالب والقواعد، ومع الوقت بيتجمّع فيه كل الخطوات اللي خلصت.
-- **كل خطوة في الـ roadmap = branch لوحده** باسم `step/NN-name` (مثال: `step/01-introduction`).
-- جوه كل branch فولدر `steps/NN-name/` فيه:
-  - `README.md` ← **ملف الشرح الأساسي**: كل concept بالتفصيل + أمثلة + تطبيق + تمارين + أسئلة مراجعة.
-  - `examples/` ← الكود اللي بيشتغل للأمثلة.
+```
+ المصدر (resources/)  ──►  الشرح (notes/)  ──►  التاسكات (TASKS.md)  ──►  كودك (work/)  ──►  PR + Review
+      إنت بترفعه          Claude بيكتبه           Claude بيكتبها          إنت بتكتبه        Claude بيراجع
+```
+
+| مين | بيعمل إيه |
+|---|---|
+| **Claude** | يشرح كل مصدر جزء جزء (مش ملخص)، ويكتب التاسكات من غير حلول، ويراجع الكود سطر سطر (✅ ❌ ⚠️ 💡) |
+| **إنت** | ترفع المصادر، وتقرا الأصل مع الشرح، وتكتب الكود، وتفتح PR |
+
+القواعد الكاملة في [`CLAUDE.md`](CLAUDE.md).
+
+## 📁 شكل الريبو
 
 ```
 guidelines-ai-engineer/
-├── README.md                 ← انت هنا
-├── ROADMAP.md                ← خريطة الخطوات وحالة كل واحدة
-├── CLAUDE.md                 ← ذاكرة المشروع وقواعد الشغل
-├── templates/
-│   └── LESSON_TEMPLATE.md    ← القالب اللي كل ملف شرح ماشي عليه
-└── steps/                    ← بتتملي من الـ branches بعد الـ merge
-    └── 01-introduction/
-        ├── README.md
-        └── examples/
+├── README.md              ← إنت هنا
+├── ROADMAP.md             ← الخطوات + مصادر كل خطوة + الحالة
+├── CLAUDE.md              ← قواعد الشغل
+├── resources/             ← الكتب والمقالات والـ transcripts (بترفعها إنت)
+├── docs/
+│   ├── concepts.md        ← دفتر المفاهيم
+│   └── progress.md        ← إحنا فين دلوقتي
+├── templates/             ← قوالب: دليل الخطوة، الشرح، التاسكات
+└── steps/
+    └── NN-name/
+        ├── README.md      ← دليل الخطوة: المصادر بالترتيب + خطة المذاكرة
+        ├── notes/         ← شرح كل مصدر
+        ├── TASKS.md       ← التاسكات
+        └── work/          ← كودك
 ```
 
-## 🔁 الـ Workflow لكل خطوة
-
-1. نفتح branch جديد من `main`: `git checkout main && git pull && git checkout -b step/NN-name`
-2. نكتب `steps/NN-name/README.md` على القالب + الأمثلة في `examples/`.
-3. نذاكر ونحل التمارين.
-4. نعمل merge على `main` (PR) ونعلّم الخطوة ✅ في `ROADMAP.md`.
+## 🌿 الـ Branches
+- **`step/NN-name`**: مواد الخطوة (شرح + تاسكات). Claude بيفتح PR، وإنت بتراجعه وتعمله merge.
+- **`work/NN-name`**: كودك. بتفتح PR، و Claude بيراجع، وإنت بتصلّح لحد ما يتعمله merge.
 
 ## 🗺️ الـ Roadmap
-شوف [ROADMAP.md](./ROADMAP.md).
+شوف [ROADMAP.md](./ROADMAP.md). وإحنا فين دلوقتي: [docs/progress.md](docs/progress.md).
