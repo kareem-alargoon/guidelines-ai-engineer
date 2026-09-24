@@ -14,11 +14,11 @@
 
 | # | المصدر | النوع | الشرح | الوقت التقريبي |
 |:---:|---|:---:|---|---|
-| 1 | *AI Engineering* — Chip Huyen — **Ch.1**: *Introduction to Building AI Applications with Foundation Models* | 📘 | `notes/01-chip-huyen-ch1.md` ⏳ | 3–4 ساعات |
+| 1 | *AI Engineering* — Chip Huyen — **Ch.1**: *Introduction to Building AI Applications with Foundation Models* (ص 1–48، PDF ص 25–72) | 📘 | [`notes/01-chip-huyen-ch1.md`](notes/01-chip-huyen-ch1.md) ✅ | 3–4 ساعات |
 | 2 | Andrej Karpathy — [*Intro to Large Language Models*](https://www.youtube.com/watch?v=zjkBMFhNj_g) | 🎥 | `notes/02-karpathy-intro-to-llms.md` ⏳ | ساعة (+ وقف وإعادة) |
 | 3 | swyx — [*The Rise of the AI Engineer*](https://www.latent.space/p/ai-engineer) | 📰 | `notes/03-swyx-rise-of-the-ai-engineer.md` ⏳ | نص ساعة |
 
-⏳ = الشرح بيتكتب **بعد** ما ترفع المصدر في `resources/` (التفاصيل في [`resources/README.md`](../../resources/README.md)). مش هكتب شرح مصدر من الذاكرة؛ لازم يبقى ماشي مع الأصل اللي قدامك.
+✅ = الشرح جاهز · ⏳ = لسه متكتبش. بنشرح مصدر واحد في المرة، والشرح دايماً ماشي مع الأصل اللي في `resources/`، مش من الذاكرة.
 
 ### ليه المصادر دي وبالترتيب ده؟
 1. **الفصل الأول من الكتاب** بيحط الإطار كله: الـ foundation models جات منين، والـ AI Engineering يعني إيه، والـ use cases، وإزاي تخطط لـ AI app. ده الأساس اللي باقي الكتاب والـ roadmap مبنيين عليه.
