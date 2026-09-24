@@ -1,453 +1,420 @@
-# Step 01 — مقدمة للـ AI Engineering
+# Step 01 — مقدمة: يعني إيه AI، ومين هو الـ AI Engineer
 
-> **Branch:** `step/01-introduction` · **المدة المتوقعة:** 2–3 أيام · **المتطلبات:** أساسيات Python + OOP
+> **Branch:** `step/01-introduction` · **المدة المتوقعة:** 2–3 أيام · **المتطلبات:** Python، وخبرة backend (APIs و HTTP)
 
 ## 🎯 الأهداف
 بعد الخطوة دي هتقدر:
-- تشرح مين هو الـ **AI Engineer** وبيعمل إيه في يومه فعلاً.
-- تفرّق بوضوح بين **AI Engineer** و **ML Engineer** و **Data Scientist** و **Software Engineer**.
-- ترسم شكل (architecture) أي **AI application** وتعرف كل جزء فيه دوره إيه.
-- تفهم إمتى تستخدم AI في مشكلة وإمتى لأ.
-- تجهّز بيئة شغل احترافية: `uv`، `.env`، و **API keys** بشكل آمن.
-- تعمل أول **API call** لـ Claude وتفهم الـ response راجع شكله إيه.
+- تفرّق بين **AI** و **Machine Learning** و **Deep Learning** و **Generative AI** و **LLM**.
+- تشرح الـ **LLM** بيشتغل إزاي "من برّه": بيعمل إيه، وليه بيغلط، وليه **ميعرفش داتا شركتك**.
+- تعرف الـ 3 طرق اللي تخلّي الموديل يجاوب من داتا الشركة: **Context** و **RAG** و **Fine-tuning**.
+- تقارن بين **Cloud LLM APIs** و **Local / Self-hosted LLMs**، وتعرف إمتى تختار أنهي واحد.
+- تشرح دور الـ **AI Engineer** وتفرّقه عن **ML Engineer** و **Data Scientist**.
+- ترسم شكل نظام AI حقيقي، زي chatbot بيجاوب من documents الشركة.
+- (اختياري) تشغّل LLM **على جهازك** بـ Ollama وتشوف بعينك الفرق بين موديل "ميعرفش" وموديل معاه المستند.
 
 ## 🧭 الصورة الكبيرة
-من كام سنة، لو عايز تعمل feature "ذكية" (تلخيص، تصنيف، chatbot) كان لازم فريق يجمع data ويدرّب موديل شهور. النهارده فيه **foundation models** جاهزة (زي Claude) بتعمل ده من غير تدريب — إنت بس بتكلّمها عن طريق **API**.
+قبل أي كود، محتاج تبقى عارف **إنت بتتعامل مع إيه**. الـ LLM مش database بيرجّع حقائق، ولا API بيرجّع نفس النتيجة كل مرة. هو component **احتمالي** ليه نقاط قوة ونقاط ضعف واضحة. كل حاجة في الـ roadmap، زي الـ prompts والـ RAG والـ agents والـ evals، هدفها إننا نستغل نقاط القوة دي ونغطّي نقاط الضعف.
 
-ده خلق دور جديد: الشخص اللي **بيبني منتجات حقيقية فوق الموديلات دي**. ده الـ AI Engineer، ودي الخطوة اللي بتحدد النطاق بتاع الـ roadmap كله. كل الخطوات الجاية (prompts، RAG، tools، agents، evals، deployment) هي أجزاء من الصورة اللي هنرسمها هنا.
-
----
-
-## 1. مين هو الـ AI Engineer؟
-
-### يعني إيه؟
-الـ **AI Engineer** هو مهندس software بيبني **تطبيقات ومنتجات** بتستخدم **pre-trained models** (خصوصاً **LLMs**) كـ building block — زي ما الـ backend engineer بيستخدم database من غير ما يكتب database engine بنفسه.
-
-> 🧱 **تشبيه:** الـ ML Engineer بيصنع **المحرّك**. الـ AI Engineer بياخد المحرّك الجاهز ويبني حواليه **عربية**: شاسيه، فرامل، عداد، أمان، وتجربة سواقة مريحة.
-
-### إزاي بيشتغل؟ (يومه شكله إيه)
-الشغل الفعلي بيدور حوالين الأسئلة دي:
-
-| السؤال | الأداة/المهارة | الخطوة في الـ roadmap |
-|---|---|---|
-| أختار أنهي موديل؟ (quality vs cost vs latency) | Model selection | 03 |
-| أكلّم الموديل إزاي من الكود؟ | LLM APIs، streaming، structured output | 04 |
-| أكتب التعليمات إزاي عشان يدّي نتيجة ثابتة؟ | Prompt engineering | 05 |
-| أحمي التطبيق من الاستخدام الغلط؟ | Guardrails، prompt injection | 06 |
-| الموديل ميعرفش بيانات شركتي — أعمل إيه؟ | Embeddings، vector DBs، **RAG** | 07–09 |
-| عايز الموديل ينفّذ actions (يبعت إيميل، يكلّم API)؟ | **Tool use**، **Agents**، **MCP** | 10–12 |
-| صور وصوت وPDFs؟ | Multimodal | 13 |
-| أعرف منين إن التعديل حسّن مش بوّظ؟ | **Evals** | 14 |
-| أوصّله للـ users بشكل موثوق ورخيص؟ | Deployment، monitoring، caching | 15 |
-
-لاحظ إن **ولا سؤال فيهم** "إزاي أدرّب neural network؟" — ده مش شغلنا.
-
-### مثال عملي
-نفس الطلب "عايزين نصنّف تذاكر الدعم الفني أوتوماتيك":
-
-- **الطريقة القديمة (ML):** نجمع 50 ألف تذكرة متصنّفة ← ننضّف الـ data ← ندرّب classifier ← نقيس الـ accuracy ← نعمل deploy. **أسابيع/شهور.**
-- **طريقة الـ AI Engineer:** نكتب prompt فيه التصنيفات ← نكلّم LLM API ← نتحقق من الـ output ← نعمل eval على 100 تذكرة ← deploy. **أيام.**
-
-الكود الكامل للطريقة التانية موجود في [`examples/ai_app_anatomy.py`](examples/ai_app_anatomy.py) وهنشرحه في الـ concept رقم 3.
-
-### ⚠️ أخطاء شائعة
-- **"AI Engineer = بيكتب prompts وخلاص".** لأ — الـ prompt جزء صغير. أغلب الشغل هندسة software عادية: APIs، error handling، data pipelines، testing، deployment، cost.
-- **"لازم أذاكر رياضيات الـ ML الأول".** مش محتاجها عشان تبدأ. محتاج تفهم **سلوك** الموديل (tokens، context window، hallucination) — ودي Step 02.
-- **"الموديل ذكي، هيتصرّف".** الموديل احتمالي (probabilistic) — ممكن يغلط أو يرجّع format غلط. شغلك إنك تبني نظام **يتحمّل** ده.
+الخطوة دي **مفاهيم بالأساس**. آخرها مثال اختياري بتشغّل فيه موديل على جهازك.
 
 ---
 
-## 2. الفرق بين AI Engineer و ML Engineer و Data Scientist
+## 1. يعني إيه AI؟ (AI ← ML ← DL ← GenAI ← LLM)
 
 ### يعني إيه؟
-الأدوار دي بتتداخل، بس كل واحد تركيزه مختلف:
+المصطلحات دي مش مترادفة. كل واحد **جوه** اللي قبله:
 
-| | **Data Scientist** | **ML Engineer** | **AI Engineer** | **Software Engineer** |
-|---|---|---|---|---|
-| **السؤال الأساسي** | إيه اللي الـ data بتقوله؟ | إزاي أدرّب وأشغّل موديل كويس؟ | إزاي أبني منتج مفيد فوق موديل جاهز؟ | إزاي أبني نظام شغّال وموثوق؟ |
-| **الـ output** | Insights، تقارير، تجارب | Trained models، training pipelines | AI features وتطبيقات | Apps، APIs، systems |
-| **بيبدأ من** | Data | Data + model architecture | **Pre-trained model + API** | Requirements |
-| **أدوات نموذجية** | pandas، SQL، notebooks، statistics | PyTorch، GPUs، MLOps، feature stores | LLM APIs، prompts، vector DBs، agents، evals | Frameworks، databases، cloud |
-| **الرياضيات** | Statistics كتير | Linear algebra، calculus، optimization | **شبه مفيش** — فهم سلوكي | مفيش غالباً |
-| **دورة الشغل** | أسابيع (تحليل) | أسابيع–شهور (تدريب) | ساعات–أيام (prototype) | أيام–أسابيع |
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│ Artificial Intelligence (AI)                                        │
+│  أي نظام بيعمل حاجة كنا بنعتبرها محتاجة "ذكاء بشري"                    │
+│  ┌───────────────────────────────────────────────────────────────┐  │
+│  │ Machine Learning (ML)                                         │  │
+│  │  النظام بيتعلّم القواعد من أمثلة (data) بدل ما نكتبها بإيدينا   │  │
+│  │  ┌─────────────────────────────────────────────────────────┐  │  │
+│  │  │ Deep Learning (DL)                                      │  │  │
+│  │  │  ML بـ neural networks كبيرة جداً (طبقات كتير)            │  │  │
+│  │  │  ┌───────────────────────────────────────────────────┐  │  │  │
+│  │  │  │ Generative AI (GenAI)                             │  │  │  │
+│  │  │  │  موديلات بـ"تولّد" محتوى جديد: نص، صور، صوت، كود   │  │  │  │
+│  │  │  │  ┌─────────────────────────────────────────────┐  │  │  │  │
+│  │  │  │  │ Large Language Models (LLMs)                │  │  │  │  │
+│  │  │  │  │  GenAI متخصص في النص: Claude، GPT، Llama     │  │  │  │  │
+│  │  │  │  └─────────────────────────────────────────────┘  │  │  │  │
+│  │  │  └───────────────────────────────────────────────────┘  │  │  │
+│  │  └─────────────────────────────────────────────────────────┘  │  │
+│  └───────────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────────┘
+```
 
 ### إزاي بيشتغل؟
-الفرق الجوهري في **اتجاه الشغل**:
+الفرق الجوهري بين البرمجة العادية والـ ML:
 
 ```
-ML Engineer:   Data  ──►  Train  ──►  Model  ──►  (منتج)
-AI Engineer:   Product idea  ──►  Model جاهز  ──►  Prompt/RAG/Tools  ──►  Evals  ──►  (منتج)
+البرمجة العادية:   Rules (إنت بتكتبها) + Data  ──►  Output
+Machine Learning:  Data + Output (أمثلة)      ──►  Rules (الموديل بيستنتجها)
 ```
 
-الـ ML Engineer بيبدأ بالـ data وينتهي بموديل. الـ AI Engineer بيبدأ بالموديل (جاهز) وينتهي بمنتج. عشان كده الـ AI Engineer أقرب لـ **Software Engineer + فهم عميق لسلوك الموديلات**.
+**مثال — فلتر spam:**
+- **البرمجة العادية:** `if (str_contains($email, 'ربحت جايزة')) return 'spam';`. هتفضل تضيف قواعد لحد ما تزهق، والـ spammers هيغيّروا الكلام.
+- **ML:** تدّي الموديل 100 ألف إيميل متعلّم عليهم (spam / مش spam)، وهو يستنتج الأنماط لوحده.
+- **LLM:** موديل اتدرّب مرة واحدة على كمية نصوص ضخمة جداً، فبقى "فاهم" اللغة عموماً. تقدر تقوله "صنّف الإيميل ده spam ولا لأ" من غير ما تدرّبه على حاجة خالص.
+
+النقطة الأخيرة هي اللي عملت المجال كله: قبل الـ LLMs كل مهمة كانت محتاجة موديل متدرّب مخصوص ليها. دلوقتي فيه **foundation models**، يعني موديل عام واحد ينفع لمهام كتير، وده اللي خلّى وظيفة الـ AI Engineer تظهر.
 
 ### مثال عملي
-شركة عايزة "chatbot بيجاوب على أسئلة العملاء من الـ documentation بتاعتها":
-
-- **Data Scientist:** يحلل أكتر الأسئلة تكراراً ونسبة الأسئلة اللي بتتحل.
-- **ML Engineer:** (لو احتاجوه) يعمل fine-tuning أو يستضيف open-source model على GPUs بتاعة الشركة.
-- **AI Engineer:** يبني الـ chatbot نفسه: RAG على الـ docs، prompt، guardrails، evals، API، monitoring.
-- **Software Engineer:** يبني الـ chat UI، الـ auth، ويربطه بباقي النظام.
+| المهمة | أنسب حل |
+|---|---|
+| حساب ضريبة الفاتورة | كود عادي، مش AI أصلاً |
+| توقّع سعر شقة من مساحتها ومكانها | ML تقليدي (مش GenAI) |
+| التعرّف على وش في صورة | Deep Learning |
+| توليد صورة من وصف | GenAI (مش LLM) |
+| تلخيص عقد، الرد على عميل، استخراج بيانات من إيميل | **LLM** |
 
 ### ⚠️ أخطاء شائعة
-- الخلط في الـ job descriptions حقيقي — شركات كتير بتكتب "AI Engineer" وهي عايزة ML Engineer. **اقرا المتطلبات** مش العنوان: لو فيها PyTorch training و GPUs و model architectures يبقى ML.
-- **Fine-tuning** مش ممنوع على الـ AI Engineer، بس هو **آخر حل** مش أوله. الترتيب: prompting ← RAG ← fine-tuning (هنشوف ده في Step 09).
+- **"AI = ChatGPT":** الـ LLMs جزء صغير من الـ AI. فيه ML تقليدي شغّال في كل حتة من سنين: ترشيحات، كشف احتيال، تسعير.
+- **"أستخدم LLM لكل حاجة":** لو المشكلة ليها قاعدة واضحة (حسابات، validation، SQL) فالكود العادي أرخص وأسرع ومضمون 100%.
 
 ---
 
-## 3. شكل الـ AI Application (Anatomy)
+## 2. الـ LLM بيشتغل إزاي؟ (من برّه)
 
 ### يعني إيه؟
-أي AI app — من أبسط chatbot لأعقد agent — مبني من نفس الطبقات. الـ LLM call نفسه **سطر واحد**؛ الباقي هو اللي بيفرّق بين demo ومنتج.
+الـ LLM في الآخر function بتاخد نص وبترجّع نص. جوّاها بتعمل حاجة واحدة بس: **بتتوقّع الكلمة اللي بعدها** (بالظبط: الـ **token** اللي بعده، والـ token تقريباً جزء من كلمة).
+
+### إزاي بيشتغل؟
+```
+Input:  "عاصمة مصر هي"
+          │
+          ▼
+   ┌─────────────┐     احتمالات الـ token الجاي:
+   │     LLM     │ ──►  "القاهرة" 92% | "مدينة" 3% | "أكبر" 1% | ...
+   └─────────────┘
+          │  بيختار واحد، يضيفه للنص، ويكرر لحد ما يخلّص
+          ▼
+Output: "عاصمة مصر هي القاهرة."
+```
+
+الموديل مرّ بمرحلتين تدريب، وإنت **مش هتعمل أي واحدة فيهم**؛ ده شغل الشركات اللي بتصنع الموديلات:
+1. **Pre-training:** قرا كمية نصوص ضخمة من الإنترنت والكتب والكود، واتعلّم يتوقّع الكلمة الجاية. من هنا جات "المعرفة" والقدرة على اللغة.
+2. **Instruction tuning / alignment:** اتدرّب يتصرّف كـ assistant: يفهم الأسئلة، يتبع التعليمات، ويرفض الطلبات الضارة.
+
+ومن الطريقة دي بتطلع **5 خصائص** لازم تفضل فاكرها طول ما إنت شغّال:
+
+| الخاصية | يعني إيه | النتيجة عليك كـ AI Engineer |
+|---|---|---|
+| **Probabilistic** | نفس السؤال ممكن يطلع له إجابات مختلفة | لازم validation للـ output، ولازم تقيس الجودة (evals) |
+| **Hallucination** | لو ميعرفش، ساعات **بيألّف** إجابة واثقة وغلط | متثقش في الإجابة من غير مصدر، وده من أسباب الـ RAG |
+| **Knowledge cutoff** | معرفته واقفة عند تاريخ معيّن | ميعرفش الأخبار ولا الأسعار الجديدة إلا لو إنت اديتهاله |
+| **ميعرفش داتا شركتك** | عمره ما شاف الـ documents والـ database بتوعك | **المشكلة الأساسية** اللي هنحلها في الـ roadmap |
+| **Stateless** | كل request مستقل ومبيفتكرش اللي قبله | زي HTTP بالظبط. الـ "memory" في الـ chat معناها إنك بتبعت المحادثة كلها تاني مع كل رسالة |
+
+> 🔁 **تشبيه من Laravel:** الـ LLM stateless زي الـ HTTP request. الـ chat history عندك زي الـ session: **إنت** اللي بتخزّنه وبتبعته مع كل request، والموديل نفسه مبيحتفظش بحاجة.
+
+كمان الـ **context window** هو أقصى حجم نص (بالـ tokens) يقدر الموديل يشوفه في request واحد، سواء السؤال أو المحادثة أو المستندات. وده ليه دور كبير في الـ RAG. هنتعمّق في ده في Step 02.
+
+### مثال عملي
+اسأل أي موديل: "إيه سياسة الإجازات في شركة نيلوس للبرمجيات؟" (شركة وهمية). احتمال يقولك "معرفش"، واحتمال يألّف سياسة كاملة بثقة. جرّب ده بنفسك في الـ hands-on تحت.
+
+### ⚠️ أخطاء شائعة
+- **"الموديل بيدوّر على الإنترنت":** لأ. بيجاوب من اللي اتعلّمه وقت التدريب ومن اللي إنت بتبعتهوله في الـ request. أي بحث بيحصل يبقى عن طريق **tool** إنت اللي بتديهوله (Step 10).
+- **"الموديل بيتعلّم من كلامي معاه":** لأ. الموديل ثابت، والمحادثة مش بتغيّره.
+
+---
+
+## 3. المشكلة الأساسية: إزاي الموديل يجاوب من داتا شركتك؟
+
+### يعني إيه؟
+ده السؤال اللي هتقابله في أغلب المشاريع: "عايزين chatbot يجاوب من الـ documents بتاعتنا"، أو "مساعد بيفهم الـ database بتاعتنا". الموديل ميعرفش الداتا دي، فعندك 3 حلول:
 
 ### إزاي بيشتغل؟
 
-```
-┌──────────┐   ┌───────────────┐   ┌───────────────────┐   ┌───────────┐   ┌──────────────────┐   ┌──────────┐
-│  User    │──►│ 1. Input      │──►│ 2. Prompt building│──►│ 3. LLM    │──►│ 4. Output parsing│──►│ Response │
-│  input   │   │   validation  │   │  + context (RAG)  │   │   API     │   │   & validation   │   │ to user  │
-└──────────┘   └───────────────┘   └───────────────────┘   └─────┬─────┘   └──────────────────┘   └──────────┘
-                                                                 │ ▲
-                                                           ┌─────▼─┴─────┐
-                                                           │ 5. Tools    │  (APIs، DB، search...)
-                                                           └─────────────┘
-               ─────────────── 6. Logging / Monitoring / Evals / Cost tracking (حوالين كل ده) ───────────────
-```
+| | **1. Context في الـ prompt** | **2. RAG** | **3. Fine-tuning** |
+|---|---|---|---|
+| **الفكرة** | تحط المستند كله في الـ request | تدوّر على **الأجزاء المناسبة بس** وتحطها في الـ request | تدرّب الموديل تاني على داتا بتاعتك |
+| **تشبيه** | امتحان open-book والكتاب صغير | امتحان open-book في مكتبة كاملة، بس معاك فهرس | تذاكر شهور قبل الامتحان |
+| **الموديل بيتغيّر؟** | لأ | **لأ** | آه |
+| **الداتا بتتحدّث إزاي** | فوراً | فوراً (تحدّث الـ index) | لازم تدرّب تاني |
+| **إمتى** | داتا صغيرة (كام صفحة) | داتا كبيرة ومتغيّرة، **وده الأشهر** | تغيير الأسلوب أو الـ format، مش إضافة معلومات |
+| **فين في الـ roadmap** | 04–05 | 07–09 | 09 (كـ قرار بس) |
 
-| الطبقة | بتعمل إيه | هنتعلمها فين |
-|---|---|---|
-| **1. Input validation** | ترفض الفاضي/الطويل جداً/الخطير (prompt injection) | 06 |
-| **2. Prompt building** | تجمع التعليمات + input المستخدم + context (من RAG أو memory) | 05، 09 |
-| **3. LLM call** | تبعت للـ API، تتعامل مع errors و rate limits و streaming | 04 |
-| **4. Output parsing** | تحوّل النص لـ data (JSON)، وتتحقق إنه صح — **عمرك ما تثق فيه على طول** | 04، 06 |
-| **5. Tools** | الموديل يطلب ينفّذ action، الكود بتاعك ينفّذ ويرجّعله النتيجة | 10–12 |
-| **6. Observability** | logs، traces، تكلفة كل request، evals مستمرة | 14، 15 |
+**RAG** = **R**etrieval-**A**ugmented **G**eneration. يعني "هات المعلومة الأول، وبعدين ولّد الإجابة":
+
+```
+        (مرة واحدة / كل ما الداتا تتغيّر)                 (مع كل سؤال)
+┌──────────────┐   ┌─────────┐   ┌────────────┐        ┌──────────┐   ┌──────────────┐
+│ Company docs │──►│ Chunks  │──►│ Embeddings │──►DB   │ Question │──►│ Search in DB │
+│ PDFs, wiki.. │   │ (أجزاء) │   │ (vectors)  │        └──────────┘   └──────┬───────┘
+└──────────────┘   └─────────┘   └────────────┘                              │ أنسب 5 أجزاء
+                                                                              ▼
+                                                      ┌──────────────────────────────────┐
+                                                      │ Prompt = تعليمات + الأجزاء + السؤال │──► LLM ──► إجابة
+                                                      └──────────────────────────────────┘
+```
 
 ### مثال عملي
-[`examples/ai_app_anatomy.py`](examples/ai_app_anatomy.py) بيطبّق الطبقات 1–4 على "مصنِّف تذاكر دعم فني". القلب بتاعه:
+في [`examples/company_data_demo.py`](examples/company_data_demo.py) بنسأل الموديل عن سياسة الإجازات في شركة وهمية مرتين: مرة من غير حاجة، ومرة وإحنا حاطين مستند الـ HR في الـ prompt. ده الحل رقم 1، وهو **قلب الـ RAG**. الـ RAG الحقيقي بيضيف بس خطوة "دوّر على المستند المناسب" وسط آلاف المستندات.
 
 ```python
-def classify(ticket: str, llm=call_llm_mock) -> TicketResult:
-    ticket = validate_input(ticket)        # 1) Input validation
-    messages = build_messages(ticket)      # 2) Prompt building
-    raw = llm(SYSTEM_PROMPT, messages)     # 3) LLM call
-    return parse_output(raw)               # 4) Output parsing & validation
-```
-
-لاحظ إن الـ `llm` **parameter** — فتقدر تبدّل الموديل الحقيقي بـ **mock** للتجربة والـ testing من غير API key ومن غير فلوس:
-
-```bash
-uv run ai_app_anatomy.py --mock   # بيشتغل من غير API key
-uv run ai_app_anatomy.py          # بيكلّم Claude فعلاً
-```
-
-الـ output في الـ mock mode:
-```
-[billing  ] 'اتخصم مني فلوس مرتين على نفس الفاتورة الشهر د'
-            ↳ (mock) ملخص التذكرة
-[technical] 'التطبيق بيقفل لوحده أول ما أفتح صفحة الإعدادا'
-            ↳ (mock) ملخص التذكرة
-[account  ] 'نسيت الباسورد ومش عارف أعمل login'
-            ↳ (mock) ملخص التذكرة
-[rejected ] '' ← التذكرة فاضية
+messages = [
+    {"role": "system", "content": f"جاوب من المستند ده بس:\n<document>\n{HR_POLICY}</document>"},
+    {"role": "user", "content": "كام يوم إجازة سنوية ليا؟"},
+]
 ```
 
 ### ⚠️ أخطاء شائعة
-- **تثق في الـ output على طول:** الموديل ممكن يرجّع category مش موجودة، أو JSON ملفوف في ` ```json `. شوف `parse_output()` — بتنضّف وبتتحقق وبترجع لـ `"other"` لو القيمة غريبة. (في Step 04 هنتعلم **structured outputs** اللي بتضمن الـ format من الـ API نفسه.)
-- **تخلط تعليماتك بكلام المستخدم:** لاحظ إننا حاطين التذكرة جوه `<ticket>...</ticket>` عشان الموديل يعرف ده **data** مش أوامر. ده أول خط دفاع ضد prompt injection (Step 06).
-- **تربط الكود بموديل واحد:** خلّي الـ LLM call في function لوحدها — عشان تبدّل الموديل/الـ provider أو تعمل mock بسهولة.
+- **"RAG يعني بندرّب الموديل على داتا الشركة":** ده أشهر غلط. في RAG الموديل **مبيتغيّرش خالص**. إحنا بس بنبعتله الجزء المناسب من الداتا مع السؤال.
+- **"نعمل fine-tuning عشان الموديل يعرف الداتا":** غالباً غلط. الـ fine-tuning ضعيف في إضافة معلومات جديدة، وغالي، ولازم تعيده مع كل تحديث. الترتيب الصح: prompting ← RAG ← fine-tuning كآخر حل.
 
 ---
 
-## 4. إمتى تستخدم AI (وإمتى لأ)
+## 4. Cloud APIs ولا Local LLMs؟
 
 ### يعني إيه؟
-أهم مهارة للـ AI Engineer مش إنه يعرف يستخدم LLM — إنه يعرف **إمتى ميستخدموش**.
+عندك طريقتين تشغّل بيهم الموديل:
+- **Cloud / Hosted API:** الموديل شغّال عند الـ provider (Anthropic، OpenAI، Google)، وإنت بتبعتله HTTP requests.
+- **Local / Self-hosted:** بتنزّل **open-weight model** (Llama، Qwen، Mistral، Gemma) وتشغّله على جهازك أو سيرفرات الشركة بأداة زي **Ollama** (للتجربة والتطوير) أو **vLLM** (للـ production).
 
-### إزاي بيشتغل؟
-اسأل نفسك الأسئلة دي:
+### إزاي بيشتغل؟ (المقارنة)
 
-| السؤال | لو الإجابة "آه" |
-|---|---|
-| فيه قاعدة واضحة (if/else، regex، SQL) بتحل المشكلة؟ | **استخدم الكود العادي** — أرخص وأسرع و100% ثابت |
-| المدخلات لغة طبيعية مش منظّمة (إيميلات، شكاوى، مستندات)؟ | LLM مناسب |
-| الغلطة الواحدة كارثية ومفيش مراجعة بشرية (حسابات مالية، قرارات طبية)؟ | LLM لوحده **لأ** — لازم human-in-the-loop أو validation صارم |
-| محتاج نفس الإجابة بالظبط كل مرة؟ | فكّر مرتين — الـ LLMs مش deterministic |
-| الـ latency لازم تبقى أقل من كام millisecond؟ | LLM غالباً بطيء ليك |
+| | **Cloud API** | **Local / Self-hosted** |
+|---|---|---|
+| **الداتا بتروح فين** | لسيرفرات الـ provider | مبتخرجش من عندك |
+| **الجودة** | الأعلى غالباً (Claude، GPT) | أقل، والفرق بيقل مع الوقت |
+| **التكلفة** | بتدفع على كل request (بالـ tokens) | GPUs وكهربا وناس تشغّل وتراقب |
+| **البداية** | دقايق: API key وخلاص | تجهيز hardware وتشغيل وصيانة |
+| **الـ scale** | الـ provider بيتكفّل بيه | مسؤوليتك |
+| **الشكل من الكود** | HTTP API | **برضو HTTP API** (Ollama على `localhost:11434`) |
+
+**الـ privacy مش بتتحل بالـ local بس.** شركات كتير عندها داتا حساسة وبتستخدم cloud APIs عن طريق:
+- **شروط الاستخدام:** الـ providers الكبار مش بيدرّبوا على داتا الـ API افتراضياً، وفيه اتفاقيات **Zero Data Retention** للشركات، يعني مبيحتفظوش بالداتا خالص.
+- **Cloud بتاع الشركة نفسها:** نفس الموديلات متاحة جوه AWS (Bedrock) و Google Cloud (Vertex AI) و Azure، فالداتا بتفضل في نفس الـ cloud account اللي الشركة شغّالة عليه أصلاً.
+
+والـ **self-hosted** بيبقى الحل الأنسب لما يكون فيه قانون أو سياسة بتمنع الداتا تخرج **نهائياً** (بنوك، حكومات، مستشفيات، أو شركات في بلاد عندها data residency laws)، أو لما حجم الاستخدام كبير جداً والتكلفة تفرق.
+
+**حجم الموديل** بيتقاس بعدد الـ **parameters**، يعني "الأرقام" اللي جوّاه (بالمليارات، B). تقريباً:
+| الحجم | محتاج | الجودة |
+|---|---|---|
+| 1B–4B | لابتوب عادي (8GB RAM) | كويس للمهام البسيطة |
+| 7B–14B | 16GB RAM أو GPU متوسط | كويس جداً لمهام كتير |
+| 70B+ | GPUs قوية (سيرفر) | قريب من الموديلات التجارية |
 
 ### مثال عملي
-- ❌ "احسب إجمالي الفاتورة" ← `sum(items)`. متبعتهاش لـ LLM.
-- ❌ "اتأكد إن الإيميل format صح" ← regex.
-- ✅ "استخرج اسم العميل ورقم الطلب من الإيميل ده المكتوب بأي شكل" ← LLM ممتاز.
-- ✅ "لخّص الـ 40 صفحة دول في نقاط" ← LLM ممتاز.
-- ⚠️ "وافق أو ارفض طلب القرض" ← LLM ممكن **يساعد** (يلخّص، يرتّب)، بس القرار يفضل بقواعد واضحة + إنسان.
+الـ AI Engineer الشاطر بيكتب الكود بحيث **الموديل يتبدّل من الـ config**:
+
+> 🔁 **تشبيه من Laravel:** زي `DB_CONNECTION=mysql` في `.env`. الكود بيستخدم Eloquent، ولو غيّرتها لـ `pgsql` الكود مبيتغيّرش. نفس الفكرة هنا: `LLM_PROVIDER=ollama` أو `LLM_PROVIDER=anthropic`، والـ RAG pipeline نفسه زي ما هو.
+
+في الأمثلة هتلاقي كل الكلام مع الموديل جوه function واحدة، `chat()` في [`local_llm.py`](examples/local_llm.py). لو عايز تبدّل لـ cloud بعدين، هتغيّر الـ function دي بس.
 
 ### ⚠️ أخطاء شائعة
-- **"AI for everything":** كل LLM call ليه تكلفة (فلوس + وقت + احتمال غلط). لو الكود العادي بيحلها، هو الأحسن.
-- **تقيس بالإحساس:** "جرّبته 3 مرات واشتغل" مش قياس. من أول يوم فكّر: هقيس الجودة إزاي؟ (Step 14).
+- **"داتا حساسة؟ يبقى local أكيد":** مش دايماً. اسأل الأول: إيه **بالظبط** المطلوب قانونياً؟ ساعات cloud في نفس الـ region مع ZDR بيكفي، وبجودة أعلى وتكلفة تشغيل أقل.
+- **"Local ببلاش":** الموديل نفسه ببلاش، بس الـ GPUs والتشغيل والمراقبة لأ. للاستخدام القليل، الـ API غالباً أرخص.
+- **تبني على موديل واحد:** الموديلات بتتغيّر كل كام شهر. خلّي الموديل قابل للتبديل.
 
 ---
 
-## 5. تجهيز البيئة: `uv` و `.env` و API keys
+## 5. مين هو الـ AI Engineer؟
 
 ### يعني إيه؟
-- **`uv`**: أداة حديثة (مكتوبة بـ Rust) بتدير نسخ Python والـ virtual environments والـ packages — بديل سريع جداً لـ `pip` + `venv` + `pyenv` في أداة واحدة.
-- **API key**: "باسورد" بيثبت هويتك للـ provider وبيتحسب عليه الاستهلاك (الفلوس). **أي حد معاه الـ key بتاعك بيصرف من حسابك.**
-- **`.env`**: ملف محلي فيه الـ secrets كـ `KEY=value`، والكود بيقراه كـ **environment variables**. الملف ده **مبيترفعش على git أبداً**.
+**مهندس software بيبني تطبيقات ومنتجات فوق موديلات جاهزة**، سواء cloud أو local. مش بيصنع الموديلات.
+
+> 🔁 **تشبيه من Laravel:** إنت كـ Laravel developer بتستخدم MySQL كل يوم، بس عمرك ما كتبت storage engine بتاعها. الـ AI Engineer بيستخدم الـ LLM بنفس الشكل: فاهم كويس بيتصرّف إزاي وإيه حدوده، بس مش بيبنيه.
 
 ### إزاي بيشتغل؟
 
-**أ) تسطيب `uv`:**
-```bash
-# macOS / Linux
-curl -LsSf https://astral.sh/uv/install.sh | sh
-# Windows (PowerShell)
-powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+| | **Data Scientist** | **ML Engineer** | **AI Engineer** |
+|---|---|---|---|
+| **السؤال الأساسي** | الـ data بتقول إيه؟ | إزاي أدرّب وأشغّل موديل كويس؟ | إزاي أبني منتج مفيد فوق موديل جاهز؟ |
+| **بيبدأ من** | Data | Data + model architecture | **Pre-trained model** |
+| **أدواته** | SQL، pandas، statistics | PyTorch، GPUs، training pipelines | LLM APIs/Ollama، prompts، vector DBs، RAG، agents، evals |
+| **الرياضيات** | Statistics كتير | Linear algebra، calculus | **شبه مفيش**. فهم سلوكي للموديل |
+| **أقرب لـ** | Analyst | Researcher/Engineer | **Backend engineer** |
 
-uv --version
+شغل الـ AI Engineer اليومي (وده ترتيب الـ roadmap تقريباً):
+1. **يختار الموديل:** cloud ولا local؟ أنهي واحد؟ (quality / cost / latency / privacy) ← Step 03
+2. **يكلّمه من الكود:** APIs، streaming، structured output ← Step 04
+3. **يكتب التعليمات صح:** prompt engineering ← Step 05
+4. **يحمي النظام:** prompt injection، الداتا الحساسة ← Step 06
+5. **يربطه بداتا الشركة:** embeddings، vector DBs، **RAG** ← Steps 07–09
+6. **يخلّيه ينفّذ actions:** tools، agents، MCP ← Steps 10–12
+7. **يقيس الجودة:** evals ← Step 14
+8. **يوصّله للـ production:** deployment، monitoring، cost ← Step 15
+
+### ⚠️ أخطاء شائعة
+- **Job descriptions ملخبطة:** شركات كتير بتكتب "AI Engineer" وهي عايزة ML Engineer. لو المتطلبات فيها PyTorch training و model architectures، يبقى ML.
+- **"الشغل كله prompts":** الـ prompt جزء صغير. أغلب الشغل backend engineering عادي: pipelines، APIs، error handling، testing، deployment. **خبرتك في Laravel و Java هتفرق معاك جداً هنا.**
+
+---
+
+## 6. شكل نظام AI حقيقي
+
+### يعني إيه؟
+خلّينا نجمّع كل اللي فات في مثال واحد هنبنيه على مراحل في الـ roadmap: **"مساعد داخلي بيجاوب الموظفين من documents الشركة"**.
+
+### إزاي بيشتغل؟
+```
+                        ┌──────────────────────── Ingestion (offline) ── Steps 07–09 ─┐
+                        │  PDFs / Wiki / DB ──► Chunking ──► Embeddings ──► Vector DB │
+                        └──────────────────────────────────────────────────┬──────────┘
+                                                                           │
+ ┌──────┐   ┌──────────────┐   ┌───────────┐   ┌──────────────────┐   ┌────▼──────┐   ┌─────┐   ┌──────────────┐
+ │ User │──►│ API (FastAPI)│──►│ Guardrails│──►│ Retrieve relevant│──►│ Build     │──►│ LLM │──►│ Validate     │──► Answer
+ └──────┘   │   Step 15    │   │  Step 06  │   │ chunks  Step 09  │   │ prompt 05 │   │ 03/04│  │ output 04/06 │  + sources
+            └──────────────┘   └───────────┘   └──────────────────┘   └───────────┘   └──┬──┘   └──────────────┘
+                                                                                         │ ▲
+                                                                                  ┌──────▼─┴─────┐
+                                                                                  │ Tools / APIs │ Steps 10–12
+                                                                                  └──────────────┘
+ ───────────────────────── Logging · Evals · Cost · Monitoring (Steps 14–15) ─────────────────────────
 ```
 
-**ب) مشروع جديد بـ `uv`** (ده الـ workflow اللي هنستخدمه في المشاريع بتاعتنا):
-```bash
-uv init my-ai-app          # بيعمل pyproject.toml + main.py + .python-version
-cd my-ai-app
-uv add anthropic python-dotenv   # بيضيفهم لـ pyproject.toml ويعمل .venv و uv.lock
-uv run main.py             # بيشغّل جوه الـ venv من غير activate
-```
-
-| الأمر | المقابل القديم |
+| الجزء | بيعمل إيه |
 |---|---|
-| `uv init` | عمل الفولدر و `requirements.txt` بإيدك |
-| `uv add pkg` | `pip install pkg` + تعديل requirements بإيدك |
-| `uv run file.py` | `source .venv/bin/activate && python file.py` |
-| `uv python install 3.12` | `pyenv install 3.12` |
-| `uv.lock` | نسخ دقيقة لكل dependency ← نفس البيئة عند أي حد |
+| **Ingestion** | بيجهّز الداتا مرة واحدة: يقسّمها ويحوّلها لـ vectors ويخزّنها |
+| **Guardrails** | يرفض الأسئلة الخطيرة أو محاولات التلاعب (prompt injection) |
+| **Retrieve** | يجيب أنسب أجزاء من الداتا للسؤال |
+| **Build prompt** | تعليمات + الأجزاء + السؤال |
+| **LLM** | cloud أو local، **قابل للتبديل** |
+| **Validate output** | يتأكد إن الإجابة بالـ format الصح ومعاها مصدر |
+| **Tools** | لو محتاج ينفّذ حاجة: يكلّم API، يعمل query |
+| **Observability** | logs، تكلفة كل request، evals مستمرة |
 
-**ج) تشغيل أمثلة الخطوة دي** (فيها `requirements.txt` بدل `pyproject.toml`):
+لاحظ إن الـ LLM **صندوق واحد بس** من كذا صندوق. الباقي كله engineering، وده شغلك.
+
+### ⚠️ أخطاء شائعة
+- **تبدأ بالـ RAG على طول:** لو الداتا صغيرة، حطها في الـ prompt وخلاص. ابدأ بأبسط حل واعقّد لما تحتاج.
+- **تنسى الـ evals:** "جرّبته 3 مرات واشتغل" مش قياس. لازم يبقى عندك أسئلة ثابتة وإجاباتها الصح عشان تعرف أي تعديل حسّن ولا بوّظ.
+
+---
+
+## 🛠️ تطبيق عملي (Hands-on) — اختياري: LLM على جهازك بـ Ollama
+
+الهدف إنك **تشوف بعينك** الخصائص اللي اتكلمنا عنها: الموديل بيرد، ميعرفش داتا الشركة، وبيجاوب صح لما تدّيله المستند. مجاني ومن غير API key، والداتا مبتخرجش من جهازك.
+
+### 1) تسطيب Ollama
+- **Windows / macOS:** نزّل البرنامج من [ollama.com/download](https://ollama.com/download) وسطّبه عادي. بيشتغل في الخلفية لوحده.
+- **Linux:** `curl -fsSL https://ollama.com/install.sh | sh`
+
+### 2) نزّل موديل وجرّبه من الـ terminal
+```bash
+ollama pull qwen2.5:3b     # موديل صغير (~2GB) وكويس نسبياً في العربي
+ollama run qwen2.5:3b      # chat تفاعلي — اكتب سؤال، و /bye للخروج
+```
+> لو جهازك قوي (16GB RAM أو أكتر) جرّب `qwen2.5:7b`: هيبقى أذكى بشكل ملحوظ.
+
+### 3) الموديل = HTTP API على localhost
+Ollama بيشغّل server على `http://localhost:11434`. جرّبه بـ curl زي أي API:
+```bash
+curl http://localhost:11434/api/chat -d '{
+  "model": "qwen2.5:3b",
+  "messages": [{"role": "user", "content": "يعني إيه LLM في جملة واحدة؟"}],
+  "stream": false
+}'
+```
+هيرجعلك JSON فيه `message.content`، وده رد الموديل.
+
+### 4) نفس الكلام من Python
 ```bash
 cd steps/01-introduction/examples
-uv venv                               # يعمل .venv
-uv pip install -r requirements.txt    # يسطّب الـ dependencies
-uv run check_env.py
+python -m venv .venv
+source .venv/bin/activate          # على Windows: .venv\Scripts\activate
+pip install -r requirements.txt    # بيسطّب httpx بس (HTTP client، شبه Http facade في Laravel)
+
+python ask_local_llm.py "اشرحلي يعني إيه hallucination"
+python company_data_demo.py
 ```
 
-**د) الحصول على API key:**
-1. ادخل على [Claude Console](https://console.anthropic.com/) واعمل account.
-2. من **Settings → API Keys** اعمل key جديد (بيبدأ بـ `sk-ant-...`). **هيظهر مرة واحدة بس** — انسخه.
-3. ضيف رصيد (credits) أو استخدم الـ free credits لو متاحة، وحط **spending limit** عشان متتفاجئش.
-
-**هـ) تخزين الـ key في `.env`:**
-```bash
-cp .env.example .env
-# افتح .env وحط الـ key:
-# ANTHROPIC_API_KEY=sk-ant-...
-```
-
-الـ `.gitignore` في الريبو فيه `.env` أصلاً، فمش هيترفع. اتأكد بنفسك:
-```bash
-git check-ignore -v .env    # لازم يطبع السطر اللي في .gitignore
-```
-
-**و) الكود بيقرا الـ key إزاي:**
-```python
-from dotenv import load_dotenv
-import anthropic
-
-load_dotenv()                  # يقرا .env ويحط القيم في os.environ
-client = anthropic.Anthropic() # يدوّر على ANTHROPIC_API_KEY لوحده
-```
-مفيش ولا مكان في الكود فيه الـ key نفسه. ده **القاعدة** مش اختيار.
-
-### مثال عملي
-[`examples/check_env.py`](examples/check_env.py) بيفحص كل ده ويقولك إيه ناقص — **من غير ما يطبع الـ key** (بيعمله mask):
-```
-— فحص البيئة —
-✅ Python 3.12.4
-✅ package: anthropic
-✅ package: python-dotenv
-✅ لقيت ملف .env
-✅ ANTHROPIC_API_KEY موجود (sk-ant-...x9Qa)
-
-🎉 البيئة جاهزة. جرّب: uv run hello_claude.py
-```
-
-### ⚠️ أخطاء شائعة
-- **`api_key="sk-ant-..."` في الكود:** أشهر غلطة. bots بتمسح GitHub كل دقيقة بتدوّر على keys. لو حصل: **اعمل revoke للـ key فوراً من الـ Console** — مسح الـ commit مش كفاية لأنه موجود في الـ history.
-- **تطبع الـ key في logs أو error messages:** استخدم mask زي `check_env.py`.
-- **`.env` اتعمله commit قبل ما تضيفه لـ `.gitignore`:** الـ `.gitignore` مبيأثرش على ملفات متتبّعة أصلاً. لازم `git rm --cached .env` + revoke للـ key.
-- **تسطّب packages في الـ Python بتاع النظام:** دايماً virtual environment (و `uv` بيعمل ده لوحده).
-- **تنسى إن فيه تكلفة:** كل call بيتحسب بالـ tokens. حط spending limit من أول يوم.
-
----
-
-## 6. أول API call لـ Claude
-
-### يعني إيه؟
-الـ **LLM API** عبارة عن HTTP endpoint: بتبعتله request فيه (الموديل + الرسايل)، بيرجّعلك response فيه (رد الموديل + معلومات الاستهلاك). الـ **SDK** (`anthropic`) بيغلّف ده في Python functions سهلة.
-
-### إزاي بيشتغل؟
-```
-Your code ──► POST https://api.anthropic.com/v1/messages
-              { model, max_tokens, messages: [{role: "user", content: "..."}] }
-          ◄── { content: [{type: "text", text: "..."}], stop_reason, usage: {input_tokens, output_tokens} }
-```
-
-أهم الحاجات في الـ request:
-| الـ parameter | يعني إيه |
+| الملف | بيعمل إيه |
 |---|---|
-| `model` | أنهي موديل. هنا `claude-opus-5` (الأقوى في الاستخدام العام). بدائل: `claude-sonnet-5` (توازن سعر/جودة)، `claude-haiku-4-5` (الأرخص والأسرع) |
-| `max_tokens` | أقصى طول للرد (بالـ tokens). لو الرد وصله بيتقطع |
-| `messages` | المحادثة: list من `{"role": "user" \| "assistant", "content": "..."}` |
-| `system` | (اختياري) تعليمات عامة للموديل — شفناه في `ai_app_anatomy.py` |
+| [`local_llm.py`](examples/local_llm.py) | function واحدة `chat()` بتبعت POST لـ Ollama وترجّع الرد، ومعاها رسايل خطأ واضحة |
+| [`ask_local_llm.py`](examples/ask_local_llm.py) | يسأل الموديل سؤال واحد |
+| [`company_data_demo.py`](examples/company_data_demo.py) | نفس السؤال عن شركة وهمية: مرة من غير مستند، ومرة معاه (فكرة RAG) |
 
-وأهم الحاجات في الـ response:
-| الحقل | يعني إيه |
-|---|---|
-| `content` | **list** من blocks (مش string!) — كل block ليه `type`؛ النص في الـ blocks اللي `type == "text"` |
-| `stop_reason` | الموديل وقف ليه: `end_turn` (خلّص طبيعي)، `max_tokens` (اتقطع)، `refusal` (رفض)، `tool_use` (عايز يستخدم tool — Step 10) |
-| `usage` | عدد الـ `input_tokens` و `output_tokens` — **دي اللي بتتحاسب عليها** |
-
-### مثال عملي
-[`examples/hello_claude.py`](examples/hello_claude.py) — الجزء الأساسي:
-```python
-import anthropic
-from dotenv import load_dotenv
-
-load_dotenv()
-client = anthropic.Anthropic()
-
-response = client.messages.create(
-    model="claude-opus-5",
-    max_tokens=1024,
-    messages=[{"role": "user", "content": "عرّفني بنفسك في جملتين."}],
-)
-
-if response.stop_reason == "refusal":
-    raise SystemExit("الموديل رفض الطلب")
-
-answer = "".join(block.text for block in response.content if block.type == "text")
-print(answer)
-print(response.usage.input_tokens, response.usage.output_tokens)
+الـ output المتوقع من `company_data_demo.py` (الإجابات بتختلف من مرة للتانية لأن الموديل probabilistic):
 ```
+━━━ 1) من غير أي مستند ━━━
+آسف، معنديش معلومات عن سياسات شركة نيلوس...   ← أو إجابة متألّفة (hallucination)!
 
-التشغيل:
-```bash
-uv run hello_claude.py
-uv run hello_claude.py "اشرحلي يعني إيه AI Engineer في جملتين"
+━━━ 2) مع المستند (فكرة RAG) ━━━
+الإجازة السنوية 24 يوم عمل، والشغل من البيت يوم الثلاثاء والخميس.
 ```
-
-الملف الكامل كمان بيتعامل مع الـ errors الأساسية (`AuthenticationError`، `RateLimitError`، `APIConnectionError`) وبيطبع الـ usage.
-
-> 🔁 **البدائل:** نفس الفكرة بالظبط مع OpenAI (`openai` SDK) أو Google Gemini (`google-genai`) أو موديلات local عن طريق Ollama — الشكل: client ← create(model, messages) ← response. هنقارن بينهم في Step 03.
-
-### ⚠️ أخطاء شائعة
-- **`response.content[0].text` على طول:** الـ `content` list وممكن يبقى فيها blocks مش text (زي thinking أو tool_use)، أو يبقى الرد refusal. فلتر بالـ `type` واتأكد من `stop_reason` الأول.
-- **`max_tokens` صغير أوي:** الرد يتقطع في النص. لو `stop_reason == "max_tokens"` زوّده.
-- **تتجاهل الـ `usage`:** من أول call اتعوّد تبص على عدد الـ tokens — ده اللي هيحدد تكلفة منتجك.
-- **تكتب اسم الموديل غلط أو بتاريخ قديم من الإنترنت:** استخدم الأسماء من [صفحة الموديلات الرسمية](https://docs.anthropic.com/en/docs/about-claude/models).
-
----
-
-## 🛠️ تطبيق عملي (Hands-on)
-المطلوب تمشي على الخطوات دي بالترتيب:
-
-1. **سطّب `uv`** وتأكد بـ `uv --version`.
-2. **جهّز الأمثلة:**
-   ```bash
-   cd steps/01-introduction/examples
-   uv venv && uv pip install -r requirements.txt
-   ```
-3. **شغّل الـ pipeline من غير API key:** `uv run ai_app_anatomy.py --mock` واقرا الكود وحدد كل طبقة من الـ 4.
-4. **اعمل API key** وحطه في `.env`، وشغّل `uv run check_env.py` لحد ما كله يبقى ✅.
-5. **أول call:** `uv run hello_claude.py` وبص على الـ tokens.
-6. **الـ pipeline الحقيقي:** `uv run ai_app_anatomy.py` (من غير `--mock`) وقارن الـ summaries بتاعة Claude بالـ mock.
-
-| الملف | بيعمل إيه | محتاج API key؟ |
-|---|---|:---:|
-| [`check_env.py`](examples/check_env.py) | يفحص Python والـ packages والـ `.env` والـ key | لأ |
-| [`hello_claude.py`](examples/hello_claude.py) | أول API call + error handling + usage | آه |
-| [`ai_app_anatomy.py`](examples/ai_app_anatomy.py) | AI app كامل بسيط (4 طبقات) مع mock mode | لأ مع `--mock` |
 
 ## 🧪 تمارين
-1. **جدول أدوار:** اختار 3 job postings حقيقية عنوانها "AI Engineer" وصنّف كل واحدة: هي فعلاً AI Engineer ولا ML Engineer متنكّر؟ على أساس إيه؟
-2. **AI ولا لأ؟** لكل مشكلة قول هتحلها بـ LLM ولا بكود عادي وليه: (أ) التحقق من رقم قومي، (ب) الرد على review سلبي بنبرة مهذبة، (ج) ترجمة واجهة التطبيق، (د) حساب الضريبة، (هـ) استخراج مهارات من CV.
-3. **Anatomy:** ضيف لـ `ai_app_anatomy.py` category جديدة `"shipping"` (للشحن والتوصيل) — عدّل `CATEGORIES` والـ mock، وجرّب بتذكرة "الأوردر بتاعي متأخر أسبوع". لاحظ إن الـ `SYSTEM_PROMPT` اتحدّث لوحده.
-4. **Observability بسيطة:** عدّل `hello_claude.py` يحسب **التكلفة التقريبية** للـ call بالدولار (اضرب الـ tokens في أسعار الموديل من [صفحة الأسعار](https://www.anthropic.com/pricing)).
-5. **جرّب موديلات:** شغّل نفس السؤال على `claude-opus-5` و `claude-haiku-4-5` وقارن: الجودة، السرعة (استخدم `time.perf_counter()`)، وعدد الـ tokens.
-6. **Secret hygiene:** اعمل ملف `test.env` فيه key وهمي، واعمل `git status` — بيظهر؟ ليه؟ إزاي تصلّحها؟ (تلميح: بص على `.gitignore`).
+1. **صنّف:** لكل مشكلة قول هتحلها بكود عادي، ولا ML تقليدي، ولا LLM، وليه: (أ) التحقق من رقم قومي، (ب) توقّع المبيعات الشهر الجاي من مبيعات 3 سنين، (ج) الرد على review سلبي بنبرة مهذبة، (د) استخراج المهارات من CV، (هـ) حساب مرتب موظف.
+2. **Hallucination:** اسأل الموديل المحلي عن حاجة مش موجودة، زي "لخّصلي كتاب *أسرار Laravel الخفية* لمؤلفه أحمد سمير" (كتاب وهمي). ألّف؟ جرّب نفس السؤال 3 مرات؛ الإجابات اتغيّرت؟ ليه؟
+3. **Stateless:** في `ask_local_llm.py` اسأل "اسمي كريم"، وبعدين شغّله تاني واسأل "اسمي إيه؟". إيه اللي حصل؟ عدّل الكود يخلّي الموديل "يفتكر"، من غير ما تغيّر `local_llm.py`. (تلميح: `messages` list.)
+4. **مستند أكبر:** زوّد `HR_POLICY` في `company_data_demo.py` بـ 5 بنود جديدة، واسأل أسئلة عنها، واسأل كمان سؤال **مش موجود** في المستند. الموديل قال "مش موجود في المستند" ولا ألّف؟
+5. **قرار حقيقي:** بنك عايز chatbot للموظفين على الـ policies الداخلية. اكتب نص صفحة: cloud ولا self-hosted؟ ولو cloud، إيه الشروط؟ ولو self-hosted، إيه التكلفة والتحديات؟
+6. **Job descriptions:** هات 3 إعلانات وظايف عنوانها "AI Engineer" وقول كل واحد فيهم AI Engineer فعلاً ولا ML Engineer، وليه.
 
 ## ❓ أسئلة مراجعة (Interview-style)
 
-<details><summary>1. إيه الفرق بين AI Engineer و ML Engineer؟</summary>
+<details><summary>1. إيه الفرق بين AI و ML و Deep Learning و LLM؟</summary>
 
-الـ ML Engineer بيدرّب ويحسّن ويستضيف الموديلات نفسها (data، training، model architecture، GPUs). الـ AI Engineer بيبني منتجات فوق موديلات جاهزة: بيختار الموديل، يكتب الـ prompts، يبني RAG و tools و agents، يعمل evals، ويعمل deploy. الـ ML Engineer بيبدأ من الـ data وينتهي بموديل؛ الـ AI Engineer بيبدأ من الموديل وينتهي بمنتج.
+كل واحد جوه اللي قبله. **AI** أي نظام بيحاكي الذكاء. **ML** نوع من الـ AI بيتعلّم القواعد من الـ data بدل ما نكتبها. **Deep Learning** هو ML بـ neural networks كبيرة. **Generative AI** موديلات بتولّد محتوى جديد. **LLM** نوع من الـ GenAI متخصص في النص.
 </details>
 
-<details><summary>2. ارسم الـ architecture بتاعة AI app بسيط واشرح كل جزء.</summary>
+<details><summary>2. الـ LLM بيشتغل إزاي؟ وليه بيعمل hallucination؟</summary>
 
-Input validation ← Prompt building (+ context من RAG/memory) ← LLM call (مع retries/errors) ← Output parsing & validation ← response. وممكن loop مع Tools لو الموديل محتاج ينفّذ actions. وحوالين كله: logging، monitoring، cost tracking، evals. النقطة المهمة: الـ LLM call جزء صغير؛ الـ reliability بتيجي من باقي الطبقات.
+بيتوقّع الـ token الجاي بناءً على احتمالات اتعلّمها من كمية نصوص ضخمة، ويكرر لحد ما يخلّص. هو مش بيدوّر في قاعدة بيانات حقائق، هو بيولّد النص "الأكثر احتمالاً". فلو ميعرفش الإجابة، ممكن يولّد نص شكله مقنع بس غلط. الحل إننا ندّيله المعلومة الصح في الـ prompt (RAG) ونطلب منه يجاوب منها بس.
 </details>
 
-<details><summary>3. ليه متثقش في output الـ LLM على طول؟ وإزاي تحمي نفسك؟</summary>
+<details><summary>3. عايزين الموديل يجاوب من documents الشركة. إيه الحلول؟ وتختار أنهي واحد؟</summary>
 
-لأن الموديل probabilistic: ممكن يرجّع format غلط، قيمة مش في القائمة المسموحة، أو معلومة غلط (hallucination). الحماية: structured outputs، validation للـ output (schema + قيم مسموحة)، fallback values، retries، وevals بتقيس معدّل الغلط.
+(1) تحط الـ documents في الـ prompt لو صغيرة. (2) **RAG**: تدوّر على الأجزاء المناسبة وتبعتها مع السؤال، وده الأنسب للداتا الكبيرة والمتغيّرة. (3) Fine-tuning: مناسب لتغيير الأسلوب أو الـ format، مش لإضافة معلومات. الترتيب: ابدأ بالأبسط، وغالباً RAG هو الحل.
 </details>
 
-<details><summary>4. هتخزّن API keys إزاي في مشروع؟ ولو key اترفع على GitHub بالغلط تعمل إيه؟</summary>
+<details><summary>4. هل RAG بيدرّب الموديل على داتا الشركة؟</summary>
 
-في environment variables (محلياً عن طريق `.env` متجاهَل في git، وفي الـ production عن طريق secrets manager). ولا key في الكود أبداً. لو اترفع: **revoke فوراً** من الـ Console واعمل key جديد — مسح الـ commit مش كفاية لأنه موجود في الـ history وممكن يكون اتسحب خلاص.
+لأ. الموديل مبيتغيّرش خالص. الـ RAG بيدوّر في الداتا وقت السؤال ويبعت الأجزاء المناسبة جوه الـ prompt. عشان كده تحديث الداتا بيبان فوراً، ونفس الـ pipeline يشتغل مع أي موديل.
 </details>
 
-<details><summary>5. إمتى تقول "لأ، مش هنستخدم LLM هنا"؟</summary>
+<details><summary>5. الشركة عندها داتا حساسة. Cloud API ولا local LLM؟</summary>
 
-لما فيه حل deterministic واضح (قواعد، regex، SQL، حسابات)، لما محتاج نفس النتيجة بالظبط كل مرة، لما الـ latency أو التكلفة مش مقبولين، أو لما الغلطة كارثية ومفيش human review. الـ LLM مناسب للغة الطبيعية غير المنظّمة والمهام اللي فيها "فهم".
+يعتمد على المطلوب **بالظبط**. لو القانون بيمنع الداتا تخرج نهائياً، يبقى self-hosted مع تكلفة GPUs وتشغيل وجودة أقل. لو المطلوب إن الداتا متتخزنش ومتستخدمش في التدريب، يبقى cloud API مع Zero Data Retention، أو الموديل جوه الـ cloud account بتاع الشركة (Bedrock / Vertex / Azure). وفي الحالتين، خلّي الـ LLM قابل للتبديل في الكود.
 </details>
 
-<details><summary>6. إيه أهم الحقول في response الـ Messages API؟</summary>
+<details><summary>6. إيه الفرق بين AI Engineer و ML Engineer؟</summary>
 
-`content` (list من blocks — النص في الـ `type == "text"`)، `stop_reason` (`end_turn` / `max_tokens` / `refusal` / `tool_use`)، و `usage` (`input_tokens` و `output_tokens` اللي بتتحاسب عليهم).
+الـ ML Engineer بيدرّب ويحسّن ويستضيف الموديلات نفسها. الـ AI Engineer بيبني منتجات فوق موديلات جاهزة: بيختار الموديل، يكتب الـ prompts، يبني RAG و tools و agents، يقيس الجودة، ويعمل deploy. الأول بيبدأ من الـ data وينتهي بموديل؛ التاني بيبدأ من الموديل وينتهي بمنتج.
 </details>
 
-<details><summary>7. ليه `uv` بدل `pip` + `venv`؟</summary>
+<details><summary>7. يعني إيه الـ LLM stateless؟ وإزاي الـ chatbot بيفتكر المحادثة؟</summary>
 
-أداة واحدة بتدير نسخة Python والـ venv والـ packages، أسرع بمراحل، وبتعمل `uv.lock` بيضمن إن كل الناس (والـ server) عندهم نفس النسخ بالظبط، و `uv run` بيشغّل جوه الـ venv من غير activate.
+كل request مستقل والموديل مبيحتفظش بأي حاجة بين الـ requests، زي HTTP. الـ chatbot بيفتكر لأن التطبيق بيخزّن المحادثة ويبعتها كلها مع كل رسالة جديدة، وده بيستهلك من الـ context window ومن التكلفة.
 </details>
 
 ## 📌 الملخص (Cheat Sheet)
 | المفهوم | في جملة واحدة |
 |---|---|
-| AI Engineer | بيبني منتجات فوق موديلات جاهزة عن طريق APIs — مش بيدرّب موديلات |
-| ML Engineer | بيدرّب ويحسّن ويستضيف الموديلات نفسها |
-| Foundation model | موديل كبير متدرّب مسبقاً ينفع لمهام كتير من غير تدريب إضافي |
-| AI app anatomy | Input validation ← Prompt ← LLM ← Output validation (+ Tools + Observability) |
-| متى AI | لغة طبيعية/مهام "فهم"؛ مش للحسابات والقواعد الواضحة |
-| `uv` | أداة واحدة للـ Python versions + venvs + packages، سريعة وبـ lockfile |
-| `.env` | ملف secrets محلي، متجاهَل في git، بيتقري بـ `python-dotenv` |
-| API key | باسورد بيتحسب عليه الاستهلاك — عمره ما يدخل الكود أو الـ git |
-| `messages.create` | `model` + `max_tokens` + `messages` ← `content` + `stop_reason` + `usage` |
-| `stop_reason` | اتأكد منه قبل ما تقرا الـ `content` |
-
-**أوامر مهمة:**
-```bash
-uv init app && cd app && uv add anthropic python-dotenv && uv run main.py
-cp .env.example .env
-git check-ignore -v .env
-```
+| AI ⊃ ML ⊃ DL ⊃ GenAI ⊃ LLM | كل واحد جوه اللي قبله |
+| LLM | function بتتوقّع الـ token الجاي، اتدرّبت على نصوص ضخمة |
+| Foundation model | موديل عام واحد ينفع لمهام كتير من غير تدريب إضافي |
+| Hallucination | الموديل بيألّف إجابة واثقة وغلط لما ميعرفش |
+| Knowledge cutoff | معرفة الموديل واقفة عند تاريخ معيّن |
+| Stateless | كل request مستقل؛ الـ memory مسؤوليتك |
+| Context window | أقصى نص يقدر يشوفه الموديل في request واحد |
+| RAG | دوّر على المعلومة المناسبة وابعتها مع السؤال. **الموديل مبيتدرّبش** |
+| Fine-tuning | تدريب إضافي للموديل. آخر حل، ومش لإضافة معلومات |
+| Cloud API | جودة أعلى وبداية سريعة؛ الداتا بتروح للـ provider (مع ضمانات) |
+| Local / Self-hosted | الداتا مبتخرجش؛ جودة أقل وتكلفة تشغيل |
+| Ollama | أداة لتشغيل open-weight models local كـ HTTP API على `localhost:11434` |
+| AI Engineer | بيبني منتجات فوق موديلات جاهزة؛ أقرب لـ backend engineer |
 
 ## 📚 مصادر إضافية
-- [Anthropic — Get started with Claude](https://docs.anthropic.com/en/docs/get-started)
-- [Anthropic — Models overview](https://docs.anthropic.com/en/docs/about-claude/models)
-- [Anthropic — Building effective agents](https://www.anthropic.com/engineering/building-effective-agents) (مقدمة ممتازة لطريقة تفكير الـ AI Engineer)
-- [Anthropic Python SDK](https://github.com/anthropics/anthropic-sdk-python)
-- [uv documentation](https://docs.astral.sh/uv/)
-- [Chip Huyen — *AI Engineering* (O'Reilly, 2025)](https://www.oreilly.com/library/view/ai-engineering/9781098166298/) — Chapter 1 بالذات
+- [Chip Huyen — *AI Engineering* (O'Reilly, 2025)](https://www.oreilly.com/library/view/ai-engineering/9781098166298/). الفصل الأول بالذات، أحسن مقدمة للمجال.
+- [3Blue1Brown — Large Language Models explained briefly](https://www.youtube.com/watch?v=LPZh9BOjkQs). فيديو قصير ومرئي عن الـ LLM بيشتغل إزاي، من غير رياضيات.
+- [Andrej Karpathy — Intro to Large Language Models](https://www.youtube.com/watch?v=zjkBMFhNj_g). ساعة، ومن أحسن المقدمات.
+- [Anthropic — Building effective agents](https://www.anthropic.com/engineering/building-effective-agents). طريقة تفكير الـ AI Engineer في بناء الأنظمة.
+- [Ollama](https://ollama.com/) و [Ollama API docs](https://github.com/ollama/ollama/blob/main/docs/api.md)
 - [Latent Space — The Rise of the AI Engineer](https://www.latent.space/p/ai-engineer)
 
 ## ✅ Checklist
-- [ ] أقدر أشرح الفرق بين AI Engineer و ML Engineer و Data Scientist في دقيقة
-- [ ] أقدر أرسم الـ anatomy بتاعة AI app من الذاكرة
-- [ ] سطّبت `uv` وعملت مشروع بـ `uv init` / `uv add`
-- [ ] عندي API key في `.env` و `check_env.py` كله ✅
-- [ ] شغّلت `hello_claude.py` وفهمت `content` و `stop_reason` و `usage`
-- [ ] شغّلت `ai_app_anatomy.py` بالـ mock وبالـ API الحقيقي
+- [ ] أقدر أشرح الفرق بين AI / ML / DL / GenAI / LLM
+- [ ] أقدر أشرح ليه الـ LLM بيعمل hallucination وليه ميعرفش داتا الشركة
+- [ ] فاهم الفرق بين Context و RAG و Fine-tuning، وإن RAG مش بيدرّب الموديل
+- [ ] أقدر أقرر cloud ولا local وأبرر القرار
+- [ ] أقدر أشرح دور الـ AI Engineer وأفرّقه عن ML Engineer
+- [ ] أقدر أرسم نظام "chatbot على documents الشركة" من الذاكرة
+- [ ] (اختياري) شغّلت موديل local بـ Ollama وجرّبت `company_data_demo.py`
 - [ ] حليت التمارين
