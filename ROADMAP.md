@@ -8,7 +8,7 @@
 
 | الحالة | # | Branch | الموضوع | أهم النقاط |
 |:---:|:---:|---|---|---|
-| ⬜ | 01 | `step/01-introduction` | مقدمة للـ AI Engineering | مين هو الـ AI Engineer، الفرق بينه وبين ML Engineer و Data Scientist، شكل الـ AI app، تجهيز البيئة (uv, .env, API keys) |
+| 🟡 | 01 | `step/01-introduction` | مقدمة للـ AI Engineering | مين هو الـ AI Engineer، الفرق بينه وبين ML Engineer و Data Scientist، شكل الـ AI app، تجهيز البيئة (uv, .env, API keys) |
 | ⬜ | 02 | `step/02-llm-fundamentals` | أساسيات الـ LLMs (من منظور المستخدم) | Tokens، Context window، Temperature/Top-p، Hallucination، Knowledge cutoff، قيود الموديلات |
 | ⬜ | 03 | `step/03-models-and-providers` | الموديلات والـ Providers | Closed vs Open models، Anthropic/OpenAI/Google، Hugging Face، Ollama (local)، اختيار الموديل (quality/cost/latency) |
 | ⬜ | 04 | `step/04-llm-apis` | التعامل مع LLM APIs | Claude API، Messages & roles، System prompt، Streaming، Structured output (pydantic)، async، Rate limits، Prompt caching |
