@@ -4,18 +4,18 @@
 
 ## الحالة الحالية
 - **الخطوة الحالية:** 01 — مقدمة: يعني إيه AI Engineering 🟡
-- **آخر حاجة خلصت:** شرح المصدر 1 (*AI Engineering* Ch.1) في [`steps/01-introduction/notes/01-chip-huyen-ch1.md`](../steps/01-introduction/notes/01-chip-huyen-ch1.md)، و concepts الفصل اتضافت في [`concepts.md`](concepts.md).
+- **آخر حاجة خلصت:** شرح المصدر 2 (فيديو Karpathy) في [`steps/01-introduction/notes/02-karpathy-intro-to-llms.md`](../steps/01-introduction/notes/02-karpathy-intro-to-llms.md)، و concepts الفيديو اتضافت في [`concepts.md`](concepts.md). (المصدر 1، الفصل الأول، اتعمله merge.)
 - **مستنيين منك:**
-  1. تعمل push للـ branch `step/01-introduction`، وتفتح PR، وتعمل merge.
-  2. تقرا الفصل الأول مع الشرح، وتجاوب أسئلة الفهم.
-  3. تقولّي أبدأ شرح المصدر 2 (فيديو Karpathy).
-- **الجاي:** شرح فيديو Karpathy، وبعده مقال swyx (مصدر مصدر).
-- **التاسكات:** Task 0 و 1 و 2 تقدر تبدأهم دلوقتي. و Task 5 و 6 بقوا متاحين بعد الفصل الأول. و Task 3 و 4 بعد شرح Karpathy.
+  1. تعمل commit و push للشرح، وتفتح PR، وتعمل merge.
+  2. تتفرّج على الفيديو مع الشرح، وتجاوب أسئلة الفهم.
+  3. تقولّي أبدأ شرح المصدر 3 (مقال swyx).
+- **الجاي:** شرح مقال swyx، وبكده مواد Step 01 تخلص.
+- **التاسكات:** كل التاسكات (0–6) بقت متاحة. و Task 3 و 4 معتمدين على شرح Karpathy.
 
 ## سجل الخطوات
 | الخطوة | المواد (notes + tasks) | شغلك (PR) | ملاحظات |
 |---|:---:|:---:|---|
-| 01 — مقدمة | 🟡 المصدر 1 من 3 اتشرح | ⬜ | التاسكات جاهزة |
+| 01 — مقدمة | 🟡 المصدر 2 من 3 اتشرح | ⬜ | التاسكات جاهزة |
 
 ## البيئة
 - الجهاز: Windows 11 + PyCharm
