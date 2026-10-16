@@ -23,10 +23,10 @@ class ChatResult:
     duration_seconds: float
 
 def convert_from_nanoseconds_to_seconds(nanoseconds: int) -> float:
-    return nanoseconds / 1000000000
+    return nanoseconds / 1e9
 
 def chat(messages: list[dict[str, str]], model: str | None = None) -> ChatResult:
-    """Send a chat request to the LLM client and return the response."""
+    """Send a chat request to the LLM client and return ChatResult."""
     model = model or OLLAMA_MODEL
     url = OLLAMA_URL + "/api/chat"
 
@@ -42,10 +42,10 @@ def chat(messages: list[dict[str, str]], model: str | None = None) -> ChatResult
         )
 
     except httpx.ConnectError as e:
-        raise LLMError(f"Error sending chat request: Please check your network connection and ensure that the Ollama server is running.")
+        raise LLMError(f"Error sending chat request: Please check your network connection and ensure that the Ollama server is running. from {e}")
 
     if response.status_code == 404:
-        raise LLMError(f"Model not found: {model}, Please check your model name and ensure that the model is installed.")
+        raise LLMError(f"Model not found: {model}, Please check your model name and ensure that the model is installed, run `ollama pull {model}`")
 
     response.raise_for_status()
     data = response.json()
@@ -59,6 +59,6 @@ def chat(messages: list[dict[str, str]], model: str | None = None) -> ChatResult
 
 
 if __name__ == "__main__":
-    chat_result = chat([{"role": "user", "content": "ما هى عاصمة مصر"}])
+    chat_result = chat([{"role": "user", "content": "اشرحلى اكثر تاريخ اثارة فى القاهرة فى 5 فقرات"}])
     print(chat_result.text)
-    print(f"in: {chat_result.input_tokens} | out: {chat_result.output_tokens} | {chat_result.duration_seconds}")
+    print(f"in: {chat_result.input_tokens} tokens | out: {chat_result.output_tokens} tokens | {chat_result.duration_seconds}")
