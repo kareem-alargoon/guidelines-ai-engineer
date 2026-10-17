@@ -6,11 +6,11 @@ here = Path(__file__).parent
 work = here.parent
 data = work / "data"
 policy = data / "company_policy.md"
-context = policy.read_text(encoding="utf-8")
+policy_text = policy.read_text(encoding="utf-8")
 
 system_prompt = f"""انت مساعد لموظفين شركة نَسَق. جاوب من المستند اللي تحت بس. لو الإجابة مش في المستند، قول إنك مش عارف، ومتألّفش.
 <document>
-{context}
+{policy_text}
 </document>
 """
 
@@ -23,15 +23,15 @@ questions = [
 ]
 
 for i, question in enumerate(questions, start=1):
-    print("من غير المستند: ----------------------------------------")
-    chat_result = chat([{"role": Role.USER.value, "content": question}])
-    print(f"السؤال ({i}): " + question)
-    print(chat_result.text)
-
-    print("بالمستند: ----------------------------------------")
-    chat_result = chat([
+    without_document = chat([{"role": Role.USER.value, "content": question}])
+    with_document = chat([
         {"role": Role.SYSTEM.value, "content": system_prompt},
         {"role": Role.USER.value, "content": question},
     ])
-    print(f"السؤال ({i}): " + question)
-    print(chat_result.text)
+
+    print(f"==================== السؤال ({i}): {question}")
+    print("--- من غير المستند:")
+    print(without_document.text)
+    print("--- بالمستند:")
+    print(with_document.text)
+    print()
