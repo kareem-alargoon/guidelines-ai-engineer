@@ -558,3 +558,171 @@
 - **ليه يهمك؟** كل فرضية ليها علاج مختلف.
 - **المقابل في Laravel:** bug بيكتب قيمة غلط في الـ cache، وكل الكود اللي بعده بيقرا منها كأنها حقيقة.
 - **إزاي تتعامل معاه:** grounding (المصدر في الـ context)، والسماح بـ "مش عارف"، وردود مختصرة، و citations، وتقسيم المهمة لخطوات، و evals. ⏳ ورقة OpenAI (2025): التقييم اللي مبيعاقبش التخمين بيشجّع الموديل يخمّن.
+
+---
+
+## Step 02 — الـ LLMs من منظور المستخدم (المصدر 2)
+> المصدر: Karpathy — *Deep Dive into LLMs like ChatGPT* — الشرح في [`steps/02-llm-fundamentals/notes/02-karpathy-deep-dive-into-llms.md`](../steps/02-llm-fundamentals/notes/02-karpathy-deep-dive-into-llms.md)
+
+### Pre-training Data Pipeline (FineWeb)
+📍 Karpathy 0:00:51–0:07:47 · 🚫 بناء الـ datasets برّه النطاق
+- **إيه هو؟** سلسلة مراحل بتحوّل الإنترنت الخام لداتا تدريب: URL filtering، و text extraction (من HTML لنص)، و **language filtering**، و deduplication، و PII removal.
+- **مثال:** FineWeb حوالي 44TB و 15 تريليون token، وبيسيب الصفحات اللي فيها أكتر من 65% إنجليزي.
+- **ليه يهمك؟** قرار زي "نسبة كل لغة" بيحدد الموديل هيبقى شاطر في العربي ولا لأ. والـ PII removal "بيحاول"، مش مضمون.
+- **المقابل في Laravel:** ETL pipeline أو سلسلة queued jobs، كل job بيفلتر ويعدّي الباقي.
+
+### Byte Pair Encoding (BPE)
+📍 Karpathy 0:10:46–0:12:07
+- **إيه هو؟** خوارزمية tokenization: بتدوّر على أكتر زوج رموز بيتكرر ورا بعض، وتعمل له رمز جديد، وتكرر لحد ما توصل لحجم vocabulary مناسب.
+- **مثال:** من 256 byte لحوالي 100 ألف token (GPT-4 عنده 100,277). و "hello world" = 2 tokens، والمسافة جزء من الـ token التاني.
+- **ليه اتعمل؟** طول الـ sequence مورد غالي، فبنزوّد عدد الرموز مقابل sequences أقصر.
+- **المقابل في Laravel:** شبه فكرة الضغط (gzip): المتكرر بياخد رمز قصير.
+
+### Regurgitation
+📍 Karpathy 0:52:13–0:54:18
+- **إيه هو؟** الموديل يعيد نص من داتا التدريب **حرفياً** من الذاكرة.
+- **مثال:** تلزق أول جملة من صفحة Wikipedia، فيكمّل الصفحة كلمة بكلمة لفترة طويلة.
+- **ليه بيحصل؟** المصادر عالية الجودة بتتعرض على الموديل أكتر من مرة في التدريب، فبيحفظها.
+- **المقابل في Laravel:** —
+- **إمتى يهمك:** حقوق الملكية والخصوصية. وهو الوش التاني للـ hallucination: الشائع جداً بيتحفظ حرفياً، والنادر بيتألّف.
+
+### Conversation Protocol و Special Tokens
+📍 Karpathy 1:05:01–1:10:02 · Ch.2 (chat template)
+- **إيه هو؟** المحادثة (structured object) بتتحوّل لـ sequence tokens بـ **special tokens** بتحدد الأدوار، زي `<|im_start|>user<|im_sep|>...<|im_end|>`. الـ tokens دي مش نص، اتضافت في الـ post-training.
+- **مثال:** محادثة من دورين في GPT-4o = 49 token. ووقت الـ inference السيرفر بيحط "دور الـ assistant" في الآخر والموديل يكمّل لحد `<|im_end|>`.
+- **ليه يهمك؟** ده اللي الـ messages API بيعمله ليك. وفي Ollama: `ollama show <model> --template`.
+- **المقابل في Laravel:** `json_encode` لـ object قبل ما يتبعت على السلك (Karpathy شبّهه بـ TCP/IP packet).
+
+### Parameters = Vague Recollection مقابل Context = Working Memory
+📍 Karpathy 1:39:43–1:41:42 · Anthropic docs ص 1
+- **إيه هو؟** المعرفة في الـ **parameters** = تذكّر غامض (زي حاجة قريتها من شهر). المعرفة في الـ **context** = working memory (دقيقة وقدامه مباشرة).
+- **مثال:** "لخّص الفصل الأول من رواية" أحسن بكتير لو لزقت نص الفصل في الـ prompt.
+- **ليه يهمك؟** ⭐ أهم درس عملي: **لو عايز الموديل يستخدم معلومة بدقة، حطها في الـ context**. وده أساس RAG.
+- **المقابل في Laravel:** config cached من شهور (ممكن يكون قديم) مقابل الـ request payload (طازة ودقيقة).
+
+### Knowledge-based Refusal ("مش عارف")
+📍 Karpathy 1:25:35–1:32:03
+- **إيه هو؟** تدريب الموديل يقول "مش عارف" **في الحالات اللي فعلاً مايعرفهاش**، عن طريق "استجوابه" لمعرفة حدود معرفته.
+- **مثال:** طريقة Meta مع Llama 3: أسئلة من فقرات، وتسأل الموديل كذا مرة، وLLM judge يقارن، واللي بيغلط فيه بانتظام بيتضاف للداتا بالرد "مش عارف".
+- **ليه اتعمل؟** الموديل كان بيقلّد "الشكل الواثق" لردود الـ labelers حتى لو مايعرفش (الـ hallucination).
+- **المقابل في Laravel:** automated test suite بتكتشف الحالات اللي الكود بيفشل فيها بانتظام وتصلّح السلوك فيها بالظبط.
+- **ملاحظة:** نفس طريقة الـ evals اللي هتعملها في Step 14 (أسئلة + LLM judge).
+
+### Models Need Tokens to Think
+📍 Karpathy 1:46:54–2:01:08
+- **إيه هو؟** كل token بياخد كمية حساب **محدودة وثابتة** (عدد layers محدود)، فالحساب الكبير لازم **يتوزّع على tokens كتير**.
+- **مثال:** "The answer is $3" على طول = الموديل حاول يحسب كله في token واحد. "2×2=4، 13−4=9، 9÷3=3" = كل خطوة سهلة.
+- **ليه يهمك؟** في الـ structured output خلّي `reasoning` **قبل** `answer`. وأي حساب أو عدّ مهم = **كود أو tools** مش "mental arithmetic".
+- **المقابل في Laravel:** متتوقعش من SQL query واحدة تعمل business logic كله، وخلّي PHP يحسب الفاتورة مش الـ view.
+- **إمتى / إمتى لأ:** مهم جداً مع الموديلات الصغيرة. ⏳ الـ reasoning models بتعمله لوحدها، فـ "فكّر خطوة خطوة" بقت أقل ضرورة معاها.
+
+### Jagged Intelligence (Swiss Cheese)
+📍 Karpathy 2:04:48–2:07:27، 3:08:48
+- **إيه هو؟** الموديل شاطر جداً في حاجات صعبة، وفي نفس الوقت فيه **خروم عشوائية** في حاجات بسيطة.
+- **مثال:** بيحل أولمبياد رياضة، ويقول 9.11 أكبر من 9.9. وبيغلط في "كام R في strawberry" (tokens + عدّ).
+- **ليه يهمك؟** متفترضش إن الموديل "ذكي" فهيعمل البسيط صح. راجع الـ output، واكتب evals حتى للحالات البسيطة.
+- **المقابل في Laravel:** library ممتازة فيها bugs غريبة في edge cases: مش هتبطّل تستخدمها، بس هتكتب tests.
+
+### RL (Guess and Check) و Verifiable Domains
+📍 Karpathy 2:10:03–2:27:40 · 🚫 التنفيذ برّه النطاق
+- **إيه هو؟** المرحلة التالتة في التدريب: الموديل يولّد حلول كتير لمسألة إجابتها معروفة، والحلول اللي وصلت للصح بتتقوّى. **Verifiable domain** = مجال تقدر تتأكد فيه من الإجابة أوتوماتيك (رياضة، وكود).
+- **مثال:** تشبيه الكتاب المدرسي: الشرح = pre-training، والأمثلة المحلولة = SFT، والتمارين = RL.
+- **ليه اتعمل؟** الـ labeler مايعرفش أنهي طريقة حل أسهل **على الموديل**، فالموديل لازم يكتشف بنفسه.
+- **المقابل في Laravel:** CI بيشغّل ألف حل ويحتفظ باللي الـ tests عدّت فيه.
+- **ملاحظة:** نفس فكرة الـ best of N والـ verifier في Ch.2، بس وقت التدريب.
+
+### Chain of Thought و Thinking Models
+📍 Karpathy 2:27:40–2:42:02 · Reasoning Models (Step 01)
+- **إيه هو؟** الـ **chain of thought** = سلسلة تفكير ظهرت لوحدها من الـ RL ("Wait, let me re-check..."): مراجعة، وزوايا مختلفة، ورجوع خطوة. والـ **thinking models** = موديلات بتولّدها قبل الإجابة.
+- **مثال:** DeepSeek-R1: الدقة زادت **وطول الردود زاد** مع التدريب.
+- **ليه يهمك؟** للمسائل الصعبة (رياضة، وكود، ومنطق) أحسن بكتير، بس tokens أكتر (فلوس) و latency أعلى.
+- **المقابل في Laravel:** —
+- **إمتى / إمتى لأ:** ⏳ كل موديلات Claude الحالية بتفكر، وبتتحكم في المقدار بـ `effort`: منخفض للبسيط والكتير، وعالي للصعب. وفيه reasoning models open weights على Ollama.
+
+### Reward Hacking (Gaming the Reward Model)
+📍 Karpathy 3:00:40–3:06:54
+- **إيه هو؟** الـ RL بيلاقي طرق ياخد بيها score عالي من الـ reward model **من غير ما يبقى أحسن فعلاً** (adversarial examples). عشان كده Karpathy بيقول "RLHF is not RL" (مينفعش تشغّله للأبد).
+- **مثال:** بعد كام مية خطوة، "أحسن نكتة" بقت "the the the the" والـ reward model مدّيها 1.0.
+- **ليه يهمك؟** الـ **LLM judge** في الـ evals بتاعتك ممكن "يتضحك عليه" لو حسّنت الـ prompt عشان الدرجة بس. راجع عينات بعينك، وفضّل verifiers بالكود.
+- **المقابل في Laravel:** قانون Goodhart: test بيـ check الـ status 200 بس، فحد يرجّع 200 دايماً والـ test يعدّي.
+
+### Discriminator–Generator Gap
+📍 Karpathy 2:57:56–3:00:40
+- **إيه هو؟** البني آدم **يميّز** الكويس من الوحش أسهل بكتير من إنه **يولّد** الكويس.
+- **مثال:** ترتيب 5 قصايد أسهل وأدق من كتابة قصيدة مثالية، وده سبب نجاح RLHF.
+- **ليه يهمك؟** نفس الفكرة ورا "الحكم أسهل من التوليد" (Ch.2)، وده اللي بيخلّي موديل يقدر يقيّم output موديل تاني (LLM judge).
+- **المقابل في Laravel:** code review أسهل من كتابة الـ PR المثالي.
+
+### Distillation
+📍 Karpathy 2:38:36، 3:20:04
+- **إيه هو؟** تدريب موديل **صغير** يقلّد output (أو خطوات تفكير) موديل **كبير**.
+- **مثال:** نسخ DeepSeek-R1 الصغيرة "distilled" اللي تقدر تشغّلها local. وسبب إن الشركات بتخفي الـ chain of thought الخام ("distillation risk").
+- **ليه يهمك؟** كتير من الموديلات الصغيرة اللي على Ollama distilled من موديلات كبيرة، فبتاخد جزء من قدرتها بحجم يشتغل على جهازك.
+- **المقابل في Laravel:** —
+
+---
+
+## Step 02 — الـ LLMs من منظور المستخدم (المصدر 3)
+> المصدر: 3Blue1Brown — *Large Language Models explained briefly* — الشرح في [`steps/02-llm-fundamentals/notes/03-3blue1brown-llms-explained-briefly.md`](../steps/02-llm-fundamentals/notes/03-3blue1brown-llms-explained-briefly.md)
+
+### Deterministic Model + Random Sampling
+📍 3Blue1Brown 1:55–2:10 · Ch.2 جزء 4
+- **إيه هو؟** الموديل نفسه (الدالة + الـ parameters) **deterministic**: نفس الـ input = نفس الاحتمالات. العشوائية في **الـ sampling** اللي بعده.
+- **مثال:** نفس الـ prompt بيطلّع رد مختلف كل مرة، مع إن الاحتمالات نفسها ماتغيّرتش.
+- **ليه يهمك؟** لو عايز ثبات، بتتحكم في الـ sampling (temperature، و seed)، مش في الموديل.
+- **المقابل في Laravel:** `$probs = $model->predict($prompt)` (ثابت) ثم `weightedRandom($probs)` (عشوائي).
+
+### Contextual Meaning (Attention بمثال bank)
+📍 3Blue1Brown 5:52–6:19 · Ch.2 جزء 2.1.1
+- **إيه هو؟** الـ attention بيخلّي الـ vector بتاع كل كلمة يتعدّل حسب الكلمات اللي حواليها.
+- **مثال:** "bank" جنب "river" بتبقى ضفة نهر مش بنك. وبالعربي: "عين" ممكن تبقى عضو أو نبع مية حسب السياق.
+- **ليه يهمك؟** السياق اللي بتحطه في الـ prompt (المجال، ومين المستخدم، والأمثلة) بيغيّر فهم الموديل لنفس الكلمات.
+- **المقابل في Laravel:** كل model بيبص على الـ relations بتاعته ويحدّث نفسه، بس الـ relations دي "متعلّمة" مش مكتوبة.
+
+### Emergent Behavior و Interpretability
+📍 3Blue1Brown 7:10–7:30 · Karpathy 2:05:56
+- **إيه هو؟** الباحثين بيصمموا **الإطار**، بس السلوك المحدد **بيظهر لوحده** من مليارات الـ parameters، فصعب جداً تعرف **ليه** الموديل قال حاجة معيّنة (مشكلة الـ interpretability).
+- **مثال:** احتاجوا فريق بحث يبص جوّه الـ neurons عشان يفسّروا ليه 9.11 "أكبر" من 9.9.
+- **ليه يهمك؟** مفيش `dd()` للموديل. بدل "ليه؟" بتسأل "قد إيه بيقول الصح في حالاتي؟" (evals)، وتغيّر المدخلات.
+- **المقابل في Laravel:** عكس الكود اللي بتتبّعه سطر سطر.
+
+---
+
+## Step 02 — الـ LLMs من منظور المستخدم (المصدر 4)
+> المصدر: Anthropic docs — *Context windows* — الشرح في [`steps/02-llm-fundamentals/notes/04-anthropic-context-windows.md`](../steps/02-llm-fundamentals/notes/04-anthropic-context-windows.md)
+
+### Context Rot
+📍 Anthropic docs ص 1
+- **إيه هو؟** كل ما عدد الـ tokens في الـ context يزيد، **الدقة والـ recall بيقلوا**. فإن الـ context "يساع" مش معناه إن الموديل هيستخدمه كويس.
+- **مثال:** مستند 500 صفحة كله في الـ context، مقابل الـ 5 صفحات المناسبة بس: التاني أدق.
+- **ليه يهمك؟** الأساس النظري للـ RAG و الـ **context engineering**: اختيار اللي في الـ context مهم قد مساحته.
+- **المقابل في Laravel:** إنك تدّي developer جديد الـ docs كلها مقابل الجزء اللي ليه علاقة بالـ bug.
+
+### Token Usage و Token Counting
+📍 Anthropic docs ص 2
+- **إيه هو؟** **كل حاجة** في الـ request بتتحسب: system prompt، و messages (بما فيها نتايج tools وصور ومستندات)، وتعريفات الـ tools، والـ output (بما فيه الـ thinking). وكل رد فيه `usage`، وفيه **token counting API** تقدّر بيه قبل ما تبعت.
+- **مثال:** محادثة turn رقم 25 بتبعت الـ 24 اللي قبلها كمان، فالـ input بيكبر مع كل turn. وفي Ollama: `prompt_eval_count` و `eval_count`.
+- **ليه يهمك؟** التكلفة، والـ latency، وحد الـ context.
+- **المقابل في Laravel:** `usage` زي query log أو Debugbar، والـ token counting زي `EXPLAIN` قبل ما تشغّل الـ query.
+- **ملاحظة:** الـ cached tokens **برضه بتتحسب** في المساحة؛ الـ caching بيغيّر السعر مش المساحة.
+
+### Thinking Tokens في الـ Context
+📍 Anthropic docs ص 3–6
+- **إيه هو؟** tokens التفكير جزء من `max_tokens`، و**بتتحاسب كـ output**، وبتتحسب في الـ context. والـ thinking blocks القديمة بتفضل أو بتتشال حسب الموديل. ومع tool use لازم ترجّع الـ thinking block **من غير تعديل** (signature).
+- **مثال:** `max_tokens` صغير مع موديل بيفكر ممكن يخلّص في التفكير والإجابة متيجيش.
+- **ليه يهمك؟** التكلفة مش ثابتة، فقيس على عينة حقيقية. وحط `max_tokens` كفاية.
+- **المقابل في Laravel:** الـ signature زي signed URLs: لو اتعدّلت هتترفض.
+
+### Compaction و Context Editing
+📍 Anthropic docs ص 7–8 · Step 11
+- **إيه هو؟** طرق إدارة الـ context لما المحادثة تطول: **compaction** (تلخيص أوتوماتيك للقديم على السيرفر)، و**tool result clearing** (مسح نتايج tools قديمة)، و**thinking block clearing**.
+- **مثال:** agent عمل 20 tool call، نتايجها ملت الـ context، فتمسح القديم أو تلخّصه.
+- **ليه يهمك؟** أي chat app أو agent طويل هيحتاجه. وعلى Ollama (مفيش جاهز) بتعمله بنفسك: sliding window أو تلخيص.
+- **المقابل في Laravel:** compaction = أرشفة الـ logs القديمة كملخص (lossy). وclearing = `Cache::forget()`.
+
+### Context Window Overflow
+📍 Anthropic docs ص 8 · Ch.2 (Stopping condition)
+- **إيه هو؟** حالتين: الـ input لوحده أكبر من الـ context ← `400` ("prompt is too long"). الـ input بيساع بس + `max_tokens` أكبر ← الـ request بيتقبل، ولو التوليد وصل للحد يقف بـ `stop_reason: "model_context_window_exceeded"`.
+- **مثال:** محادثة طويلة جداً بتتبعت كلها فترجع 400، أو رد بيتقطع في النص.
+- **ليه يهمك؟** احسب قبل ما تبعت، و**شيّك على `stop_reason` دايماً**. وفي Ollama: بيشيل أقدم الرسايل بصمت من غير error.
+- **المقابل في Laravel:** `413 Payload Too Large` (الأولى)، و script وصل `max_execution_time` (التانية).
