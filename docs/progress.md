@@ -3,18 +3,19 @@
 > بيتحدّث بعد كل خطوة وبعد كل review.
 
 ## الحالة الحالية
-- **الخطوة الحالية:** 01 — مقدمة: يعني إيه AI Engineering 🟡
-- **آخر حاجة خلصت:** شرح المصدر 3 (مقال swyx) في [`steps/01-introduction/notes/03-swyx-rise-of-the-ai-engineer.md`](../steps/01-introduction/notes/03-swyx-rise-of-the-ai-engineer.md). **كده مواد Step 01 خلصت** (المصادر التلاتة اتشرحوا)، والـ concepts كلها في [`concepts.md`](concepts.md).
+- **الخطوة الحالية:** 02 — الـ LLMs من منظور المستخدم 🟡
+- **آخر حاجة خلصت:** شرح المصدر 1 (*AI Engineering* Ch.2) في [`steps/02-llm-fundamentals/notes/01-chip-huyen-ch2.md`](../steps/02-llm-fundamentals/notes/01-chip-huyen-ch2.md)، والـ concepts الجديدة اتضافت في [`concepts.md`](concepts.md).
 - **مستنيين منك:**
-  1. تعمل commit و push للشرح، وتفتح PR، وتعمل merge.
-  2. تقرا المقال مع الشرح، وتجاوب أسئلة الفهم.
-  3. تحل التاسكات (0–6) على branch `work/01-introduction`، وتفتح PR، وأنا أراجعه.
-- **الجاي:** review الـ PR بتاع شغلك. وبعد ما يتعمله merge، Step 01 تبقى ✅ ونبدأ Step 02.
+  1. تعمل commit و push للشرح، وتفتح PR.
+  2. تقرا الفصل التاني مع الشرح، وتجاوب أسئلة الفهم.
+  3. تقولّي "يلا" عشان نبدأ المصدر 2 (Karpathy — *Deep Dive into LLMs*).
+- **الجاي:** شرح باقي مصادر Step 02 واحد واحد، وبعدها نكتب `TASKS.md` للخطوة.
 
 ## سجل الخطوات
 | الخطوة | المواد (notes + tasks) | شغلك (PR) | ملاحظات |
 |---|:---:|:---:|---|
-| 01 — مقدمة | ✅ المصادر التلاتة اتشرحوا | ⬜ | التاسكات كلها متاحة |
+| 01 — مقدمة | ✅ المصادر التلاتة اتشرحوا | ✅ اتعمله merge | خلصت ✅ |
+| 02 — الـ LLMs من منظور المستخدم | 🟡 المصدر 1 من 4 اتشرح | ⬜ | `TASKS.md` بعد ما نخلّص شرح المصادر كلها |
 
 ## البيئة
 - الجهاز: Windows 11 + PyCharm
