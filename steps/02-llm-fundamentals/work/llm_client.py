@@ -1,5 +1,7 @@
 import os
 import httpx
+from typing import Any
+
 from enum import Enum
 from dataclasses import dataclass
 
@@ -33,6 +35,28 @@ def convert_from_nanoseconds_to_seconds(nanoseconds: int) -> float:
     return nanoseconds / 1e9
 
 
+def send_request(url: str, body: dict[str, Any], timeout: float) -> httpx.Response:
+    try:
+        return httpx.post(url, json=body, timeout=timeout)
+    except httpx.ConnectError as e:
+        raise LLMError(f"Can't reach Ollama at {OLLAMA_URL}. Make sure the Ollama app is running.") from e
+    except httpx.TimeoutException as e:
+        raise LLMError(
+            f"Ollama didn't answer within {timeout}s. "
+            "The model may still be loading."
+        ) from e
+
+
+def handle_http_errors(response: httpx.Response, model: str) -> None:
+    if response.status_code == 404:
+        raise LLMError(f"Model not found: {model}. Download it with: ollama pull {model}")
+
+    try:
+        response.raise_for_status()
+    except httpx.HTTPStatusError as e:
+        raise LLMError(f"Ollama returned HTTP {response.status_code}: {response.text}") from e
+
+
 def chat(messages: list[dict[str, str]], model: str | None = None) -> ChatResult:
     """Send a chat request to Ollama and return a ChatResult.
 
@@ -47,27 +71,8 @@ def chat(messages: list[dict[str, str]], model: str | None = None) -> ChatResult
         if role not in VALID_ROLES:
             raise LLMError(f"Invalid role: {role!r}. Use one of: {', '.join(sorted(VALID_ROLES))}")
 
-    try:
-        response = httpx.post(
-            url,
-            json={"model": model, "messages": messages, "stream": False},
-            timeout=TIMEOUT_SECONDS,
-        )
-    except httpx.ConnectError as e:
-        raise LLMError(f"Can't reach Ollama at {OLLAMA_URL}. Make sure the Ollama app is running.") from e
-    except httpx.TimeoutException as e:
-        raise LLMError(
-            f"Ollama didn't answer within {TIMEOUT_SECONDS}s. "
-            "The model may still be loading, or the answer is too long. Try again or ask for a shorter answer."
-        ) from e
-
-    if response.status_code == 404:
-        raise LLMError(f"Model not found: {model}. Download it with: ollama pull {model}")
-
-    try:
-        response.raise_for_status()
-    except httpx.HTTPStatusError as e:
-        raise LLMError(f"Ollama returned HTTP {response.status_code}: {response.text}") from e
+    response = send_request(url, {"model": model, "messages": messages, "stream": False}, TIMEOUT_SECONDS)
+    handle_http_errors(response, model)
 
     data = response.json()
     return ChatResult(
@@ -81,4 +86,5 @@ def chat(messages: list[dict[str, str]], model: str | None = None) -> ChatResult
 if __name__ == "__main__":
     chat_result = chat([{"role": Role.USER.value, "content": "اشرحلى اكثر تاريخ اثارة فى القاهرة فى 5 فقرات"}])
     print(chat_result.text)
-    print(f"in: {chat_result.input_tokens} tokens | out: {chat_result.output_tokens} tokens | {chat_result.duration_seconds:.2f} s")
+    print(
+        f"in: {chat_result.input_tokens} tokens | out: {chat_result.output_tokens} tokens | {chat_result.duration_seconds:.2f} s")
