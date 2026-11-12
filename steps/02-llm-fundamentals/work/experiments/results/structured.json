@@ -1,0 +1,1311 @@
+{
+    "run_at": "2026-11-12T13:17:45.499553",
+    "model": "qwen2.5:3b",
+    "temperature": 0.7,
+    "runs_per_message": 3,
+    "rows": [
+        {
+            "order_id": 1,
+            "method": "prompt_only",
+            "run": 1,
+            "duration_seconds": 5.6,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"أحمد\",\n  \"items\": [{\"product\": \"تيشرت أبيض\", \"quantity\": 2}, {\"product\": \"بنطلون جينز\", \"quantity\": 1}],\n  \"city\": \"المنصورة\",\n  \"is_urgent\": false\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 1,
+            "method": "prompt_only",
+            "run": 2,
+            "duration_seconds": 5.54,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"أحمد\",\n  \"items\": [{\"product\": \"تيشيرت أبيض\", \"quantity\": 2}, {\"product\": \"بنطلون جينز\", \"quantity\": 1}],\n  \"city\": \" المنصورة\",\n  \"is_urgent\": false\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": true,
+            "wrong_fields": [],
+            "error": null
+        },
+        {
+            "order_id": 1,
+            "method": "prompt_only",
+            "run": 3,
+            "duration_seconds": 6.07,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"أحمد\",\n  \"items\": [{\"product\": \"تيشرت أبيض\", \"quantity\": 2}, {\"product\": \"بنطال جينز\", \"quantity\": 1}],\n  \"city\": \"المنصورة\",\n  \"is_urgent\": false\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 1,
+            "method": "cleanup",
+            "run": 1,
+            "duration_seconds": 5.53,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"أحمد\",\n  \"items\": [{\"product\": \"تيشيرت أبيض\", \"quantity\": 2}, {\"product\": \"بنطاطون جينز\", \"quantity\": 1}],\n  \"city\": \"مناصفة\",\n  \"is_urgent\": false\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "city",
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 1,
+            "method": "cleanup",
+            "run": 2,
+            "duration_seconds": 5.55,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"أحمد\",\n  \"items\": [{\"product\": \"تيشيرت أبيض\", \"quantity\": 2}, {\"product\":\"بنطلون جينز\", \"quantity\": 1}],\n  \"city\": \"المنصورة\",\n  \"is_urgent\": false\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": true,
+            "wrong_fields": [],
+            "error": null
+        },
+        {
+            "order_id": 1,
+            "method": "cleanup",
+            "run": 3,
+            "duration_seconds": 5.38,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"أحمد\",\n  \"items\": [{\"product\": \"تيشيرت\", \"quantity\": 2}, {\"product\": \"بنطلون جينز\", \"quantity\": 1}],\n  \"city\": \"منصورة\",\n  \"is_urgent\": false\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 1,
+            "method": "schema",
+            "run": 1,
+            "duration_seconds": 5.34,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"أحمد\",\n  \"items\": [{\"product\": \"tee white\", \"quantity\": 2}, {\"product\": \"jeans\", \"quantity\": 1}],\n  \"city\": \"المنصورة\",\n  \"is_urgent\": false\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 1,
+            "method": "schema",
+            "run": 2,
+            "duration_seconds": 5.49,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"أحمد\",\n  \"items\": [{\"product\": \"تيشيرت\", \"quantity\": 2}, {\"product\": \"بنطال جينز\", \"quantity\": 1}],\n  \"city\": \"المنصورة\",\n  \"is_urgent\": false\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 1,
+            "method": "schema",
+            "run": 3,
+            "duration_seconds": 5.49,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"احمد\",\n  \"items\": [{\"product\": \"تيشيرت أبيض\", \"quantity\": 2}, {\"product\": \"بنطلون جينز\", \"quantity\": 1}],\n  \"city\": \"المنصورة\",\n  \"is_urgent\": false\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": true,
+            "wrong_fields": [],
+            "error": null
+        },
+        {
+            "order_id": 2,
+            "method": "prompt_only",
+            "run": 1,
+            "duration_seconds": 5.38,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": null,\n  \"items\": [{\"product\": \"قهوة\", \"quantity\": 4}, {\"product\": \"مج\", \"quantity\": 1}],\n  \"city\": \"اسكندرية\",\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 2,
+            "method": "prompt_only",
+            "run": 2,
+            "duration_seconds": 4.94,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": null,\n  \"items\": [{\"product\": \"قهوة\", \"quantity\": 4}, {\"product\": \"مج\", \"quantity\": 1}],\n  \"city\": \"اسكندرية\",\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 2,
+            "method": "prompt_only",
+            "run": 3,
+            "duration_seconds": 5.2,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": null,\n  \"items\": [{\"product\": \"قهوة\", \"quantity\": 4}, {\"product\": \"مج\", \"quantity\": 1}],\n  \"city\": \"اسكندريya\",\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "city",
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 2,
+            "method": "cleanup",
+            "run": 1,
+            "duration_seconds": 5.34,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": null,\n  \"items\": [{\"product\": \"قهوة\", \"quantity\": 4}, {\"product\": \"مج\", \"quantity\": 1}],\n  \"city\": \"اسكندرية\",\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 2,
+            "method": "cleanup",
+            "run": 2,
+            "duration_seconds": 5.09,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": null,\n  \"items\": [{\"product\": \"قهوة\", \"quantity\": 4}, {\"product\": \"مج\", \"quantity\": 1}],\n  \"city\": \"اسكندرية\",\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 2,
+            "method": "cleanup",
+            "run": 3,
+            "duration_seconds": 5.09,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": null,\n  \"items\": [{\"product\": \"قهوة\", \"quantity\": 3}, {\"product\": \"مج\", \"quantity\": 1}],\n  \"city\": \"اسكندريya\",\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "city"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 2,
+            "method": "schema",
+            "run": 1,
+            "duration_seconds": 5.13,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": null,\n  \"items\": [{\"product\": \"قهوة\", \"quantity\": 4}, {\"product\": \"مج\", \"quantity\": 1}],\n  \"city\": \"اسكندرية\",\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 2,
+            "method": "schema",
+            "run": 2,
+            "duration_seconds": 5.37,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": null,\n  \"items\": [\n    {\"product\": \"3 علب قهوة\", \"quantity\": 3},\n    {\"product\": \"1 مج\", \"quantity\": 1}\n  ],\n  \"city\": \"اسكندرية\",\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 2,
+            "method": "schema",
+            "run": 3,
+            "duration_seconds": 5.19,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": null,\n  \"items\": [{\"product\": \"قهوة\", \"quantity\": 4}, {\"product\": \"مج\", \"quantity\": 1}],\n  \"city\": \"اسكندرية\",\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 3,
+            "method": "prompt_only",
+            "run": 1,
+            "duration_seconds": 5.1,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"منى\",\n  \"items\": [{\"product\": \"دستة كوبايات زجاج\", \"quantity\": 1}],\n  \"city\": \"طنطا\",\n  \"is_urgent\": false\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 3,
+            "method": "prompt_only",
+            "run": 2,
+            "duration_seconds": 4.83,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"منى\",\n  \"items\": [{\"product\": \"دستة كوبية زجاج\", \"quantity\": 1}],\n  \"city\": \"طنطا\",\n  \"is_urgent\": false\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 3,
+            "method": "prompt_only",
+            "run": 3,
+            "duration_seconds": 4.83,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"منى\",\n  \"items\": [{\"product\": \"دستة كوبايات زجاج\", \"quantity\": 1}],\n  \"city\": \"طنطا\",\n  \"is_urgent\": false\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 3,
+            "method": "cleanup",
+            "run": 1,
+            "duration_seconds": 4.88,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"منى\",\n  \"items\": [{\"product\": \"دستة كوبيات زجاج\", \"quantity\": 1}],\n  \"city\": \"طنطا\",\n  \"is_urgent\": false\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 3,
+            "method": "cleanup",
+            "run": 2,
+            "duration_seconds": 4.82,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"منى\",\n  \"items\": [{\"product\": \"دستة كوباياطات زجاج\", \"quantity\": 1}],\n  \"city\": \"طنطا\",\n  \"is_urgent\": false\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 3,
+            "method": "cleanup",
+            "run": 3,
+            "duration_seconds": 4.82,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"منى\",\n  \"items\": [{\"product\": \"دستة كوبايات زجاج\", \"quantity\": 1}],\n  \"city\": \"طنطا\",\n  \"is_urgent\": false\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 3,
+            "method": "schema",
+            "run": 1,
+            "duration_seconds": 4.98,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"منى\",\n  \"items\": [{\"product\": \"دستة كوبات زجاج\", \"quantity\": 1}],\n  \"city\": \"طنطا\",\n  \"is_urgent\": false\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 3,
+            "method": "schema",
+            "run": 2,
+            "duration_seconds": 4.86,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"منى\",\n  \"items\": [{\"product\": \"دستة كوبايات زجاج\", \"quantity\": 1}],\n  \"city\": \"طنطا\",\n  \"is_urgent\": false\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 3,
+            "method": "schema",
+            "run": 3,
+            "duration_seconds": 4.77,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"منى\",\n  \"items\": [{\"product\": \"دستة كوبايات زجاج\", \"quantity\": 1}],\n  \"city\": \"طنطا\",\n  \"is_urgent\": false\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 4,
+            "method": "prompt_only",
+            "run": 1,
+            "duration_seconds": 5.74,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"Omar\",\n  \"items\": [\n    {\"product\": \"phone cover\", \"quantity\": 2},\n    {\"product\": \"screen protector\", \"quantity\": 1}\n  ],\n  \"city\": \"Cairo\",\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": true,
+            "wrong_fields": [],
+            "error": null
+        },
+        {
+            "order_id": 4,
+            "method": "prompt_only",
+            "run": 2,
+            "duration_seconds": 5.07,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"Omar\",\n  \"items\": [{\"product\": \"phone cover\", \"quantity\": 2}, {\"product\": \"screen protector\", \"quantity\": 1}],\n  \"city\": \"Cairo\",\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": true,
+            "wrong_fields": [],
+            "error": null
+        },
+        {
+            "order_id": 4,
+            "method": "prompt_only",
+            "run": 3,
+            "duration_seconds": 5.33,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"Omar\",\n  \"items\": [\n    {\"product\": \"phone cover\", \"quantity\": 2},\n    {\"product\": \"screen protector\", \"quantity\": 1}\n  ],\n  \"city\": \"Cairo\",\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": true,
+            "wrong_fields": [],
+            "error": null
+        },
+        {
+            "order_id": 4,
+            "method": "cleanup",
+            "run": 1,
+            "duration_seconds": 5.36,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"Omar\",\n  \"items\": [\n    {\"product\": \"phone cover\", \"quantity\": 2},\n    {\"product\": \"screen protector\", \"quantity\": 1}\n  ],\n  \"city\": \"Cairo\",\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": true,
+            "wrong_fields": [],
+            "error": null
+        },
+        {
+            "order_id": 4,
+            "method": "cleanup",
+            "run": 2,
+            "duration_seconds": 5.25,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"Omar\",\n  \"items\": [{\"product\": \"phone cover\", \"quantity\": 2}, {\"product\": \"screen protector\", \"quantity\": 1}],\n  \"city\": \"Cairo\",\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": true,
+            "wrong_fields": [],
+            "error": null
+        },
+        {
+            "order_id": 4,
+            "method": "cleanup",
+            "run": 3,
+            "duration_seconds": 5.27,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"Omar\",\n  \"items\": [\n    {\"product\": \"phone cover\", \"quantity\": 2},\n    {\"product\": \"screen protector\", \"quantity\": 1}\n  ],\n  \"city\": \"Cairo\",\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": true,
+            "wrong_fields": [],
+            "error": null
+        },
+        {
+            "order_id": 4,
+            "method": "schema",
+            "run": 1,
+            "duration_seconds": 5.28,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"Omar\",\n  \"items\": [\n    {\"product\": \"phone cover\", \"quantity\": 2},\n    {\"product\": \"screen protector\", \"quantity\": 1}\n  ],\n  \"city\": \"Cairo\",\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": true,
+            "wrong_fields": [],
+            "error": null
+        },
+        {
+            "order_id": 4,
+            "method": "schema",
+            "run": 2,
+            "duration_seconds": 5.28,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"Omar\",\n  \"items\": [\n    {\"product\": \"phone cover\", \"quantity\": 2},\n    {\"product\": \"screen protector\", \"quantity\": 1}\n  ],\n  \"city\": \"Cairo\",\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": true,
+            "wrong_fields": [],
+            "error": null
+        },
+        {
+            "order_id": 4,
+            "method": "schema",
+            "run": 3,
+            "duration_seconds": 5.04,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"Omar\",\n  \"items\": [{\"product\": \"phone cover\", \"quantity\": 2}, {\"product\": \"screen protector\", \"quantity\": 1}],\n  \"city\": \"Cairo\",\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": true,
+            "wrong_fields": [],
+            "error": null
+        },
+        {
+            "order_id": 5,
+            "method": "prompt_only",
+            "run": 1,
+            "duration_seconds": 4.61,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": null,\n  \"items\": [{\"product\": \"شاحن تايب سي\", \"quantity\": 2}],\n  \"city\": null,\n  \"is_urgent\": false\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": true,
+            "wrong_fields": [],
+            "error": null
+        },
+        {
+            "order_id": 5,
+            "method": "prompt_only",
+            "run": 2,
+            "duration_seconds": 4.52,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": null,\n  \"items\": [{\"product\": \"شاحن تايب سي\", \"quantity\": 2}],\n  \"city\": null,\n  \"is_urgent\": false\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": true,
+            "wrong_fields": [],
+            "error": null
+        },
+        {
+            "order_id": 5,
+            "method": "prompt_only",
+            "run": 3,
+            "duration_seconds": 4.54,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": null,\n  \"items\": [{\"product\": \"شاحن تايب سي\", \"quantity\": 2}],\n  \"city\": null,\n  \"is_urgent\": false\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": true,
+            "wrong_fields": [],
+            "error": null
+        },
+        {
+            "order_id": 5,
+            "method": "cleanup",
+            "run": 1,
+            "duration_seconds": 4.53,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": null,\n  \"items\": [{\"product\": \"شاحن تايب سي\", \"quantity\": 2}],\n  \"city\": null,\n  \"is_urgent\": false\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": true,
+            "wrong_fields": [],
+            "error": null
+        },
+        {
+            "order_id": 5,
+            "method": "cleanup",
+            "run": 2,
+            "duration_seconds": 4.52,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": null,\n  \"items\": [{\"product\": \"شاحن تايب سي\", \"quantity\": 2}],\n  \"city\": null,\n  \"is_urgent\": false\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": true,
+            "wrong_fields": [],
+            "error": null
+        },
+        {
+            "order_id": 5,
+            "method": "cleanup",
+            "run": 3,
+            "duration_seconds": 4.49,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": null,\n  \"items\": [{\"product\": \"شاحن تايب سي\", \"quantity\": 2}],\n  \"city\": null,\n  \"is_urgent\": false\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": true,
+            "wrong_fields": [],
+            "error": null
+        },
+        {
+            "order_id": 5,
+            "method": "schema",
+            "run": 1,
+            "duration_seconds": 4.43,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": null,\n  \"items\": [{\"product\": \"شاحن تايب سي\", \"quantity\": 2}],\n  \"city\": null,\n  \"is_urgent\": false\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": true,
+            "wrong_fields": [],
+            "error": null
+        },
+        {
+            "order_id": 5,
+            "method": "schema",
+            "run": 2,
+            "duration_seconds": 4.46,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": null,\n  \"items\": [{\"product\": \"شاحن تايب سي\", \"quantity\": 2}],\n  \"city\": null,\n  \"is_urgent\": false\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": true,
+            "wrong_fields": [],
+            "error": null
+        },
+        {
+            "order_id": 5,
+            "method": "schema",
+            "run": 3,
+            "duration_seconds": 4.54,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": null,\n  \"items\": [{\"product\": \"شاحن تايب سي\", \"quantity\": 2}],\n  \"city\": null,\n  \"is_urgent\": false\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": true,
+            "wrong_fields": [],
+            "error": null
+        },
+        {
+            "order_id": 6,
+            "method": "prompt_only",
+            "run": 1,
+            "duration_seconds": 4.96,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"كريم\",\n  \"items\": [{\"product\": \"سماعة بلوتوث\", \"quantity\": 1}],\n  \"city\": \"أسيوط\",\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": true,
+            "wrong_fields": [],
+            "error": null
+        },
+        {
+            "order_id": 6,
+            "method": "prompt_only",
+            "run": 2,
+            "duration_seconds": 4.72,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"كريم\",\n  \"items\": [{\"product\": \"سماعة بلوتوث\", \"quantity\": 1}],\n  \"city\": \"أسيوط\",\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": true,
+            "wrong_fields": [],
+            "error": null
+        },
+        {
+            "order_id": 6,
+            "method": "prompt_only",
+            "run": 3,
+            "duration_seconds": 4.65,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"كريم\",\n  \"items\": [{\"product\": \"سماعة بلوتوث\", \"quantity\": 1}],\n  \"city\": \"أسيوط\",\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": true,
+            "wrong_fields": [],
+            "error": null
+        },
+        {
+            "order_id": 6,
+            "method": "cleanup",
+            "run": 1,
+            "duration_seconds": 4.62,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"كريم\",\n  \"items\": [{\"product\": \"سماعة بلوتوث\", \"quantity\": 1}],\n  \"city\": \"أسيوط\",\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": true,
+            "wrong_fields": [],
+            "error": null
+        },
+        {
+            "order_id": 6,
+            "method": "cleanup",
+            "run": 2,
+            "duration_seconds": 4.71,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"كريم\",\n  \"items\": [{\"product\": \"سماعة بلوتوث\", \"quantity\": 1}],\n  \"city\": \"أسيوط\",\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": true,
+            "wrong_fields": [],
+            "error": null
+        },
+        {
+            "order_id": 6,
+            "method": "cleanup",
+            "run": 3,
+            "duration_seconds": 4.73,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"كريم\",\n  \"items\": [{\"product\": \"سماعات بلوتوث\", \"quantity\": 1}],\n  \"city\": \"أسيوط\",\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 6,
+            "method": "schema",
+            "run": 1,
+            "duration_seconds": 4.77,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"كريم\",\n  \"items\": [{\"product\": \"سماعة بلوتوث\", \"quantity\": 1}],\n  \"city\": \"أسيوط\",\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": true,
+            "wrong_fields": [],
+            "error": null
+        },
+        {
+            "order_id": 6,
+            "method": "schema",
+            "run": 2,
+            "duration_seconds": 4.7,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"كريم\",\n  \"items\": [{\"product\": \"سماعة بلوتوث\", \"quantity\": 1}],\n  \"city\": \"أسيوط\",\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": true,
+            "wrong_fields": [],
+            "error": null
+        },
+        {
+            "order_id": 6,
+            "method": "schema",
+            "run": 3,
+            "duration_seconds": 4.78,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"كريم\",\n  \"items\": [{\"product\": \"سماعه بلوتوث\", \"quantity\": 1}],\n  \"city\": \"أسيوط\",\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": true,
+            "wrong_fields": [],
+            "error": null
+        },
+        {
+            "order_id": 7,
+            "method": "prompt_only",
+            "run": 1,
+            "duration_seconds": 5.29,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"سارة\",\n  \"items\": [{\"product\": \"ملاية سرير\", 2}, {\"product\": \"فوط\", 4}],\n  \"city\": null,\n  \"is_urgent\": true\n}",
+            "valid_json": false,
+            "matches_schema": false,
+            "correct": false,
+            "wrong_fields": null,
+            "error": "JSONDecodeError: Expecting property name enclosed in double quotes: line 3 column 39 (char 67)"
+        },
+        {
+            "order_id": 7,
+            "method": "prompt_only",
+            "run": 2,
+            "duration_seconds": 5.19,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"سارة\",\n  \"items\": [{\"product\": \"ملاية سرير\", 2}, {\"product\": \"فوط\", 4}],\n  \"city\": null,\n  \"is_urgent\": true\n}",
+            "valid_json": false,
+            "matches_schema": false,
+            "correct": false,
+            "wrong_fields": null,
+            "error": "JSONDecodeError: Expecting property name enclosed in double quotes: line 3 column 39 (char 67)"
+        },
+        {
+            "order_id": 7,
+            "method": "prompt_only",
+            "run": 3,
+            "duration_seconds": 5.51,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"سارة\",\n  \"items\": [\n    {\"product\": \"فوط\", \"quantity\": 4},\n    {\"product\": \"ملاية سرير\", \"quantity\": 2}\n  ],\n  \"city\": null,\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "city",
+                "is_urgent"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 7,
+            "method": "cleanup",
+            "run": 1,
+            "duration_seconds": 5.71,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"سارة\",\n  \"items\": [\n    {\"product\": \"فوط\", \"quantity\": 4},\n    {\"product\": \"ملاية سرير\", \"quantity\": 2}\n  ],\n  \"city\": null,\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "city",
+                "is_urgent"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 7,
+            "method": "cleanup",
+            "run": 2,
+            "duration_seconds": 5.52,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"سارة\",\n  \"items\": [\n    {\"product\": \"فوط\", \"quantity\": 4},\n    {\"product\": \"ملاية سرير\", \"quantity\": 2}\n  ],\n  \"city\": null,\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "city",
+                "is_urgent"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 7,
+            "method": "cleanup",
+            "run": 3,
+            "duration_seconds": 5.51,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"سارة\",\n  \"items\": [\n    {\"product\": \"فوط\", \"quantity\": 4},\n    {\"product\": \"ملاية سرير\", \"quantity\": 2}\n  ],\n  \"city\": null,\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "city",
+                "is_urgent"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 7,
+            "method": "schema",
+            "run": 1,
+            "duration_seconds": 5.41,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"سارة\",\n  \"items\": [{\"product\": \"ملاية سرير\", \"quantity\": 2}, {\"product\": \"فوط\", \"quantity\": 4}],\n  \"city\": null,\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "city",
+                "is_urgent"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 7,
+            "method": "schema",
+            "run": 2,
+            "duration_seconds": 5.15,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"سارة\",\n  \"items\": [{\"product\": \"ملاية سرير\", \"quantity\": 2}, {\"product\": \"فوط\", \"quantity\": 4}],\n  \"city\": null,\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "city",
+                "is_urgent"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 7,
+            "method": "schema",
+            "run": 3,
+            "duration_seconds": 5.36,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"سارة\",\n  \"items\": [\n    {\"product\": \"فوط\", \"quantity\": 4},\n    {\"product\": \"ملاية سرير\", \"quantity\": 2}\n  ],\n  \"city\": null,\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "city",
+                "is_urgent"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 8,
+            "method": "prompt_only",
+            "run": 1,
+            "duration_seconds": 5.34,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"محمود\",\n  \"items\": [{\"product\": \"قلام\", \"quantity\": 5}, {\"product\": \"قلام\", \"quantity\": 3}],\n  \"city\": \"بورسعيد\",\n  \"is_urgent\": false\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 8,
+            "method": "prompt_only",
+            "run": 2,
+            "duration_seconds": 4.81,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"محمود\",\n  \"items\": [{\"product\": \"قلام\", \"quantity\": 8}],\n  \"city\": \"بورسعيد\",\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "is_urgent",
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 8,
+            "method": "prompt_only",
+            "run": 3,
+            "duration_seconds": 5.83,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"محمود\",\n  \"items\": [{\"product\": \"قلادة وقلم\", \"quantity\": 5}, {\"product\": \"قلادة وقلم\", \"quantity\": 3}],\n  \"city\": \"بورسعيد\",\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "is_urgent",
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 8,
+            "method": "cleanup",
+            "run": 1,
+            "duration_seconds": 5.11,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"محمود\",\n  \"items\": [{\"product\": \"قلام\", \"quantity\": 5}, {\"product\": \"قلام\", \"quantity\": 3}],\n  \"city\": \"بورسعيد\",\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "is_urgent",
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 8,
+            "method": "cleanup",
+            "run": 2,
+            "duration_seconds": 5.03,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"محمود\",\n  \"items\": [{\"product\": \"قلام\", \"quantity\": 5}, {\"product\": \"قلام\", \"quantity\": 3}],\n  \"city\": \"بورسعيد\",\n  \"is_urgent\": false\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 8,
+            "method": "cleanup",
+            "run": 3,
+            "duration_seconds": 5.09,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"محمود\",\n  \"items\": [{\"product\": \"قلام\", \"quantity\": 5}, {\"product\": \"قلام\", \"quantity\": 3}],\n  \"city\": \"بورسعيد\",\n  \"is_urgent\": false\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 8,
+            "method": "schema",
+            "run": 1,
+            "duration_seconds": 4.52,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"محمود\",\n  \"items\": [{\"product\": \"قلام\", \"quantity\": 8}],\n  \"city\": \"بورسعيد\",\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "is_urgent",
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 8,
+            "method": "schema",
+            "run": 2,
+            "duration_seconds": 5.03,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"محمود\",\n  \"items\": [{\"product\": \"قلام\", \"quantity\": 5}, {\"product\": \"قلام\", \"quantity\": 3}],\n  \"city\": \"بورسعيد\",\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "is_urgent",
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 8,
+            "method": "schema",
+            "run": 3,
+            "duration_seconds": 4.45,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"محمود\",\n  \"items\": [{\"product\": \"قلام\", \"quantity\": 6}],\n  \"city\": \"بورسعيد\",\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "is_urgent",
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 9,
+            "method": "prompt_only",
+            "run": 1,
+            "duration_seconds": 5.11,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"يوسف\",\n  \"items\": [{\"product\": \"لابتوب\", \"quantity\": 1}, {\"product\": \"ماوس\", \"quantity\": 1}],\n  \"city\": null,\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 9,
+            "method": "prompt_only",
+            "run": 2,
+            "duration_seconds": 5.19,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"يوسف\",\n  \"items\": [{\"product\": \"لابتوب\", \"quantity\": 1}, {\"product\": \"ماوس\", \"quantity\": 1}],\n  \"city\": null,\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 9,
+            "method": "prompt_only",
+            "run": 3,
+            "duration_seconds": 5.22,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"يوسف\",\n  \"items\": [\n    {\"product\": \"لاب توب\", \"quantity\": 1},\n    {\"product\": \"ماوس\", \"quantity\": 1}\n  ],\n  \"city\": null,\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 9,
+            "method": "cleanup",
+            "run": 1,
+            "duration_seconds": 5.12,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"يوسف\",\n  \"items\": [{\"product\": \"لاب توب\", \"quantity\": 1}, {\"product\": \"ماوس\", \"quantity\": 1}],\n  \"city\": null,\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 9,
+            "method": "cleanup",
+            "run": 2,
+            "duration_seconds": 5.13,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"يوسف\",\n  \"items\": [{\"product\": \"لابتوب\", \"quantity\": 1}, {\"product\": \"ماوس\", \"quantity\": 1}],\n  \"city\": null,\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 9,
+            "method": "cleanup",
+            "run": 3,
+            "duration_seconds": 5.33,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"يوسف\",\n  \"items\": [{\"product\": \"لابتوب\", \"quantity\": 1}, {\"product\": \"ماوس\", \"quantity\": 1}],\n  \"city\": null,\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 9,
+            "method": "schema",
+            "run": 1,
+            "duration_seconds": 5.24,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"يوسف\",\n  \"items\": [\n    {\"product\": \"لابتوب\", \"quantity\": 1},\n    {\"product\": \"ماوس\", \"quantity\": 1}\n  ],\n  \"city\": null,\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 9,
+            "method": "schema",
+            "run": 2,
+            "duration_seconds": 4.95,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"يوسف\",\n  \"items\": [{\"product\": \"لابتوب\", \"quantity\": 1}, {\"product\": \"ماوس\", \"quantity\": 1}],\n  \"city\": null,\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 9,
+            "method": "schema",
+            "run": 3,
+            "duration_seconds": 4.97,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"يوسف\",\n  \"items\": [{\"product\": \"لابتوب\", \"quantity\": 1}, {\"product\": \"ماوس\", \"quantity\": 1}],\n  \"city\": null,\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 10,
+            "method": "prompt_only",
+            "run": 1,
+            "duration_seconds": 5.1,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"ليلى\",\n  \"items\": [{\"product\": \"علبة شوكولاته\", \"quantity\": 2}],\n  \"city\": \"الإسماعيلية\",\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 10,
+            "method": "prompt_only",
+            "run": 2,
+            "duration_seconds": 4.73,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"ليلى\",\n  \"items\": [{\"product\": \"علب شوكولاته\", \"quantity\": 2}],\n  \"city\": \"الإسماعيلية\",\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 10,
+            "method": "prompt_only",
+            "run": 3,
+            "duration_seconds": 4.93,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"ليلى\",\n  \"items\": [{\"product\": \"علبتي من الشوكولاتة\", \"quantity\": 2}],\n  \"city\": \"الإسماعيلية\",\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 10,
+            "method": "cleanup",
+            "run": 1,
+            "duration_seconds": 4.8,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"ليلى\",\n  \"items\": [{\"product\": \"علب شوكولاتة\", \"quantity\": 2}],\n  \"city\": \"الإسماعيلية\",\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 10,
+            "method": "cleanup",
+            "run": 2,
+            "duration_seconds": 4.85,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"ليلى\",\n  \"items\": [{\"product\": \"علبة شوكولاتة\", \"quantity\": 2}],\n  \"city\": \"الإسماعيلية\",\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 10,
+            "method": "cleanup",
+            "run": 3,
+            "duration_seconds": 4.9,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"ليلى\",\n  \"items\": [{\"product\": \"علبتين شوكولاتة هدية\", \"quantity\": 2}],\n  \"city\": \"الإسماعيلية\",\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 10,
+            "method": "schema",
+            "run": 1,
+            "duration_seconds": 4.87,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"ليلى\",\n  \"items\": [{\"product\": \"علب شوكولاتة هدية\", \"quantity\": 2}],\n  \"city\": \"الإسماعيلية\",\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 10,
+            "method": "schema",
+            "run": 2,
+            "duration_seconds": 4.75,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"ليلى\",\n  \"items\": [{\"product\": \"علبة شوكولاته\", \"quantity\": 2}],\n  \"city\": \"الإسماعيلية\",\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "items"
+            ],
+            "error": null
+        },
+        {
+            "order_id": 10,
+            "method": "schema",
+            "run": 3,
+            "duration_seconds": 4.97,
+            "llm_error": null,
+            "response": "{\n  \"customer_name\": \"ليلى\",\n  \"items\": [\n    {\"product\": \"علب شوكولاتة\", \"quantity\": 2}\n  ],\n  \"city\": \"الإسماعيلية\",\n  \"is_urgent\": true\n}",
+            "valid_json": true,
+            "matches_schema": true,
+            "correct": false,
+            "wrong_fields": [
+                "items"
+            ],
+            "error": null
+        }
+    ]
+}

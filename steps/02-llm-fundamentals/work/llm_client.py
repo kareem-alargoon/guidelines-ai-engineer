@@ -1,3 +1,4 @@
+import json
 import os
 import httpx
 from typing import Any
@@ -100,6 +101,7 @@ def chat(
         seed: int | None = None,
         max_tokens: int | None = None,
         stop: list[str] | None = None,
+        format: dict[str, Any] | str | None = None,
 ) -> ChatResult:
     """Send a chat request to Ollama and return a ChatResult.
 
@@ -123,6 +125,9 @@ def chat(
 
     if options:
         body["options"] = options
+
+    if format:
+        body["format"] = format
 
     response = send_request(url, body, TIMEOUT_SECONDS)
     handle_http_errors(response, model)
