@@ -4,7 +4,7 @@
 
 ## الحالة الحالية
 - **الخطوة الحالية:** 02 — الـ LLMs من منظور المستخدم 🟡
-- **آخر حاجة خلصت:** **Task 3** (تجربة الـ temperature والـ seed في `work/experiments/temperature.py`): الـ 49 رد في `results/temperature.json`، والنتايج اتكتبت في `work/observations.md`. قبلها Task 2 اتعمله commit و push (`41991b6`)، ومواد Step 02 اتعملها merge في `main` (PR #6).
+- **آخر حاجة خلصت:** **Task 4** (الـ stop reasons في `work/experiments/stop_reasons.py`): `parse_json_result` بترمي `TruncatedResponseError` و `InvalidJSONError` (الاتنين بيورثوا من `LLMError`)، والـ 3 ردود في `results/stop_reasons.json`، والنتايج اتكتبت في `work/observations.md`. قبلها Task 3 (temperature والـ seed) اتعمله commit و push (`2dd3996`).
 - **التاسكات على `work/02-llm-fundamentals`:**
 
   | Task | الحالة |
@@ -13,10 +13,11 @@
   | 1 — Token counter | ✅ |
   | 2 — Sampling options و stop reason | ✅ |
   | 3 — تجربة الـ temperature والـ seed | ✅ |
-  | 4 — الـ stop reasons | ⬅️ الجاي |
-  | 5 – 7 | ⬜ |
+  | 4 — الـ stop reasons | ✅ |
+  | 5 — Structured outputs: 3 طرق ومقارنة | ⬅️ الجاي |
+  | 6 – 7 | ⬜ |
 
-- **مستنيين منك:** Task 4 في `work/experiments/stop_reasons.py`.
+- **مستنيين منك:** Task 5 (structured outputs). وهتلاقي فيه حل مشكلة `ok: 1 items` اللي طلعت في Task 4.
 - **الجاي:** بعد Task 7 تفتح PR لـ `work/02-llm-fundamentals` وأراجعه. وبعد الـ merge، Step 02 تبقى ✅ ونبدأ Step 03.
 
 ## سجل الخطوات
