@@ -1,0 +1,43 @@
+[
+    {
+        "experiment": "cities",
+        "prompt": "اكتب لستة JSON فيها أسماء 10 مدن مصرية. رد بالـ JSON بس من غير أي كلام تاني.",
+        "max_tokens": 15,
+        "stop": null,
+        "parse": "TruncatedResponseError: Truncated response for stop_reason: length",
+        "response": "{\"cities\": [\"cairo\", \"alexandria\", \"shubra",
+        "in_tokens": 61,
+        "out_tokens": 15,
+        "duration_seconds": 0.724383,
+        "stop_reason": "length",
+        "run_at": "2026-11-12T10:04:38.458262"
+    },
+    {
+        "experiment": "cities",
+        "prompt": "اكتب لستة JSON فيها أسماء 10 مدن مصرية. رد بالـ JSON بس من غير أي كلام تاني.",
+        "max_tokens": null,
+        "stop": null,
+        "parse": "ok: 1 items",
+        "response": "{\"cities\": [\" Cairo\", \"Alexandria\", \"Port Said\", \"Suez\", \"Luxor\", \"Aswan\", \"Giza\", \"El-Mahalla El-Kubra\", \"Ahram El-Khali\", \"Mansoura\"]}",
+        "in_tokens": 61,
+        "out_tokens": 56,
+        "duration_seconds": 2.355032,
+        "stop_reason": "stop",
+        "run_at": "2026-11-12T10:04:38.458262"
+    },
+    {
+        "experiment": "count",
+        "prompt": "عدّ من 1 لـ 20، كل رقم في سطر لوحده. اكتب الأرقام بس.",
+        "max_tokens": null,
+        "stop": [
+            "7"
+        ],
+        "parse": null,
+        "response": " herein gesetzt:\n\n1\n2\n3\n4\n5\n6\n",
+        "in_tokens": 57,
+        "out_tokens": 17,
+        "duration_seconds": 0.9942862,
+        "stop_reason": "stop",
+        "run_at": "2026-11-12T10:04:38.458262"
+    }
+]
