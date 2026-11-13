@@ -1,0 +1,618 @@
+{
+    "run_at": "2026-11-13T11:38:19.247963",
+    "model": "qwen2.5:3b",
+    "settings": [
+        {
+            "name": "direct x1 T=0",
+            "solver": "solve_direct",
+            "runs": 1,
+            "temperature": 0,
+            "correct": 3,
+            "total": 10,
+            "avg_output_tokens_per_problem": 7.9,
+            "llm_errors": 0,
+            "seconds": 60.4,
+            "rows": [
+                {
+                    "id": 1,
+                    "difficulty": 1,
+                    "answers": [
+                        19
+                    ],
+                    "final_answer": 19,
+                    "correct_answer": 19,
+                    "is_correct": true,
+                    "output_tokens": 8,
+                    "llm_errors": 0
+                },
+                {
+                    "id": 2,
+                    "difficulty": 1,
+                    "answers": [
+                        45
+                    ],
+                    "final_answer": 45,
+                    "correct_answer": 45,
+                    "is_correct": true,
+                    "output_tokens": 8,
+                    "llm_errors": 0
+                },
+                {
+                    "id": 3,
+                    "difficulty": 2,
+                    "answers": [
+                        5
+                    ],
+                    "final_answer": 5,
+                    "correct_answer": 5,
+                    "is_correct": true,
+                    "output_tokens": 7,
+                    "llm_errors": 0
+                },
+                {
+                    "id": 4,
+                    "difficulty": 2,
+                    "answers": [
+                        8
+                    ],
+                    "final_answer": 8,
+                    "correct_answer": 10,
+                    "is_correct": false,
+                    "output_tokens": 7,
+                    "llm_errors": 0
+                },
+                {
+                    "id": 5,
+                    "difficulty": 2,
+                    "answers": [
+                        150
+                    ],
+                    "final_answer": 150,
+                    "correct_answer": 230,
+                    "is_correct": false,
+                    "output_tokens": 9,
+                    "llm_errors": 0
+                },
+                {
+                    "id": 6,
+                    "difficulty": 2,
+                    "answers": [
+                        24
+                    ],
+                    "final_answer": 24,
+                    "correct_answer": 16,
+                    "is_correct": false,
+                    "output_tokens": 8,
+                    "llm_errors": 0
+                },
+                {
+                    "id": 7,
+                    "difficulty": 3,
+                    "answers": [
+                        42
+                    ],
+                    "final_answer": 42,
+                    "correct_answer": 43,
+                    "is_correct": false,
+                    "output_tokens": 8,
+                    "llm_errors": 0
+                },
+                {
+                    "id": 8,
+                    "difficulty": 3,
+                    "answers": [
+                        10
+                    ],
+                    "final_answer": 10,
+                    "correct_answer": 9,
+                    "is_correct": false,
+                    "output_tokens": 8,
+                    "llm_errors": 0
+                },
+                {
+                    "id": 9,
+                    "difficulty": 3,
+                    "answers": [
+                        10
+                    ],
+                    "final_answer": 10,
+                    "correct_answer": 8,
+                    "is_correct": false,
+                    "output_tokens": 8,
+                    "llm_errors": 0
+                },
+                {
+                    "id": 10,
+                    "difficulty": 3,
+                    "answers": [
+                        48
+                    ],
+                    "final_answer": 48,
+                    "correct_answer": 36,
+                    "is_correct": false,
+                    "output_tokens": 8,
+                    "llm_errors": 0
+                }
+            ]
+        },
+        {
+            "name": "reasoning x1 T=0",
+            "solver": "solve_with_reasoning",
+            "runs": 1,
+            "temperature": 0,
+            "correct": 9,
+            "total": 10,
+            "avg_output_tokens_per_problem": 122.1,
+            "llm_errors": 0,
+            "seconds": 69.2,
+            "rows": [
+                {
+                    "id": 1,
+                    "difficulty": 1,
+                    "answers": [
+                        19
+                    ],
+                    "final_answer": 19,
+                    "correct_answer": 19,
+                    "is_correct": true,
+                    "output_tokens": 61,
+                    "llm_errors": 0
+                },
+                {
+                    "id": 2,
+                    "difficulty": 1,
+                    "answers": [
+                        45
+                    ],
+                    "final_answer": 45,
+                    "correct_answer": 45,
+                    "is_correct": true,
+                    "output_tokens": 89,
+                    "llm_errors": 0
+                },
+                {
+                    "id": 3,
+                    "difficulty": 2,
+                    "answers": [
+                        5
+                    ],
+                    "final_answer": 5,
+                    "correct_answer": 5,
+                    "is_correct": true,
+                    "output_tokens": 143,
+                    "llm_errors": 0
+                },
+                {
+                    "id": 4,
+                    "difficulty": 2,
+                    "answers": [
+                        10
+                    ],
+                    "final_answer": 10,
+                    "correct_answer": 10,
+                    "is_correct": true,
+                    "output_tokens": 90,
+                    "llm_errors": 0
+                },
+                {
+                    "id": 5,
+                    "difficulty": 2,
+                    "answers": [
+                        230
+                    ],
+                    "final_answer": 230,
+                    "correct_answer": 230,
+                    "is_correct": true,
+                    "output_tokens": 138,
+                    "llm_errors": 0
+                },
+                {
+                    "id": 6,
+                    "difficulty": 2,
+                    "answers": [
+                        24
+                    ],
+                    "final_answer": 24,
+                    "correct_answer": 16,
+                    "is_correct": false,
+                    "output_tokens": 109,
+                    "llm_errors": 0
+                },
+                {
+                    "id": 7,
+                    "difficulty": 3,
+                    "answers": [
+                        43
+                    ],
+                    "final_answer": 43,
+                    "correct_answer": 43,
+                    "is_correct": true,
+                    "output_tokens": 126,
+                    "llm_errors": 0
+                },
+                {
+                    "id": 8,
+                    "difficulty": 3,
+                    "answers": [
+                        9
+                    ],
+                    "final_answer": 9,
+                    "correct_answer": 9,
+                    "is_correct": true,
+                    "output_tokens": 155,
+                    "llm_errors": 0
+                },
+                {
+                    "id": 9,
+                    "difficulty": 3,
+                    "answers": [
+                        8
+                    ],
+                    "final_answer": 8,
+                    "correct_answer": 8,
+                    "is_correct": true,
+                    "output_tokens": 169,
+                    "llm_errors": 0
+                },
+                {
+                    "id": 10,
+                    "difficulty": 3,
+                    "answers": [
+                        36
+                    ],
+                    "final_answer": 36,
+                    "correct_answer": 36,
+                    "is_correct": true,
+                    "output_tokens": 141,
+                    "llm_errors": 0
+                }
+            ]
+        },
+        {
+            "name": "direct x5 T=0.8",
+            "solver": "solve_direct",
+            "runs": 5,
+            "temperature": 0.8,
+            "correct": 3,
+            "total": 10,
+            "avg_output_tokens_per_problem": 39.3,
+            "llm_errors": 0,
+            "seconds": 166.2,
+            "rows": [
+                {
+                    "id": 1,
+                    "difficulty": 1,
+                    "answers": [
+                        19,
+                        19,
+                        19,
+                        19,
+                        19
+                    ],
+                    "final_answer": 19,
+                    "correct_answer": 19,
+                    "is_correct": true,
+                    "output_tokens": 40,
+                    "llm_errors": 0
+                },
+                {
+                    "id": 2,
+                    "difficulty": 1,
+                    "answers": [
+                        45,
+                        45,
+                        45,
+                        45,
+                        45
+                    ],
+                    "final_answer": 45,
+                    "correct_answer": 45,
+                    "is_correct": true,
+                    "output_tokens": 40,
+                    "llm_errors": 0
+                },
+                {
+                    "id": 3,
+                    "difficulty": 2,
+                    "answers": [
+                        5,
+                        5,
+                        3,
+                        5,
+                        5
+                    ],
+                    "final_answer": 5,
+                    "correct_answer": 5,
+                    "is_correct": true,
+                    "output_tokens": 35,
+                    "llm_errors": 0
+                },
+                {
+                    "id": 4,
+                    "difficulty": 2,
+                    "answers": [
+                        8,
+                        8,
+                        8,
+                        8,
+                        8
+                    ],
+                    "final_answer": 8,
+                    "correct_answer": 10,
+                    "is_correct": false,
+                    "output_tokens": 35,
+                    "llm_errors": 0
+                },
+                {
+                    "id": 5,
+                    "difficulty": 2,
+                    "answers": [
+                        170,
+                        115,
+                        100,
+                        170,
+                        150
+                    ],
+                    "final_answer": 170,
+                    "correct_answer": 230,
+                    "is_correct": false,
+                    "output_tokens": 45,
+                    "llm_errors": 0
+                },
+                {
+                    "id": 6,
+                    "difficulty": 2,
+                    "answers": [
+                        24,
+                        24,
+                        24,
+                        24,
+                        24
+                    ],
+                    "final_answer": 24,
+                    "correct_answer": 16,
+                    "is_correct": false,
+                    "output_tokens": 40,
+                    "llm_errors": 0
+                },
+                {
+                    "id": 7,
+                    "difficulty": 3,
+                    "answers": [
+                        39,
+                        42,
+                        45,
+                        42,
+                        39
+                    ],
+                    "final_answer": 39,
+                    "correct_answer": 43,
+                    "is_correct": false,
+                    "output_tokens": 40,
+                    "llm_errors": 0
+                },
+                {
+                    "id": 8,
+                    "difficulty": 3,
+                    "answers": [
+                        8,
+                        10,
+                        10,
+                        12,
+                        10
+                    ],
+                    "final_answer": 10,
+                    "correct_answer": 9,
+                    "is_correct": false,
+                    "output_tokens": 39,
+                    "llm_errors": 0
+                },
+                {
+                    "id": 9,
+                    "difficulty": 3,
+                    "answers": [
+                        10,
+                        10,
+                        10,
+                        10,
+                        8
+                    ],
+                    "final_answer": 10,
+                    "correct_answer": 8,
+                    "is_correct": false,
+                    "output_tokens": 39,
+                    "llm_errors": 0
+                },
+                {
+                    "id": 10,
+                    "difficulty": 3,
+                    "answers": [
+                        36,
+                        48,
+                        24,
+                        24,
+                        48
+                    ],
+                    "final_answer": 48,
+                    "correct_answer": 36,
+                    "is_correct": false,
+                    "output_tokens": 40,
+                    "llm_errors": 0
+                }
+            ]
+        },
+        {
+            "name": "reasoning x5 T=0.8",
+            "solver": "solve_with_reasoning",
+            "runs": 5,
+            "temperature": 0.8,
+            "correct": 9,
+            "total": 10,
+            "avg_output_tokens_per_problem": 695.1,
+            "llm_errors": 0,
+            "seconds": 510.4,
+            "rows": [
+                {
+                    "id": 1,
+                    "difficulty": 1,
+                    "answers": [
+                        19,
+                        19,
+                        19,
+                        19,
+                        19
+                    ],
+                    "final_answer": 19,
+                    "correct_answer": 19,
+                    "is_correct": true,
+                    "output_tokens": 382,
+                    "llm_errors": 0
+                },
+                {
+                    "id": 2,
+                    "difficulty": 1,
+                    "answers": [
+                        45,
+                        45,
+                        45,
+                        45,
+                        45
+                    ],
+                    "final_answer": 45,
+                    "correct_answer": 45,
+                    "is_correct": true,
+                    "output_tokens": 440,
+                    "llm_errors": 0
+                },
+                {
+                    "id": 3,
+                    "difficulty": 2,
+                    "answers": [
+                        5,
+                        5,
+                        5,
+                        75,
+                        5
+                    ],
+                    "final_answer": 5,
+                    "correct_answer": 5,
+                    "is_correct": true,
+                    "output_tokens": 657,
+                    "llm_errors": 0
+                },
+                {
+                    "id": 4,
+                    "difficulty": 2,
+                    "answers": [
+                        12,
+                        10,
+                        10,
+                        22,
+                        10
+                    ],
+                    "final_answer": 10,
+                    "correct_answer": 10,
+                    "is_correct": true,
+                    "output_tokens": 816,
+                    "llm_errors": 0
+                },
+                {
+                    "id": 5,
+                    "difficulty": 2,
+                    "answers": [
+                        230,
+                        230,
+                        230,
+                        230,
+                        230
+                    ],
+                    "final_answer": 230,
+                    "correct_answer": 230,
+                    "is_correct": true,
+                    "output_tokens": 805,
+                    "llm_errors": 0
+                },
+                {
+                    "id": 6,
+                    "difficulty": 2,
+                    "answers": [
+                        24,
+                        24,
+                        24,
+                        24,
+                        24
+                    ],
+                    "final_answer": 24,
+                    "correct_answer": 16,
+                    "is_correct": false,
+                    "output_tokens": 600,
+                    "llm_errors": 0
+                },
+                {
+                    "id": 7,
+                    "difficulty": 3,
+                    "answers": [
+                        43,
+                        43,
+                        43,
+                        43,
+                        43
+                    ],
+                    "final_answer": 43,
+                    "correct_answer": 43,
+                    "is_correct": true,
+                    "output_tokens": 626,
+                    "llm_errors": 0
+                },
+                {
+                    "id": 8,
+                    "difficulty": 3,
+                    "answers": [
+                        9,
+                        9,
+                        9,
+                        9,
+                        9
+                    ],
+                    "final_answer": 9,
+                    "correct_answer": 9,
+                    "is_correct": true,
+                    "output_tokens": 718,
+                    "llm_errors": 0
+                },
+                {
+                    "id": 9,
+                    "difficulty": 3,
+                    "answers": [
+                        8,
+                        8,
+                        8,
+                        8,
+                        8
+                    ],
+                    "final_answer": 8,
+                    "correct_answer": 8,
+                    "is_correct": true,
+                    "output_tokens": 1133,
+                    "llm_errors": 0
+                },
+                {
+                    "id": 10,
+                    "difficulty": 3,
+                    "answers": [
+                        36,
+                        24,
+                        36,
+                        36,
+                        36
+                    ],
+                    "final_answer": 36,
+                    "correct_answer": 36,
+                    "is_correct": true,
+                    "output_tokens": 774,
+                    "llm_errors": 0
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,81 @@
+{
+    "_readme": [
+        "Test data for Task 6 (self-consistency and 'models need tokens to think'). Written by the assistant, not by the model.",
+        "Each problem is an Arabic word problem with exactly one correct answer: a whole number.",
+        "answer: the number only, without units (no 'جنيه', 'كتاب', 'دقيقة').",
+        "difficulty: 1 = one step, 2 = two or three steps, 3 = many steps or a small equation.",
+        "steps: a short English trace of the solution, so you can check where the model went wrong. Do NOT send it to the model."
+    ],
+    "problems": [
+        {
+            "id": 1,
+            "difficulty": 1,
+            "problem": "عند أحمد 12 قلم، واشترى 7 أقلام كمان. بقى معاه كام قلم؟",
+            "answer": 19,
+            "steps": "12 + 7 = 19"
+        },
+        {
+            "id": 2,
+            "difficulty": 1,
+            "problem": "منى اشترت 3 كشاكيل، والكشكول الواحد بـ 15 جنيه. دفعت كام جنيه؟",
+            "answer": 45,
+            "steps": "3 * 15 = 45"
+        },
+        {
+            "id": 3,
+            "difficulty": 2,
+            "problem": "سارة اشترت 3 تفاحات و 2 برتقانة. البرتقانة الواحدة بـ 4 جنيه، ودفعت 23 جنيه في الحاجات دي كلها. التفاحة الواحدة بكام جنيه؟",
+            "answer": 5,
+            "steps": "oranges = 2 * 4 = 8; apples = 23 - 8 = 15; one apple = 15 / 3 = 5"
+        },
+        {
+            "id": 4,
+            "difficulty": 2,
+            "problem": "كريم بيقرا 15 صفحة كل يوم. الكتاب 240 صفحة، وهو بقاله 6 أيام بيقرا فيه. فاضله كام يوم عشان يخلّص الكتاب؟",
+            "answer": 10,
+            "steps": "read = 6 * 15 = 90; left = 240 - 90 = 150; days = 150 / 15 = 10"
+        },
+        {
+            "id": 5,
+            "difficulty": 2,
+            "problem": "محل بيبيع التيشيرت بـ 120 جنيه، وعامل خصم 25% على كل تيشيرت. واحد اشترى 3 تيشيرتات بعد الخصم، ودفع بورقة 500 جنيه. هياخد باقي كام جنيه؟",
+            "answer": 230,
+            "steps": "price after discount = 120 * 0.75 = 90; total = 3 * 90 = 270; change = 500 - 270 = 230"
+        },
+        {
+            "id": 6,
+            "difficulty": 2,
+            "problem": "خزان مياه سعته 600 لتر، ومليان لحد التلت بس. حنفية بتنزّل فيه 25 لتر كل دقيقة. محتاجين كام دقيقة عشان الخزان يتملي للآخر؟",
+            "answer": 16,
+            "steps": "now = 600 / 3 = 200; missing = 600 - 200 = 400; minutes = 400 / 25 = 16"
+        },
+        {
+            "id": 7,
+            "difficulty": 3,
+            "problem": "يوسف عنده 7 كتب. نور عندها 5 كتب أكتر من يوسف. وليلى عندها ضعف عدد الكتب اللي مع نور. التلاتة مع بعض عندهم كام كتاب؟",
+            "answer": 43,
+            "steps": "Youssef = 7; Nour = 7 + 5 = 12; Laila = 2 * 12 = 24; total = 7 + 12 + 24 = 43"
+        },
+        {
+            "id": 8,
+            "difficulty": 3,
+            "problem": "شركة فيها 4 فرق، وكل فريق فيه 6 موظفين. الشركة عيّنت 8 موظفين جداد، وبعدها 5 موظفين ساب الشغل. الشركة عايزة تقعّد الموظفين في مكاتب، وكل مكتب بياخد 3 موظفين بالظبط. محتاجين كام مكتب؟",
+            "answer": 9,
+            "steps": "start = 4 * 6 = 24; 24 + 8 = 32; 32 - 5 = 27; offices = 27 / 3 = 9"
+        },
+        {
+            "id": 9,
+            "difficulty": 3,
+            "problem": "حصّالة فيها عملات فئة 5 جنيه وعملات فئة 10 جنيه بس. عدد العملات كلها 20 عملة، ومجموع فلوسها 140 جنيه. فيها كام عملة فئة 10 جنيه؟",
+            "answer": 8,
+            "steps": "fives + tens = 20; 5*fives + 10*tens = 140; 5*(20 - tens) + 10*tens = 140; 100 + 5*tens = 140; tens = 8"
+        },
+        {
+            "id": 10,
+            "difficulty": 3,
+            "problem": "عمر الأب دلوقتي 3 أضعاف عمر ابنه. بعد 12 سنة، عمر الأب هيبقى ضعف عمر ابنه. عمر الأب دلوقتي كام سنة؟",
+            "answer": 36,
+            "steps": "father = 3 * son; 3*son + 12 = 2 * (son + 12); 3*son + 12 = 2*son + 24; son = 12; father = 36"
+        }
+    ]
+}
