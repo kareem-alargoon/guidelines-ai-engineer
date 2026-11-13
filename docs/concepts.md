@@ -726,3 +726,508 @@
 - **مثال:** محادثة طويلة جداً بتتبعت كلها فترجع 400، أو رد بيتقطع في النص.
 - **ليه يهمك؟** احسب قبل ما تبعت، و**شيّك على `stop_reason` دايماً**. وفي Ollama: بيشيل أقدم الرسايل بصمت من غير error.
 - **المقابل في Laravel:** `413 Payload Too Large` (الأولى)، و script وصل `max_execution_time` (التانية).
+
+---
+
+## Step 03 — الموديلات والـ Providers (المصدر 1)
+> المصدر: *AI Engineering* Ch.4 (*Model Selection*) + Ch.3 (*Comparative Evaluation*) — الشرح في [`steps/03-models-and-providers/notes/01-chip-huyen-ch4-model-selection.md`](../steps/03-models-and-providers/notes/01-chip-huyen-ch4-model-selection.md)
+
+### Evaluation-driven Development
+📍 Ch.4 ص 160
+- **إيه هو؟** تحدد **هتقيّم التطبيق إزاي** (الـ criteria) قبل ما تبنيه.
+- **مثال:** "الملخص لازم يبقى أمين للعقد، وأقل من 200 كلمة، وأقل من $0.01، وأقل من 5 ثواني" قبل ما تختار موديل.
+- **ليه اتعمل؟** تطبيق شغّال ومحدش عارف هو صح ولا لأ أسوأ من تطبيق مش موجود.
+- **المقابل في Laravel:** TDD: تكتب الـ test الأول، وبعدين الـ controller.
+- **إمتى / إمتى لأ:** دايماً. ⚠️ بس متشتغلش **بس** على اللي سهل يتقاس (المفتاح تحت عمود النور).
+
+### Pareto Optimization (Quality / Latency / Cost)
+📍 Ch.4 ص 177
+- **إيه هو؟** تحسين أكتر من هدف في نفس الوقت. القاعدة: اللي **مينفعش تتنازل عنه** يبقى فلتر، وبعدين تختار الأحسن من الباقي.
+- **مثال:** latency لازم أقل من ثانيتين ← تشيل كل الموديلات الأبطأ ← تختار الأذكى من الباقي. أو Fable 5.2 high (62، $9) مقابل max (65، $26.5): آخر 3 نقط بـ 3 أضعاف.
+- **ليه يهمك؟** مفيش موديل أحسن في كل حاجة.
+- **المقابل في Laravel:** اختيار hosting: "لازم السيرفر في مصر" فلتر، والسعر والأداء توازن.
+- **إمتى:** في أي اختيار. وفرّق بين الـ **must-have** والـ **nice-to-have** (الـ latency غالباً مضايقة مش deal breaker).
+
+### Hard Attributes مقابل Soft Attributes
+📍 Ch.4 ص 179–180
+- **إيه هو؟** **hard**: مستحيل أو صعب تغيّره (license، وسياسة privacy، وحجم الموديل، واللغات اللي اتدرّب عليها) فبتفلتر بيه. **soft**: تقدر تحسّنه (accuracy، و factual consistency) بالـ prompting وتقسيم المهمة.
+- **مثال:** "الداتا متخرجش برّه الشركة" hard بيشيل كل الـ cloud APIs. الـ latency soft لو الموديل عندك، و hard لو عند provider.
+- **ليه يهمك؟** بتشيل موديلات كتير قبل ما تضيّع وقت على benchmarks.
+- **المقابل في Laravel:** اختيار package: "تدعم Laravel 11 و license MIT" hard، و"الـ API مش مريح" soft (تعمل wrapper).
+- **إمتى:** الخطوة 1 في أي اختيار.
+
+### Model Selection Workflow (4 خطوات)
+📍 Ch.4 ص 180–181
+- **إيه هو؟** (1) فلتر بالـ hard attributes. (2) ضيّق بالمعلومات العامة (benchmarks و leaderboards). (3) جرّب بالـ eval بتاعك. (4) راقب في الـ production. والخطوات **iterative**.
+- **مثال:** local بس ← 3 موديلات open من الـ leaderboard ← 50 مثال من داتاك ← monitoring و feedback.
+- **ليه يهمك؟** بدل "أحسن موديل في العالم"، "أحسن موديل **لتطبيقي**".
+- **المقابل في Laravel:** التوظيف: فلتر CVs ← references ← interview وتاسك على شغلك ← فترة اختبار.
+- **إمتى:** كل مرة تختار أو تبدّل موديل (وده هيحصل كتير).
+
+### Open Source مقابل Open Weight مقابل Open Model
+📍 Ch.4 ص 181–182 · (الأساس في "Open Weights مقابل Closed" من Step 01)
+- **إيه هو؟** **open weight**: الـ weights متاحة والداتا لأ (الأغلبية). **open model**: الاتنين متاحين. **open source** الكتاب بيستخدمها على أي weights متاحة، و Artificial Analysis بيقول "open weights" عشان licenses كتير مش open source بجد.
+- **مثال:** Qwen و Llama open weight. وموديل زي Qwen2.5-Max **مقفول** رغم إن العيلة فيها مفتوح.
+- **ليه يهمك؟** "مفتوح" ≠ "تعمل اللي إنت عايزه"، وصعب تعمل audit للداتا.
+- **المقابل في Laravel:** package كودها على GitHub بس الـ license "source-available" مش MIT.
+- **إمتى:** قبل أي موديل local في منتج: اقرا الـ license.
+
+### Model License
+📍 Ch.4 ص 182–183
+- **إيه هو؟** شروط استخدام الموديل. 3 أسئلة: (1) تجاري مسموح؟ (2) فيه قيود (زي 700 مليون مستخدم في Llama)؟ (3) ينفع تستخدم الـ outputs تدرّب موديل تاني؟
+- **مثال:** `ollama show qwen2.5:3b --license`. وفي LMArena: Apache 2.0، و MIT، و CC-BY-NC (غير تجاري)، و licenses خاصة بموديل واحد.
+- **ليه يهمك؟** الـ license ممكن يختلف **بين أحجام نفس العيلة**.
+- **المقابل في Laravel:** `composer licenses`، و GPL في مشروع تجاري مقفول.
+- **إمتى:** hard attribute في الخطوة 1.
+
+### Inference Service مقابل Model API
+📍 Ch.4 ص 183
+- **إيه هو؟** الـ **inference service** بيشغّل الموديل فعلاً. الـ **model API** هو الـ interface اللي بتكلّمه.
+- **مثال:** Ollama شغّال في الخلفية = inference service، و `POST localhost:11434/api/chat` = model API.
+- **ليه يهمك؟** نفس الموديل ممكن يبقى ليه inference services كتير، كل واحد بأداء وسعر مختلف.
+- **المقابل في Laravel:** `mysqld` (الـ server) مقابل الـ protocol/driver اللي بتكلّمه بيه.
+- **إمتى:** لما تقارن providers لنفس الموديل.
+
+### Model Provider / Cloud Provider / Third-party API Provider
+📍 Ch.4 ص 183–184
+- **إيه هو؟** 3 أنواع: صاحب الموديل (Anthropic، OpenAI)، و cloud كبير (AWS Bedrock، و Google، و Azure)، و providers بيشغّلوا موديلات open (Groq، و Together...).
+- **مثال:** Claude Opus 5.5 على Anthropic و Bedrock و Google و Azure. و gpt-oss-120b (high) عند 15 provider (13 بالاسم ده بالظبط، وكمان نسخ زي Vertex عند Google).
+- **ليه يهمك؟** الموديل المقفول عند صاحبه ومين متفق معاه بس، والمفتوح عند أي حد، فبتختار.
+- **المقابل في Laravel:** MySQL على RDS أو PlanetScale أو سيرفرك.
+- **إمتى:** ⚠️ اعمل tests لو بدّلت، حتى لو "نفس الموديل".
+
+### Build vs Buy (Self-hosting مقابل Model APIs)
+📍 Ch.4 ص 181، 184–191 (Table 4-4)
+- **إيه هو؟** تستخدم API ولا تشغّل موديل open بنفسك؟ بـ **7 محاور**: data privacy، و data lineage، و performance، و functionality، و cost، و control، و on-device.
+- **مثال:** داتا حساسة ← self-host. أقوى جودة وأقل مجهود تشغيل ← API. حجم ضخم وثابت ← self-host ممكن يبقى أرخص.
+- **ليه يهمك؟** القرار ده لوحده بيقلل لستة الموديلات جامد، وبيتعاد مع كل تغيير في الـ scale.
+- **المقابل في Laravel:** Mailgun/SES (بالإيميل) مقابل Postfix على سيرفرك.
+- **إمتى:** أول المشروع، وكل ما الحجم أو السياسة تتغيّر.
+
+### Data Lineage
+📍 Ch.4 ص 183 (footnote 12)، 185–186
+- **إيه هو؟** الداتا اللي الموديل اتدرّب عليها جت منين، وهل استخدامها قانوني.
+- **مثال:** موديل اتدرّب على outputs من ChatGPT والـ terms بتمنع ← مخالف حتى لو الـ license بتاعه بيسمح.
+- **ليه يهمك؟** مع الموديل المفتوح، المسؤولية القانونية غالباً **عليك**. مع التجاري، العقد ممكن يحميك.
+- **المقابل في Laravel:** package فيها كود منسوخ من مشروع مقفول، والمشكلة على اللي شحنها.
+- **إمتى:** المجالات الحساسة لحقوق الملكية (ألعاب، وأفلام، و regulated).
+
+### Data Residency
+📍 Ch.4 ص 185 · Anthropic Pricing ص 3، 6
+- **إيه هو؟** شرط إن الداتا تتعالج في منطقة جغرافية معيّنة.
+- **مثال:** `inference_geo: "us"` على Claude API بـ 1.1× السعر، و regional endpoints على Bedrock/Google أغلى 10%.
+- **ليه يهمك؟** الـ privacy مش "local أو cloud" بس، فيه درجات في النص، وكل درجة ليها تمن.
+- **المقابل في Laravel:** تختار region الـ RDS عشان القانون.
+- **إمتى:** لما فيه قانون (زي قانون حماية البيانات المصري 151 لسنة 2020) أو سياسة شركة.
+
+### Standard API و Provider Swapping
+📍 Ch.4 ص 188
+- **إيه هو؟** تختار موديلات بتتبع API معروف، وتعمل abstraction في كودك، عشان تبدّل الـ provider بسهولة.
+- **مثال:** OpenAI-compatible API (Ollama بيدعمه)، و `LLM_PROVIDER=ollama` في `.env`.
+- **ليه يهمك؟** الموديلات والأسعار بتتغيّر كل كام شهر، والموديل ممكن يتشال.
+- **المقابل في Laravel:** `MAIL_MAILER`، و `DB_CONNECTION`، و `FILESYSTEM_DISK`.
+- **إمتى:** دايماً. ⚠️ التمن: بتخسر الـ features الخاصة بكل provider.
+
+### Model Freezing و Model Deprecation
+📍 Ch.4 ص 190 · Anthropic Deprecations
+- **إيه هو؟** **freezing**: تثبّت version الموديل عشان ميتغيّرش. مع open weights الملف عندك. مع الـ API، الموديل بيعيش لحد تاريخ retirement.
+- **مثال:** `claude-3-5-sonnet-20240620` عاش حوالي 16 شهر. Anthropic بتدّي إشعار 60 يوم على الأقل.
+- **ليه يهمك؟** كل API model هيحتاج **migration** في يوم، فلازم يبقى عندك eval set.
+- **المقابل في Laravel:** `composer.lock` (freeze)، و support policy بتاع Laravel (deprecation). بس الموديل الـ retired **بيبطّل يشتغل** خالص.
+- **إمتى:** خطط لها من الأول: الـ model ID في الـ config.
+
+### Rate Limits و TPM
+📍 Ch.4 ص 178 (Table 4-3) · Anthropic Pricing ص 16
+- **إيه هو؟** حد أقصى لعدد الـ requests أو الـ tokens في الدقيقة (TPM) لحسابك، وبيكبر مع الـ usage tier (Start ← Build ← Scale في Anthropic).
+- **مثال:** حسابك الجديد مش هيستحمل traffic كبير من أول يوم.
+- **ليه يهمك؟** الـ scale مش بالفلوس بس. والكبار بيتفاوضوا على حدود وأسعار (volume discounts).
+- **المقابل في Laravel:** `throttle:60,1` middleware، بس إنت اللي عليك الـ throttle.
+- **إمتى:** في التخطيط لأي production، ومع retries و backoff.
+
+### Benchmark و Evaluation Harness
+📍 Ch.4 ص 191
+- **إيه هو؟** الـ **benchmark** مجموعة أسئلة/مهام بإجابات بتقيس قدرة معيّنة. الـ **evaluation harness** أداة بتشغّل benchmarks كتير.
+- **مثال:** MMLU، و GSM-8K، و HumanEval. والـ harness: lm-evaluation-harness.
+- **ليه يهمك؟** عشان تقرا أرقام الـ model cards والـ leaderboards.
+- **المقابل في Laravel:** الـ benchmark = test suite جاهزة، والـ harness = PHPUnit.
+- **إمتى:** للتضييق بس. القرار بالـ eval بتاعك.
+
+### Leaderboard و Aggregation
+📍 Ch.4 ص 191–195
+- **إيه هو؟** ترتيب موديلات بتجميع نتايج benchmarks كتير. التجميع ممكن بالمتوسط (Hugging Face) أو **mean win rate** (HELM).
+- **مثال:** HF و HELM كانوا مشتركين في 2 benchmarks بس من 10.
+- **ليه يهمك؟** كل leaderboard بيختار benchmarks وأوزان مختلفة، فالترتيب **قرار منهجي** مش حقيقة.
+- **المقابل في Laravel:** TechEmpower: ترتيب Laravel فيه مش معناه إنه مش مناسب لمشروعك.
+- **إمتى:** اسأل دايماً: بيقيس إيه؟ وبيجمّع إزاي؟ وفيه اللي يهمني (العربي مثلاً)؟
+
+### Benchmark Saturation
+📍 Ch.4 ص 191، 194
+- **إيه هو؟** لما كل الموديلات تجيب درجة عالية في benchmark، فمبقاش بيفرّق بينهم.
+- **مثال:** GSM-8K اتبدّل بـ MATH lvl 5، و MMLU بـ MMLU-PRO. والـ Open LLM Leaderboard نفسه اتقفل 2025.
+- **ليه يهمك؟** الأرقام القديمة مضللة، والـ index بيتغيّر (متقارنش رقم من سنة برقم النهارده).
+- **المقابل في Laravel:** test بيعدّي دايماً لأي كود، ملوش قيمة.
+- **إمتى:** دوّر على الأحدث، واتأكد إن الـ benchmark لسه بيفرّق.
+
+### Benchmark Correlation
+📍 Ch.4 ص 194–195 (Table 4-5)
+- **إيه هو؟** benchmarks بتقيس نفس القدرة (درجاتهم بتمشي مع بعض). وجودهم مع بعض بيضخّم القدرة دي.
+- **مثال:** WinoGrande و MMLU و ARC-C (~0.87–0.90، reasoning). و TruthfulQA ترابطه متوسط (الصدق قدرة مختلفة).
+- **ليه يهمك؟** leaderboard فيه 3 benchmarks reasoning بيدّي الـ reasoning وزن 3 أضعاف.
+- **المقابل في Laravel:** 3 tests لنفس الـ endpoint بنفس الطريقة: coverage شكله عالي وهو حاجة واحدة.
+- **إمتى:** وإنت بتعمل custom leaderboard.
+
+### Data Contamination
+📍 Ch.4 ص 197–200
+- **إيه هو؟** الموديل اتدرّب على نفس الداتا اللي بيتقيّم عليها، فبيجيب درجة أعلى من الحقيقة (حافظ مش فاهم).
+- **مثال:** موديل مليون parameter درّبوه على benchmarks فغلب موديلات أكبر بكتير. و GPT-3: 13 benchmark ≥ 40% منهم في داتا التدريب.
+- **ليه بيحصل؟** غالباً **بالصدفة**: الـ scraping بيسحب أي benchmark منشور. والاكتشاف بـ n-gram overlap أو perplexity (🚫 شغل اللي بيدرّب).
+- **المقابل في Laravel:** tests بتختبر الـ fixtures اللي الكود اتكتب عشانها hard-coded. أو امتحان متسرّب.
+- **إمتى:** دايماً افترض إن الأرقام المعلنة ممكن تبقى منفوخة، وقيس على داتاك.
+
+### Pointwise مقابل Comparative Evaluation
+📍 Ch.3 ص 148–150
+- **إيه هو؟** **pointwise**: كل موديل لوحده بدرجة. **comparative**: موديلين قصاد بعض، وحد يختار الأحسن، وبعدين ترتيب.
+- **مثال:** Artificial Analysis pointwise. و LMArena comparative.
+- **ليه يهمك؟** الـ comparative أسهل للحاجات الذاتية وصعب يتشبّع. بس مش مناسب للأسئلة اللي ليها إجابة صح، ومش بيقولك الموديل **كويس كفاية**.
+- **المقابل في Laravel:** قريب من A/B testing، بس في الـ comparative المستخدم بيشوف الاتنين مع بعض.
+- **إمتى:** للأسلوب والتفضيل. وللحقايق: correctness.
+
+### Win Rate و Elo / Bradley–Terry
+📍 Ch.3 ص 150–151
+- **إيه هو؟** **win rate**: نسبة المرات اللي A كسب فيها B. والـ rating algorithms (Elo، و Bradley–Terry، و TrueSkill) بتحوّل المقارنات لـ score. Chatbot Arena غيّر من Elo لـ Bradley–Terry.
+- **مثال:** فرق 340 نقطة ≈ الأعلى بيكسب ~88%. فرق 19 نقطة ≈ 53% (تقريباً زي بعض).
+- **ليه يهمك؟** الرقم نفسه ملوش معنى لوحده، المهم **الفرق**، ومعاه عدم التأكد.
+- **المقابل في Laravel:** تصنيف الشطرنج، أو الـ matchmaking rating في الألعاب.
+- **إمتى:** وإنت بتقرا LMArena.
+
+---
+
+## Step 03 — الموديلات والـ Providers (المصدر 2)
+> المصدر: Ollama docs — الشرح في [`steps/03-models-and-providers/notes/02-ollama-docs.md`](../steps/03-models-and-providers/notes/02-ollama-docs.md)
+
+### Ollama Server (Daemon) و Client
+📍 Quickstart، و Windows ص 1
+- **إيه هو؟** Ollama = **server** شغّال في الخلفية على `localhost:11434` (الـ inference service)، والـ CLI والـ app وكودك **clients** ليه.
+- **مثال:** `ollama ps` بيسأل الـ server، ونفس الحاجة `GET /api/ps`.
+- **ليه يهمك؟** لو الـ server مقفول، كل حاجة بتقع ("Can't reach Ollama"). وكل الإعدادات environment variables على الـ server.
+- **المقابل في Laravel:** `mysqld` و `mysql` CLI و TablePlus.
+- **إمتى:** دايماً مع Ollama.
+
+### Model Loading و keep_alive (Cold Start)
+📍 FAQ ص 9–11
+- **إيه هو؟** الموديل لازم يتحمّل من الـ disk للـ memory قبل أول رد. بيفضل محمّل **5 دقايق** (default)، وتتحكم بـ `keep_alive` (مدة، أو `-1` على طول، أو `0` فوراً) أو `OLLAMA_KEEP_ALIVE`.
+- **مثال:** أول request 25 ثانية والتاني ثانيتين. Preload بـ request فاضي.
+- **ليه يهمك؟** trade-off بين الـ latency (TTFT) والـ memory المحجوزة.
+- **المقابل في Laravel:** cold start في Lambda، أو OPcache بعد restart.
+- **إمتى:** chatbot ← خليه محمّل. job نادر على جهاز محدود ← `0`.
+
+### GPU / CPU Offloading
+📍 FAQ ص 2–3، Context length ص 2–3
+- **إيه هو؟** لو الموديل مدخلش كله في الـ VRAM، بيتقسم بين GPU و CPU، والسرعة بتقع جامد.
+- **مثال:** `ollama ps` ← PROCESSOR: `100% GPU`، أو `100% CPU`، أو `48%/52% CPU/GPU`. ومن الـ API: `size_vram` ÷ `size`.
+- **ليه يهمك؟** موديل أكبر "شوية" ممكن يبقى أبطأ بكتير. والـ context الكبير ممكن يزق الموديل برّه الـ VRAM.
+- **المقابل في Laravel:** الـ RAM لما تخلص والجهاز يبدأ swap.
+- **إمتى:** قبل وبعد أي موديل جديد: اتأكد بـ `ollama ps`.
+
+### Default Context (num_ctx) في Ollama
+📍 FAQ ص 2، Context length ص 1 · Step 02 Task 7
+- **إيه هو؟** Ollama بيدّيك context **أصغر** من اللي الموديل يقدر عليه عشان يوفّر memory: 4K لو الـ VRAM أقل من 24GB. وتغيّره بـ `num_ctx` أو `OLLAMA_CONTEXT_LENGTH`.
+- **مثال:** الموديل ممكن يقدر على 32K، و Ollama يدّيك 4K. والـ docs نفسها متعارضة (2048 في صفحة Modelfile و 4096 في الـ FAQ).
+- **ليه يهمك؟** لو عدّيت الـ context، Ollama بيقص الرسايل القديمة **بصمت**. والـ agents محتاجين 64K على الأقل.
+- **المقابل في Laravel:** `memory_limit` في `php.ini`.
+- **إمتى:** ابعت `num_ctx` صريح دايماً، واتأكد بعمود CONTEXT في `ollama ps`.
+
+### Concurrency: NUM_PARALLEL و Queue
+📍 FAQ ص 11–12
+- **إيه هو؟** `OLLAMA_NUM_PARALLEL` (default **1**) = كام request للموديل في نفس الوقت. `OLLAMA_MAX_QUEUE` (default 512) = كام request يستنوا، والزيادة ← **503**. والـ memory بتزيد بـ `NUM_PARALLEL × context`.
+- **مثال:** 5 مستخدمين على Ollama عادي ← كل واحد بيستنى اللي قبله.
+- **ليه يهمك؟** Ollama ممتاز للتطوير والاستخدام الشخصي، مش لـ production على scale (vLLM في Step 15).
+- **المقابل في Laravel:** عدد PHP-FPM workers (`pm.max_children`) والـ backlog.
+- **إمتى:** أول ما تفكّر تحط Ollama ورا تطبيق ويب.
+
+### Modelfile
+📍 Modelfile Reference
+- **إيه هو؟** blueprint لموديل مخصص: `FROM` + `PARAMETER` + `SYSTEM` + `MESSAGE` + `TEMPLATE` + `LICENSE`. و `ollama create` بيعمل "طبقة" فوق نفس الـ weights.
+- **مثال:** `FROM qwen2.5:3b` + `PARAMETER num_ctx 8192` ← موديل باسم جديد بـ context أكبر.
+- **ليه يهمك؟** تثبّت إعدادات، أو تحدد `num_ctx` لما الـ API مبيسمحش (OpenAI-compatible).
+- **المقابل في Laravel:** `Dockerfile` (`FROM` + `ENV` + `docker build`).
+- **إمتى / إمتى لأ:** 🚫 **مش finetuning**. وفي كود التطبيق، الأوضح غالباً تبعت الإعدادات في الـ request.
+
+### Chat Template
+📍 Modelfile ص 3، 7–8 · Step 02 (Conversation Protocol)
+- **إيه هو؟** الـ template (Go templates) اللي بيحوّل الـ `messages` لنص واحد فيه special tokens بتاعة عيلة الموديل.
+- **مثال:** Qwen بـ `<|im_start|>`، و Llama بـ `<|start_header_id|>` و `<|eot_id|>`. والـ stop parameters على الـ tokens دي.
+- **ليه يهمك؟** template غلط = ردود غريبة. وبيفسّر ليه الـ input tokens أكتر من كلامك.
+- **المقابل في Laravel:** Blade layout بيلف الـ content بتاعك.
+- **إمتى:** نادراً تعدّله، غير لو عملت import لموديل من برّه.
+
+### GGUF و Safetensors
+📍 Importing a Model
+- **إيه هو؟** **Safetensors**: الـ format الأصلي (غالباً دقة كاملة، كبير). **GGUF**: format بتاع llama.cpp، ملف واحد، وغالباً quantized.
+- **مثال:** `FROM /path/model.gguf` ثم `ollama create`. ومستويات الـ quantization زي `Q4_K_M` و `Q8_0` و `F16`.
+- **ليه يهمك؟** الموديل local = **حجم** + **quantization**. رقم أصغر = أصغر وأسرع وجودة أقل شوية.
+- **المقابل في Laravel:** صورة PNG أصلية مقابل JPEG مضغوط.
+- **إمتى:** لما تلاقي موديل على Hugging Face مش في الـ library. (🚫 الـ quantization بنفسك برّه النطاق.)
+
+### OpenAI-compatible API
+📍 OpenAI compatibility
+- **إيه هو؟** Ollama (وproviders كتير) بيقدّموا endpoints بنفس شكل OpenAI (`/v1/chat/completions`)، فالكود يشتغل بتغيير `base_url` بس.
+- **مثال:** `base_url="http://localhost:11434/v1"`، و `api_key="ollama"` (مطلوب في الـ library ومتجاهَل). والرد في `choices[0].message.content` و `usage`.
+- **ليه يهمك؟** ده الـ "standard API" بتاع الكتاب. ⚠️ بس مفيهوش `num_ctx` ولا `top_k` (تخسر features).
+- **المقابل في Laravel:** Query Builder (بيشتغل على أي DB) مقابل `DB::raw()` (الـ native).
+- **إمتى:** لما عايز تبدّل providers بسهولة. والـ native لما محتاج features خاصة.
+
+### Local-only Mode (OLLAMA_NO_CLOUD)
+📍 FAQ ص 6
+- **إيه هو؟** تقفل features الـ cloud في Ollama خالص: `OLLAMA_NO_CLOUD=1` أو `"disable_ollama_cloud": true` في `server.json`.
+- **مثال:** اللوج بيقول `Ollama cloud disabled: true`.
+- **ليه يهمك؟** ضمان إن محدش يستخدم cloud model بالغلط على جهاز عليه داتا حساسة.
+- **المقابل في Laravel:** تقفل الـ outbound network على سيرفر الداتابيز.
+- **إمتى:** أي جهاز عليه داتا حساسة.
+
+### Cloud Models في Ollama
+📍 Cloud، و Quickstart ص 2–3
+- **إيه هو؟** Ollama بيشغّل موديلات أكبر على سيرفراته، من `ollama.com/api` بـ API key، أو من الـ local server بعد `signin` (أسماء زي `gemma4:cloud`).
+- **مثال:** نفس الـ request بتاع `/api/chat`، بس الـ inference برّه جهازك. والـ cloud models (حالياً) **مبتدعمش structured outputs**، وممكن تتشال (retirements).
+- **ليه يهمك؟** "cloud vs local" بقى سؤال عن **الـ inference بيحصل فين**، مش عن الأداة. و `localhost` في الـ URL **مش ضمان** إن الداتا مش بتخرج.
+- **المقابل في Laravel:** `DB_HOST=127.0.0.1` مقابل proxy بيوصّل لـ DB في cloud.
+- **إمتى:** لموديلات أكبر من جهازك، مع داتا مش حساسة.
+
+---
+
+## Step 03 — الموديلات والـ Providers (المصدر 3)
+> المصدر: Anthropic docs — الشرح في [`steps/03-models-and-providers/notes/03-anthropic-models-and-pricing.md`](../steps/03-models-and-providers/notes/03-anthropic-models-and-pricing.md)
+
+### Model Tiers (Haiku / Sonnet / Opus / Fable)
+📍 Models overview ص 1–3
+- **إيه هو؟** نفس الـ provider بيبيع مستويات: كل ما تنزل، أسرع وأرخص وأقل قدرة.
+- **مثال (2026-11-13):** Fable 5.2 بـ $8/$40، و Opus 5.5 بـ $4/$20، و Sonnet 5.5 بـ $2/$10، و Haiku 5.5 من $0.10/$0.50 (لكل مليون token).
+- **ليه يهمك؟** فرق 80 مرة في سعر الـ input بين أعلى وأوطى tier.
+- **المقابل في Laravel:** أحجام AWS instances أو خطط الـ hosting.
+- **إمتى:** البسيط بحجم كبير (تصنيف، استخراج) ← tier صغير. الـ agents والمعقد ← tier كبير.
+
+### Effort Parameter
+📍 Choosing a model ص 1 · Step 02 (Test Time Compute)
+- **إيه هو؟** زرار جوه **نفس الموديل** بيحدد يفكّر قد إيه (low ← max). أكتر = أدق غالباً، وأبطأ وأغلى (الـ thinking tokens output).
+- **مثال:** في AA: Fable 5.2 high (62، $9، 29s) مقابل max (65، $26.5، 267s).
+- **ليه يهمك؟** Anthropic بتقول ظبطه غالباً أحسن من تبديل الموديل (مفيش migration).
+- **المقابل في Laravel:** `rounds` في bcrypt.
+- **إمتى:** ابدأ بالـ default وعدّل بالـ evals.
+
+### Efficiency-first مقابل Capability-first
+📍 Choosing a model ص 1–3 · Ch.4 ص 179
+- **إيه هو؟** **efficiency-first**: ابدأ بالأرخص (Haiku) ورقّي لو لازم. **capability-first**: ابدأ بالأقوى (Opus)، وبعدين انزل (effort أو موديل أرخص).
+- **مثال:** تصنيف tickets بسيط ← efficiency-first. مهمة مش متأكد إنها ممكنة ← capability-first (نصيحة الكتاب).
+- **ليه يهمك؟** لو الصغير فشل، مش هتعرف السبب من غير مرجع أقوى.
+- **المقابل في Laravel:** تبدأ بأصغر سيرفر وتكبّر، أو تبدأ بسيرفر كبير وتعمل profiling وتصغّر.
+- **إمتى:** حسب وضوح صعوبة المهمة.
+
+### Capability Discovery (Models API)
+📍 Models overview ص 5–12
+- **إيه هو؟** تسأل الـ API عن الموديلات وقدراتها: `GET /v1/models` ← `max_input_tokens`، و `max_tokens`، و `capabilities` (structured_outputs، و effort، و thinking...)، و `lifecycle`، و `retires_at`.
+- **مثال:** "اقرا `line` ومتستنتجش العيلة من الـ `id`". وفي Ollama: `ollama show` و `/api/show`.
+- **ليه يهمك؟** الموديلات مختلفة في القدرات وبتتغيّر، فالـ hard-coding بيبوظ.
+- **المقابل في Laravel:** `Schema::hasColumn()` قبل ما تستخدم column.
+- **إمتى:** في أي كود بيدعم أكتر من موديل.
+
+### Input مقابل Output Pricing (MTok)
+📍 Pricing ص 1
+- **إيه هو؟** الأسعار لكل مليون token (MTok)، والـ output أغلى من الـ input بحوالي **5 مرات** (الـ decode token ورا token، والـ prefill مرة واحدة).
+- **مثال:** 20M input + 5M output في اليوم: على Sonnet 5.5 = $90، وعلى Haiku 5.5 = $4.50.
+- **ليه يهمك؟** الرد الطويل أغلى بكتير من الـ prompt الطويل.
+- **المقابل في Laravel:** في الـ cloud الـ egress (البيانات الخارجة) بيتحاسب أغلى من الـ ingress.
+- **إمتى:** دايماً: ردود مختصرة، و `max_tokens`، و structured output.
+
+### Cost per Task (والـ Tokenizer)
+📍 Pricing ص 2، 17 · AA Methodology
+- **إيه هو؟** التكلفة الحقيقية = الـ tokens **الفعلية** لإنجاز المهمة × الأسعار. سعر الـ token لوحده مضلل.
+- **مثال:** tokenizer Claude الجديد (4.7+) بيطلّع ~30% tokens أكتر لنفس النص. وفي AA: نفس الـ index 55 بـ $1.27 أو $10.02 للمهمة.
+- **ليه يهمك؟** موديل "أرخص" بيكتب أو بيفكّر أكتر ممكن يطلع أغلى. والعربي بيختلف من tokenizer لتاني.
+- **المقابل في Laravel:** سعر الساعة للمبرمج مقابل تكلفة الـ feature كلها.
+- **إمتى:** أي مقارنة تكلفة: قيس على مهامك من الـ `usage`.
+
+### Prompt Caching
+📍 Pricing ص 5–6 · Step 04
+- **إيه هو؟** الـ API يحفظ جزء متكرر من الـ prompt ويقراه أرخص: كتابة 1.25× (5 دقايق) أو 2× (ساعة)، وقراية 0.1× (و 0.05× في Opus/Sonnet 5.5).
+- **مثال:** system prompt طويل ثابت في كل request. في مثال Anthropic، الـ caching وفّر ~26%.
+- **ليه يهمك؟** بيقلل التكلفة والـ latency للـ context المتكرر.
+- **المقابل في Laravel:** Redis cache لـ query تقيلة (`Cache::remember` بـ TTL).
+- **إمتى:** أي context متكرر (system prompt، و documents، وتاريخ محادثة).
+
+### Batch API
+📍 Pricing ص 7–8
+- **إيه هو؟** requests كتير async بخصم **50%**، والرد بييجي بعدين.
+- **مثال:** تصنيف 100,000 ticket قديم، أو تشغيل الـ evals، أو استخراج إيصالات في الخلفية.
+- **ليه يهمك؟** لو المستخدم مش مستني، ادفع نص التمن.
+- **المقابل في Laravel:** `dispatch()` على queue بدل sync.
+- **إمتى / إمتى لأ:** للحاجات اللي مش مستعجلة. ❌ مش للـ chat.
+
+### Fast Mode
+📍 Pricing ص 6–7
+- **إيه هو؟** لحد 2.5× سرعة output بسعر أعلى (Opus 5.5 بـ $8/$40 = الضعف).
+- **مثال:** real-time مع عميل والـ latency must-have.
+- **ليه يهمك؟** الـ latency/cost trade-off بأرقام صريحة.
+- **المقابل في Laravel:** شحن سريع بتمن أعلى.
+- **إمتى / إمتى لأ:** بس لما الـ latency must-have، مش nice-to-have.
+
+### Hidden Token Overhead (Tools)
+📍 Pricing ص 9–14 · Step 10
+- **إيه هو؟** tokens بتدفعها ومش بتشوفها: تعريفات الـ tools، و system prompt إضافي للـ tool use (~286–804 حسب الموديل)، ونتايج الـ tools، و web search بـ $10 لكل 1,000.
+- **مثال:** صفحة ويب ~2,500 token، و PDF بحث ~125,000 token، و computer use بيضيف آلاف.
+- **ليه يهمك؟** تكلفة الـ agents بتكبر أسرع من المتوقع.
+- **المقابل في Laravel:** الـ queries المستخبية (N+1) اللي Debugbar بيكشفها.
+- **إمتى:** أي تطبيق فيه tools أو agents: قيس من الـ `usage`.
+
+### Model Lifecycle (Active / Legacy / Deprecated / Retired)
+📍 Model deprecations ص 1–8
+- **إيه هو؟** **active**: مدعوم. **legacy**: مش هياخد تحديثات. **deprecated**: شغّال بس ليه بديل وتاريخ retirement. **retired**: الـ requests بتفشل.
+- **مثال:** Sonnet 4.5 اتبلّغ 2026-09-30 وهيتشال 2026-11-30. والفترة غالباً شهرين لـ 6 شهور.
+- **ليه يهمك؟** لازم migration قبل التاريخ: usage audit، و eval على البديل، وتغيير الـ ID.
+- **المقابل في Laravel:** support policy بتاع Laravel، بس الموديل الـ retired **بيبطّل يشتغل**.
+- **إمتى:** تابع الـ docs، وخلّي الـ model ID في الـ config.
+
+### Parameter Deprecation
+📍 Model deprecations ص 8 · Step 02
+- **إيه هو؟** الـ parameters نفسها بتتشال: `temperature` و `top_p` و `top_k` اتشالوا من Claude API (version 2026-10-21) وبيرجّعوا 400.
+- **مثال:** نفس الكود بيشتغل على Ollama وبيقع على Claude.
+- **ليه يهمك؟** الـ abstraction بتاعك لازم يقرر يعمل إيه في الـ parameter المش مدعوم (error؟ warning؟ يتجاهله؟).
+- **المقابل في Laravel:** method اتعملها deprecate واتشالت في major version.
+- **إمتى:** وإنت بتصمم interface لأكتر من provider.
+
+### Multimodel Strategy (Executor/Advisor، Orchestrator/Workers)
+📍 Choosing a model ص 4 · Step 11
+- **إيه هو؟** أكتر من موديل في نفس التطبيق عشان أغلب الـ tokens تتحاسب بالرخيص: **executor** رخيص بيسأل **advisor** قوي في القرارات الصعبة، أو **orchestrator** قوي بيوزّع الشغل على **workers** رخاص.
+- **مثال:** موديل local بيرد على الأسئلة السهلة، والصعب بيروح لـ Opus.
+- **ليه يهمك؟** توفير كبير، وممكن يخدم الـ privacy (الحساس local).
+- **المقابل في Laravel:** senior و juniors في فريق.
+- **إمتى:** لما الحجم كبير والمهام مختلفة الصعوبة.
+
+---
+
+## Step 03 — الموديلات والـ Providers (المصدر 4)
+> المصدر: Artificial Analysis — الشرح في [`steps/03-models-and-providers/notes/04-artificial-analysis.md`](../steps/03-models-and-providers/notes/04-artificial-analysis.md)
+
+### Endpoint (مقابل Model)
+📍 Methodology (Definitions)
+- **إيه هو؟** نسخة متشغّلة من الموديل عند provider معيّن. الموديل الواحد ليه endpoints كتير.
+- **مثال:** gpt-oss-120b (high) بالاسم ده بالظبط عند 13 provider: التكلفة من $0.07 لـ $0.76 للمهمة، والوقت من 0.9 لـ 40.7 دقيقة، والـ errors من 0% لـ 13% (ونسخة Vertex عند Google وصلت 17.4%).
+- **ليه يهمك؟** "نفس الموديل" مش نفس الأداء. وبعض الـ endpoints quantized (FP8، و FP4).
+- **المقابل في Laravel:** نفس الـ app على سيرفرين مختلفين.
+- **إمتى:** لما تختار provider لموديل open.
+
+### Serverless Inference
+📍 Methodology (Scope، Definitions)
+- **إيه هو؟** بتدفع على قد استخدامك (بالـ token)، مش سعر ثابت لسيرفر. (وبيشتغل على servers برضه 😄.)
+- **مثال:** أغلب الـ model APIs.
+- **ليه يهمك؟** ده "buy" في الكتاب: التكلفة لكل token ثابتة تقريباً مهما كبرت.
+- **المقابل في Laravel:** Laravel Vapor / Lambda مقابل VPS.
+- **إمتى:** الاستخدام قليل أو متذبذب.
+
+### Native Tokens
+📍 Methodology (Definitions)
+- **إيه هو؟** الـ tokens بالـ tokenizer بتاع الموديل نفسه. الأسعار والسرعة بتتحسب بيها.
+- **مثال:** "100 token/s" على موديلين بـ tokenizers مختلفة مش نفس السرعة الفعلية للنص.
+- **ليه يهمك؟** المقارنة بالـ token مضللة، والمقارنة الصح بالمهمة.
+- **المقابل في Laravel:** مقارنة أسعار بعملات مختلفة من غير تحويل.
+- **إمتى:** أي مقارنة سرعة أو سعر بين موديلات.
+
+### Blended Price
+📍 Methodology (Definitions)
+- **إيه هو؟** سعر واحد مجمّع بنسبة 7:2:1 (cache hit : input : output) ÷ 10.
+- **مثال:** Opus 5.5: (7×0.20 + 2×4 + 20) / 10 = $2.94 لكل مليون.
+- **ليه يهمك؟** مقارنة سريعة، بس **النسبة افتراض** (شبه agents بـ caching كتير).
+- **المقابل في Laravel:** متوسط تكلفة request مفترض.
+- **إمتى / إمتى لأ:** للنظرة الأولى بس. احسب نسبتك من الـ usage بتاعك.
+
+### Time per Task
+📍 Methodology (Definitions)
+- **إيه هو؟** الوقت المتوقع للمهمة = (answer + reasoning tokens) ÷ output speed، مرجّح بأوزان الـ index.
+- **مثال:** Haiku 5.5 (medium) 4 دقايق، و Fable 5.2 (max) 46.8 دقيقة.
+- **ليه يهمك؟** الـ reasoning بيطوّل الوقت جامد. (والـ Cost per Task اتشرح فوق في المصدر 3.)
+- **المقابل في Laravel:** متوسط وقت تنفيذ job.
+- **إمتى:** للمهام الطويلة والـ agents.
+
+### TTFAT (Time to First Answer Token)
+📍 Methodology (Definitions) · (TTFT من Step 01)
+- **إيه هو؟** الوقت لحد أول token من **الإجابة** (بعد التفكير). أما TTFT ممكن يبقى أول token من **التفكير**.
+- **مثال:** Opus 5.5 (max) الـ TTFAT = 343 ثانية.
+- **ليه يهمك؟** ده الانتظار الحقيقي للمستخدم مع الـ reasoning models.
+- **المقابل في Laravel:** TTFB مقابل الوقت لحد ما المحتوى المهم يظهر.
+- **إمتى:** أي واجهة chat فيها reasoning model.
+
+### Output Speed
+📍 Methodology (Definitions)
+- **إيه هو؟** output tokens (ومعاهم الـ reasoning) في الثانية على مدة الـ request كلها (يعني فيها الـ TTFT).
+- **مثال:** في Ollama تقدر تحسب `eval_count ÷ eval_duration` (بس ده من غير التحميل والـ prefill).
+- **ليه يهمك؟** بيحدد الـ end-to-end time للردود الطويلة.
+- **المقابل في Laravel:** throughput.
+- **إمتى:** ردود طويلة أو streaming.
+
+### Endpoint Error Rate
+📍 Methodology (Definitions)
+- **إيه هو؟** نسبة الـ requests اللي فشلت **من ناحية الـ provider** (rate limits بتاعته، و timeouts) في آخر 5 أيام. مش بيحسب أخطاءك إنت (key غلط، أو context أطول من اللازم).
+- **مثال:** Claude Opus 5.5 (max): 3.2% على Anthropic و 9.8% على Azure.
+- **ليه يهمك؟** مقياس الـ reliability (الـ SLA في الكتاب)، والأرخص مش دايماً الأثبت.
+- **المقابل في Laravel:** error rate في APM (Pulse / New Relic).
+- **إمتى:** اختيار provider، و retries و fallback.
+
+### Intelligence Index (aggregated)
+📍 AA Leaderboard · (Leaderboard و Aggregation)
+- **إيه هو؟** رقم واحد مجمّع من benchmarks كتير بأوزان (التفاصيل في صفحة منفصلة).
+- **مثال:** أعلى موديل 65، وأعلى open 46، و gpt-oss-120b (high) = 4 على الـ version الحالي.
+- **ليه يهمك؟** نسبي، وبيتغيّر مع الـ versions، فمتقارنش أرقام عبر الزمن.
+- **المقابل في Laravel:** score مجمّع زي Lighthouse.
+- **إمتى:** للتضييق بس.
+
+---
+
+## Step 03 — الموديلات والـ Providers (المصدر 5)
+> المصدر: LMArena (arena.ai) — الشرح في [`steps/03-models-and-providers/notes/05-lmarena.md`](../steps/03-models-and-providers/notes/05-lmarena.md)
+
+### Battle Mode (Blind Pairwise Comparison)
+📍 How it works ص 1
+- **إيه هو؟** ردّين من موديلين **مجهولين**، تصوّت، وبعدين الأسماء تظهر.
+- **مثال:** arena.ai: 9.1 مليون صوت على 421 موديل (نوفمبر 2026).
+- **ليه اتعمل؟** عشان التصويت يبقى على الرد مش على الـ brand.
+- **المقابل في Laravel:** blind taste test.
+- **إمتى / إمتى لأ:** ⚠️ الـ prompts بتتجمع وبتتنشر، فمتحطش داتا شغل أبداً.
+
+### Confidence Interval و Rank Spread
+📍 Text Leaderboard
+- **إيه هو؟** الـ **±** حوالين الـ score، والـ **rank spread** = أعلى وأوطى ترتيب ممكن (بسبب عدم التأكد). والـ **Preliminary** = score أولي لموديل أصواته لسه قليلة.
+- **مثال:** الأول والتاني spread بتاعهم 1–3، يعني إحصائياً متعادلين. والأول نفسه preliminary بـ 4,273 صوت و ±10.
+- **ليه يهمك؟** الـ rank لوحده مضلل لو الفروق أصغر من الـ ±.
+- **المقابل في Laravel:** تقييم 4.9 من 12 تقييم مقابل 4.7 من 8,000.
+- **إمتى:** دايماً مع أي leaderboard comparative.
+
+### Score Difference → Win Probability
+📍 Text Leaderboard · Ch.3 ص 151 (footnote 23)
+- **إيه هو؟** على مقياس شبه Elo: `P(A يكسب) ≈ 1 / (1 + 10^((B − A) / 400))`.
+- **مثال:** فرق 19 ≈ 53%، وفرق 136 ≈ 69%، وفرق 340 ≈ 88%.
+- **ليه يهمك؟** تحس بالمقياس: فروق صغيرة مش ملحوظة في الاستخدام.
+- **المقابل في Laravel:** —
+- **إمتى:** وإنت بتقرر الفرق بين موديلين يستاهل السعر ولا لأ.
+
+### Style Control
+📍 How it works ص 2 · Text Leaderboard (Adjustments)
+- **إيه هو؟** adjustment بيحاول يشيل أثر **الشكل** (الطول والتنسيق) من الـ score، عشان الترتيب يعكس المحتوى. وجنبه **Factuality** للصحة.
+- **مثال:** الناس بتفضّل الردود الأطول والمتنسّقة حتى لو المحتوى مش أحسن (تحذير الكتاب).
+- **ليه يهمك؟** الترتيب بيتغيّر حسب الـ adjustment، يعني الترتيب **قرار منهجي**.
+- **المقابل في Laravel:** —
+- **إمتى:** قارن الترتيب بالـ adjustment ومن غيره.
+
+### Category Leaderboards
+📍 Text Leaderboard، و How it works ص 2
+- **إيه هو؟** ترتيب منفصل لكل نوع مهمة أو arena: Coding، و Math، و Instruction Following، و Hard Prompts، و WebDev، و Vision...
+- **مثال:** 29 category في الـ Text Arena.
+- **ليه يهمك؟** "أحسن موديل" بيختلف حسب المهمة، فاختار الـ category الأقرب لشغلك مش Overall.
+- **المقابل في Laravel:** benchmarks منفصلة للـ JSON serialization والـ DB queries.
+- **إمتى:** دايماً قبل Overall.
+
+### Pareto View (Quality vs Cost)
+📍 Text Leaderboard (View as: Pareto)
+- **إيه هو؟** عرض الموديلات على محورين: الجودة مقابل التكلفة، واللي على "الحافة" مفيش أحسن منه في الاتنين.
+- **مثال:** "Ranking" أو "Pareto" في arena.ai.
+- **ليه يهمك؟** ده بالظبط "أحسن أداء مقابل فلوسك" بتاع الكتاب.
+- **المقابل في Laravel:** مقارنة خطط hosting على السعر والأداء.
+- **إمتى:** لما الميزانية جزء من القرار.

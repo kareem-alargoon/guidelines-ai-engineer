@@ -3,31 +3,36 @@
 > بيتحدّث بعد كل خطوة وبعد كل review.
 
 ## الحالة الحالية
-- **الخطوة الحالية:** 02 — الـ LLMs من منظور المستخدم 🟡
-- **آخر حاجة خلصت:** **Task 7** (chat CLI في `work/chat_cli.py`): `context_size` (`num_ctx`) في `llm_client.py`، و system message ثابت، وتنبيه عند 80%، و `trim_history` (sliding window) مع أمر `/trim N` و tests في `work/test_trim.py`. التجربة على `num_ctx=512`: من غير trim، Ollama **شال رسالة الاسم بصمت** (الـ `in` قلّ من 427 لـ 378 والمحادثة بتكبر، ومفيش error)، والموديل قال "ملقيتش المعلومة" مش "نسيت". بـ `/trim 4` الاستهلاك ثبت عند ~40%، والاسم اتنسي برضه بس بقرارنا. الـ system message فضل في الحالتين. والـ **Bonus** (`/summarize`): الملخص اتحفظ كرسالة system، والاسم اتحفظ (3 من 3)، حتى لما Ollama قص تاني بعدها. بس صيغة الملخص فرقت جداً، والـ 3B مش ثابت كـ summarizer. اللوجات في `results/truncation_*.md`، والـ observations في `work/observations.md`. وقبلها **Task 6** (self-consistency في `work/experiments/self_consistency.py`): 10 مسائل حساب بالعامية × 4 إعدادات (120 request). direct ×1 = **3/10**، و reasoning ×1 = **9/10** (~16× tokens)، و direct ×5 + vote = **2/10**، و reasoning ×5 + vote = **9/10** (~90× tokens). يعني التفكير هو اللي فرق، والتصويت بيصلّح الغلط العشوائي بس، مش الـ systematic (المسألة 6 غلط في كل الإعدادات). الداتا في `work/data/math_problems.json`، والنتايج في `results/self_consistency.json` و `work/observations.md`. مقارنة `qwen2.5:7b` اتسابت (مش متسطّب). وقبلها **Task 5** (structured outputs في `work/experiments/structured.py`): 3 طرق (prompt بس، وprompt + تنضيف بـ regex، وschema في `format` بتاع Ollama متولّد من `Order`)، 10 رسايل × 3 طرق × 3 مرات على T=0.7. الشكل: 93% → **100%** في الطريقتين 2 و 3. الداتا الصح: **30–33%** في التلاتة، يعني الـ schema بيضمن الشكل مش الصح. الداتا في `work/data/orders.json`، والنتايج في `results/structured.json` و `work/observations.md`. وده حل سؤال `ok: 1 items` من Task 4. قبلها Task 4 (الـ stop reasons) اتعمله commit و push (`aa5ee9d`).
-- **التاسكات على `work/02-llm-fundamentals`:**
+- **الخطوة الحالية:** 03 — الموديلات والـ Providers (Cloud vs Local) 🟡
+- **آخر حاجة خلصت:** **Step 02 ✅**: PR الكود (`work/02-llm-fundamentals`، Tasks 0–7 ومعاهم الـ Bonus `/summarize`) اتعمله merge على `main` (`dc3394f`). ومواد **Step 03** اتجهزت كلها: شرح **5 مصادر** (Ch.4 *Model Selection* + ملحق Ch.3 *Comparative Evaluation*، و 10 صفحات Ollama، و 4 صفحات Anthropic، و Artificial Analysis، و LMArena)، و `TASKS.md` فيه 8 تاسكات + 3 Bonus.
+- **ملاحظات من تحضير Step 03:**
+  - Ollama عندك **0.34.4**، والـ docs اللي اتحفظت فيها features من versions أحدث (مش لازم تحدّث للتاسكات الأساسية).
+  - `ollama ps` على الجهاز اللي اتحضّرت منه المواد: `qwen2.5:3b` اتحمّل بـ `size_vram = 0` (يعني على الـ CPU)، و context **4096** (مش 2048 زي صفحة Modelfile). هتتأكد بنفسك في Tasks 3 و 4.
+  - الـ snapshots بتاعة الـ leaderboards: AA يوم 2026-11-13 (288 موديل، و 525 endpoint)، و LMArena يوم 2026-11-11 (421 موديل، و 9.1M صوت).
+- **التاسكات على `work/03-models-and-providers`:**
 
   | Task | الحالة |
   |---|:---:|
-  | 0 — تجهيز الخطوة | ✅ |
-  | 1 — Token counter | ✅ |
-  | 2 — Sampling options و stop reason | ✅ |
-  | 3 — تجربة الـ temperature والـ seed | ✅ |
-  | 4 — الـ stop reasons | ✅ |
-  | 5 — Structured outputs: 3 طرق ومقارنة | ✅ |
-  | 6 — Self-consistency و "Models need tokens to think" | ✅ |
-  | 7 — Chat CLI بيدير الـ context window | ✅ (ومعاه الـ Bonus `/summarize`) |
+  | 0 — تجهيز الخطوة | ⬜ |
+  | 1 — Model card من Ollama | ⬜ |
+  | 2 — قارئ الـ leaderboard | ⬜ |
+  | 3 — الوقت بيروح فين؟ (cold start و keep_alive) | ⬜ |
+  | 4 — الـ context بياكل memory | ⬜ |
+  | 5 — Providers زي drivers Laravel | ⬜ |
+  | 6 — Mini eval: الموديل الـ local كفاية؟ | ⬜ |
+  | 7 — التكلفة والقرار | ⬜ |
 
-- **مستنيين منك:** commit لـ Task 7، وإجابة سؤال التفكير بتاع Task 5 (هتتكتب في الـ PR).
-- **الجاي:** تعمل push وتفتح PR لـ `work/02-llm-fundamentals` وأراجعه. وبعد الـ merge، Step 02 تبقى ✅ ونبدأ Step 03.
+- **مستنيين منك:** commit و push لمواد Step 03 وتفتح PR (`step/03-models-and-providers`)، وبعد الـ merge تبدأ المذاكرة. وفي Task 0 ابعتلي مواصفات جهازك (CPU، و RAM، و GPU و VRAM).
+- **الجاي:** تذاكر بخطة القعدات في `steps/03-models-and-providers/README.md`، وتحل التاسكات على `work/03-models-and-providers`.
 
 ## سجل الخطوات
 | الخطوة | المواد (notes + tasks) | شغلك (PR) | ملاحظات |
 |---|:---:|:---:|---|
 | 01 — مقدمة | ✅ المصادر التلاتة اتشرحوا | ✅ اتعمله merge | خلصت ✅ |
-| 02 — الـ LLMs من منظور المستخدم | ✅ المصادر الأربعة اتشرحوا + التاسكات | ⬜ | التاسكات كلها على Ollama local |
+| 02 — الـ LLMs من منظور المستخدم | ✅ المصادر الأربعة اتشرحوا + التاسكات | ✅ اتعمله merge (`dc3394f`) | خلصت ✅ (Tasks 0–7 + Bonus) |
+| 03 — الموديلات والـ Providers | ✅ المصادر الخمسة اتشرحوا + التاسكات | ⬜ | التاسكات على Ollama local، و Claude API في Bonus بس |
 
 ## البيئة
 - الأجهزة: اللاب الشخصي، ولاب الشركة (من 2026-11-09). الاتنين Windows 11 + PyCharm.
 - Python: 3.13، و venv لكل خطوة في `steps/NN-name/work/.venv` (مش على الـ git، فبيتعمل على كل جهاز بـ `pip install -r requirements.txt`).
-- Ollama: الموديل `qwen2.5:3b`.
+- Ollama: **0.34.4**، والموديل `qwen2.5:3b` (3.1B، و `Q4_K_M`، و 1.9GB).
