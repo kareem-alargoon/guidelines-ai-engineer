@@ -73,7 +73,8 @@ def get_options(
         top_p: float | None = None,
         seed: int | None = None,
         max_tokens: int | None = None,
-        stop: list[str] | None = None
+        stop: list[str] | None = None,
+        context_size: int | None = None
 ) -> dict | None:
     options = {
         key: value
@@ -84,6 +85,7 @@ def get_options(
             "seed": seed,
             "num_predict": max_tokens,
             "stop": stop,
+            "num_ctx": context_size
         }.items()
         if value is not None
     }
@@ -102,6 +104,7 @@ def chat(
         max_tokens: int | None = None,
         stop: list[str] | None = None,
         format: dict[str, Any] | str | None = None,
+        context_size: int | None = None
 ) -> ChatResult:
     """Send a chat request to Ollama and return a ChatResult.
 
@@ -119,7 +122,7 @@ def chat(
             raise LLMError(f"Invalid role: {role!r}. Use one of: {', '.join(sorted(VALID_ROLES))}")
 
     options = get_options(temperature=temperature, top_k=top_k, top_p=top_p, seed=seed, max_tokens=max_tokens,
-                          stop=stop)
+                          stop=stop, context_size=context_size)
 
     body = {"model": model, "messages": messages, "stream": False}
 
