@@ -12,8 +12,8 @@
 | الحالة | # | Branch | الموضوع | المصدر الأساسي |
 |:---:|:---:|---|---|---|
 | ✅ | 01 | `step/01-introduction` | مقدمة: يعني إيه AI Engineering | 📘 Ch.1 + Karpathy |
-| 🟡 | 02 | `step/02-llm-fundamentals` | الـ LLMs من منظور المستخدم | 📘 Ch.2 + Karpathy Deep Dive |
-| ⬜ | 03 | `step/03-models-and-providers` | الموديلات والـ Providers (Cloud vs Local) | 📘 Ch.4 (Model Selection) |
+| ✅ | 02 | `step/02-llm-fundamentals` | الـ LLMs من منظور المستخدم | 📘 Ch.2 + Karpathy Deep Dive |
+| 🟡 | 03 | `step/03-models-and-providers` | الموديلات والـ Providers (Cloud vs Local) | 📘 Ch.4 (Model Selection) + Ollama docs |
 | ⬜ | 04 | `step/04-llm-apis` | التعامل مع LLM APIs من Python | Anthropic Course + docs |
 | ⬜ | 05 | `step/05-prompt-engineering` | Prompt Engineering | 📘 Ch.5 + Anthropic Tutorial |
 | ⬜ | 06 | `step/06-ai-safety` | الأمان والـ Guardrails | 📘 Ch.5 (Defensive) + OWASP |
@@ -49,10 +49,10 @@
 - 📚 **Anthropic docs — [Context windows](https://docs.claude.com/en/docs/build-with-claude/context-windows)**
 
 ### 03 — الموديلات والـ Providers (Cloud vs Local)
-- ⭐ 📘 **Ch.4** — section *Model Selection* (build vs buy، open vs closed، الـ benchmarks)
+- ⭐ 📘 **Ch.4** — section *Model Selection* (build vs buy، open vs closed، الـ benchmarks) + *Cost and Latency*، ومعاه ملحق من **Ch.3**: *Comparative Evaluation* (عشان LMArena)
 - ⭐ 📚 **[Ollama docs](https://docs.ollama.com/)**: تشغيل open-weight models local
-- 📚 **[Anthropic — Models overview](https://docs.claude.com/en/docs/about-claude/models/overview)**
-- 📰 **[Artificial Analysis](https://artificialanalysis.ai/)** و **[LMArena](https://lmarena.ai/)**: مقارنة الموديلات (quality / cost / speed)
+- 📚 **[Anthropic — Models overview](https://platform.claude.com/docs/en/about-claude/models/overview)** + Choosing a model + Pricing + Model deprecations
+- 📰 **[Artificial Analysis](https://artificialanalysis.ai/)** و **[LMArena](https://arena.ai/)** (اسمه بقى arena.ai): مقارنة الموديلات (quality / cost / speed)
 
 ### 04 — التعامل مع LLM APIs من Python
 - ⭐ 🎓 **[Anthropic Courses](https://github.com/anthropics/courses)** — *Anthropic API Fundamentals*
