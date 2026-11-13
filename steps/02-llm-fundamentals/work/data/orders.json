@@ -1,0 +1,150 @@
+{
+    "_readme": [
+        "Test data for Task 5 (structured outputs). Written by the assistant, not by the model.",
+        "Each order has the raw customer message and the expected extraction (the 'answer key').",
+        "Quantities: if the message gives no number for an item, the expected quantity is 1.",
+        "customer_name / city: null when the message does not say them. The model must NOT guess.",
+        "is_urgent: true only when the customer asks for speed or gives a deadline.",
+        "items: the order of items does not matter.",
+        "product / city strings: the model may spell them differently (with or without 'ال', English vs Arabic). How strict your comparison is, is your decision; write it down.",
+        "notes: the trap each message is testing. Read them after you see the results, not before."
+    ],
+    "orders": [
+        {
+            "id": 1,
+            "message": "السلام عليكم، أنا أحمد من المنصورة، عايز 2 تيشيرت أبيض وبنطلون جينز واحد. مش مستعجل خالص",
+            "expected": {
+                "customer_name": "أحمد",
+                "items": [
+                    {"product": "تيشيرت أبيض", "quantity": 2},
+                    {"product": "بنطلون جينز", "quantity": 1}
+                ],
+                "city": "المنصورة",
+                "is_urgent": false
+            },
+            "notes": "Easy baseline: everything is stated clearly. 'مش مستعجل' contains the word for urgent but means NOT urgent."
+        },
+        {
+            "id": 2,
+            "message": "ضروري النهارده لو سمحت!! 3 علب قهوة ومج واحد، والتوصيل اسكندرية",
+            "expected": {
+                "customer_name": null,
+                "items": [
+                    {"product": "قهوة", "quantity": 3},
+                    {"product": "مج", "quantity": 1}
+                ],
+                "city": "الإسكندرية",
+                "is_urgent": true
+            },
+            "notes": "No name (must be null). City written 'اسكندرية' without 'ال' and without hamza."
+        },
+        {
+            "id": 3,
+            "message": "مساء الخير، معاكي منى، كنت عايزة دستة كوبايات زجاج. أنا ساكنة في طنطا",
+            "expected": {
+                "customer_name": "منى",
+                "items": [
+                    {"product": "كوبايات زجاج", "quantity": 12}
+                ],
+                "city": "طنطا",
+                "is_urgent": false
+            },
+            "notes": "Quantity is a word: 'دستة' = 12."
+        },
+        {
+            "id": 4,
+            "message": "hi, I need 2 phone covers and a screen protector, shipping to Cairo asap. Thanks, Omar",
+            "expected": {
+                "customer_name": "Omar",
+                "items": [
+                    {"product": "phone cover", "quantity": 2},
+                    {"product": "screen protector", "quantity": 1}
+                ],
+                "city": "Cairo",
+                "is_urgent": true
+            },
+            "notes": "Message in English while the prompt is (probably) Arabic. Does the model translate the values? 'a screen protector' = 1. Name is at the very end."
+        },
+        {
+            "id": 5,
+            "message": "ابعتلي اتنين شاحن تايب سي",
+            "expected": {
+                "customer_name": null,
+                "items": [
+                    {"product": "شاحن تايب سي", "quantity": 2}
+                ],
+                "city": null,
+                "is_urgent": false
+            },
+            "notes": "Very short. Two nulls. Quantity as a word: 'اتنين' = 2."
+        },
+        {
+            "id": 6,
+            "message": "انا كريم من أسيوط. عايز سماعة بلوتوث، ولو ينفع توصل قبل الخميس عشان مسافر",
+            "expected": {
+                "customer_name": "كريم",
+                "items": [
+                    {"product": "سماعة بلوتوث", "quantity": 1}
+                ],
+                "city": "أسيوط",
+                "is_urgent": true
+            },
+            "notes": "Urgency is implied by a deadline, the word 'urgent' never appears. No number for the item, so quantity = 1."
+        },
+        {
+            "id": 7,
+            "message": "عايزة 4 فوط و2 ملاية سرير. وعلى فكرة المخدة اللي طلبتها الأسبوع اللي فات لسه موصلتش. المهم الطلب ده يوصل الزقازيق. سارة",
+            "expected": {
+                "customer_name": "سارة",
+                "items": [
+                    {"product": "فوط", "quantity": 4},
+                    {"product": "ملاية سرير", "quantity": 2}
+                ],
+                "city": "الزقازيق",
+                "is_urgent": false
+            },
+            "notes": "Distractor: the pillow (مخدة) is an OLD order and must not be in items."
+        },
+        {
+            "id": 8,
+            "message": "عاوز 5 أقلام وكشكول واحد. لأ استنى، خليهم 3 أقلام بس. محمود، بورسعيد",
+            "expected": {
+                "customer_name": "محمود",
+                "items": [
+                    {"product": "أقلام", "quantity": 3},
+                    {"product": "كشكول", "quantity": 1}
+                ],
+                "city": "بورسعيد",
+                "is_urgent": false
+            },
+            "notes": "The customer corrects himself: pens are 3, not 5. Also pens must appear once, not twice."
+        },
+        {
+            "id": 9,
+            "message": "مستعجل جداً: لابتوب ستاند واحد وماوس. أنا يوسف، والعنوان هقولهولك في التليفون",
+            "expected": {
+                "customer_name": "يوسف",
+                "items": [
+                    {"product": "لابتوب ستاند", "quantity": 1},
+                    {"product": "ماوس", "quantity": 1}
+                ],
+                "city": null,
+                "is_urgent": true
+            },
+            "notes": "City is explicitly not given. Does the model invent one (e.g. Cairo) instead of null?"
+        },
+        {
+            "id": 10,
+            "message": "أنا ليلى، وعايزة أبعت علبتين شوكولاتة هدية لماما في الإسماعيلية، ياريت توصل بكرة الصبح",
+            "expected": {
+                "customer_name": "ليلى",
+                "items": [
+                    {"product": "شوكولاتة", "quantity": 2}
+                ],
+                "city": "الإسماعيلية",
+                "is_urgent": true
+            },
+            "notes": "The customer is ليلى, not her mother. 'علبتين' is the Arabic dual = 2. Deadline 'tomorrow morning' = urgent."
+        }
+    ]
+}
