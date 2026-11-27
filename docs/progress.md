@@ -34,8 +34,8 @@
   - **أعلى موديل:** Claude Fable 5.2 (max) = **65**. وأعلى open: Kimi K3.1 Pro = **46** (الـ 26). يعني توقّع الكاتبة لسه ماشي.
   - **نفس الموديل:** Claude Opus 5.5 (max) على 4 platforms: **2.1x** في السعر (Google ضعف Anthropic)، و Bedrock بنفس السعر بس الـ errors الضعف (6.3% مقابل 3.2%). و gpt-oss-120b (high) عند 16 endpoint: **10.5x** في السعر، و **45x** في السرعة، والـ errors من 0% لـ 17.4%. **الأرخص (CoreWeave) error rate بتاعه 13.1%.**
   - ⚠️ الأرقام دي صورة من يوم واحد (2026-11-13)، و Cost/Time per Task على benchmark بتاع AA مش على شغلك: للمقارنة بين الـ providers بس، مش لحساب الفاتورة.
-  - **لسه عليك في الـ PR:** جزء LMArena (أول 3 open في category قريبة من شغلك، وهل فيه category للعربي؟ واكتب تاريخ اليوم).
-- **مستنيين منك:** commit و push لـ Task 2 على `work/03-models-and-providers`.
+  - **LMArena (اتشاف live يوم 2026-11-27، والصفحة متحدّثة Nov 22):** في Coding + Open Source، أول 3: MiMo-V2.6-Pro (1,539)، و Kimi K3 (Max) (1,537)، و Kimi K3.1 Pro (Max) (1,535)، يعني متعادلين تقريباً. **مفيش category للعربي**، وأقرب حاجة Non-English. فالعربي محتاج eval بتاعك (Task 6).
+- **مستنيين منك:** commit و push لإجابات LMArena (Task 2) على `work/03-models-and-providers`.
 - **الجاي:** Task 3 (الوقت بيروح فين؟ cold start و keep_alive).
 
 ## سجل الخطوات

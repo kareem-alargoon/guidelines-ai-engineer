@@ -72,3 +72,24 @@
 - **"Cost per Task" و "Time per Task"** دول على **الـ benchmark بتاع AA** (المهام بتاعتهم وطول الـ output بتاعهم)، مش على شغلك. استخدمهم **للمقارنة بين الـ providers**، مش عشان تحسب فاتورتك.
 - **179 endpoint قدامها `--` في الـ intelligence:** مش معناه إنها وحشة، معناه إنها **مااتقيّمتش** على الـ index الحالي، و `top_models` بتستبعدها.
 - **لستة الـ provider tags** متجمّعة من الـ snapshot ده. لو حفظت صفحة جديدة وطلع tag جديد، هتلاقي الموديل متكرر في الـ top 10، فضيفه لـ `PROVIDER_TAGS`.
+
+### 6. LMArena: الجزء اللي من غير كود (اتشاف يوم **2026-11-27**)
+> الصفحة: arena.ai/leaderboard/text، وآخر تحديث مكتوب عليها **Nov 22, 2026**. (الـ snapshot المحفوظ في `resources/` كان يوم 2026-11-11 وفيه الترتيب الـ Overall بس، فده اتشاف live.)
+> ⚠️ شكل الصفحة اتغيّر عن الـ snapshot: الـ categories بقت **dropdown** (جنبه Filters و License)، واللغات بقت **submenu** اسمه *Language*.
+
+**الـ category:** **Coding**، لأنها الأقرب لشغلي (backend و tools). **License = Open Source**، وده بيظهر في الـ URL كـ `.../text/coding?license=open-source`. الـ category فيها 1,988,743 صوت، و **226** موديل open source.
+
+| # | الموديل (Open Source، Coding) | Score | Cost/Task (P50) |
+|---|---|---:|---:|
+| 1 | **MiMo-V2.6-Pro** | 1,539 | $0.01 |
+| 2 | **Kimi K3 (Max)** | 1,537 | $0.06 |
+| 3 | **Kimi K3.1 Pro (Max)** | 1,535 | $0.03 |
+
+- **التلاتة بينهم 4 نقط بس** (1,539 ← 1,535)، يعني عملياً **متعادلين**. فرق صغير كده أقل من الـ confidence interval غالباً (شرح LMArena: Score ± CI و Rank Spread)، فالترتيب بينهم **مش مهم**.
+- **أعلى موديل في Coding من غير فلتر:** Gemini 4 Carbon (High) = **1,567** (proprietary). وأول open (MiMo-V2.6-Pro) ترتيبه **الـ 15** في الكل. يعني الفجوة موجودة هنا كمان (28 نقطة)، بس أصغر من AA في الترتيب (هناك أول open كان الـ 26).
+- **الـ leaderboardين مختلفين:** في AA، أعلى open كان **Kimi K3.1 Pro** وبعده بمسافة DeepSeek و GLM. وفي Arena Coding، **MiMo-V2.6-Pro** هو الأول. وده طبيعي: AA بيقيس على **benchmarks**، و Arena بيقيس **تفضيل ناس** في محادثات حقيقية. منظورين مختلفين، فخُد المرشحين من الاتنين، و**اختبرهم على شغلك**.
+
+**هل فيه category للعربي؟ ❌ لأ.**
+- لستة *Language* فيها 10 بس: English، و **Non-English**، و Chinese، و French، و German، و Spanish، و Russian، و Japanese، و Korean، و Polish.
+- **أقرب بديل:** **Non-English** (كل اللغات غير الإنجليزي مع بعض، والعربي من ضمنهم). أعلى 3 open فيها: **Kimi K3 (Max)** (1,477)، و **GLM-5.3 (Max)** (1,468)، و **Kimi K3.1 Pro (Max)** (1,467).
+- **الدرس:** مفيش leaderboard عام هيقولك الموديل كويس في **العربي** (ولا في **العامية المصرية**). لو منتجك عربي، لازم **eval set عربي بتاعك** (Task 6)، وده بالظبط اللي الكتاب سمّاه "custom leaderboard" أو eval على داتا بتاعتك.
