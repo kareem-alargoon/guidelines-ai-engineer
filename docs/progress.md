@@ -15,7 +15,7 @@
   |---|:---:|
   | 0 — تجهيز الخطوة | ✅ |
   | 1 — Model card من Ollama | ✅ |
-  | 2 — قارئ الـ leaderboard | ⬜ |
+  | 2 — قارئ الـ leaderboard | ✅ |
   | 3 — الوقت بيروح فين؟ (cold start و keep_alive) | ⬜ |
   | 4 — الـ context بياكل memory | ⬜ |
   | 5 — Providers زي drivers Laravel | ⬜ |
@@ -29,8 +29,14 @@
   - ⚠️ **الـ license بيختلف بين أحجام نفس العيلة:** على Hugging Face، `Qwen2.5-1.5B-Instruct` و `Qwen2.5-7B-Instruct` بـ **Apache 2.0**، و `Qwen2.5-3B-Instruct` بس هو اللي `qwen-research`. افتكرها في Task 6.
   - الموديل يقدر على **32,768** token، بس Ollama بيحجز **4096** بس by default على جهاز VRAM بتاعه أقل من 24 GiB (هتتأكد في Task 4).
   - الكود كتبه المساعد بطلب منك من خطوة 4 (dataclass وجدول)، وإنت كتبت أول خطوتين وقريت الـ JSON والـ license بنفسك.
-- **مستنيين منك:** commit و push لـ Task 1 على `work/03-models-and-providers`.
-- **الجاي:** Task 2 (قارئ الـ leaderboard).
+- **Task 2 (2026-11-27):** `work/leaderboard.py` بيقرا صفحة الـ providers المحفوظة من AA (**snapshot يوم 2026-11-13**): كل صف 13 سطر، و `"--"` بيبقى `None`. النتيجة **525** endpoint (**408 Open** و **117 Proprietary**). الكود كتبه المساعد بطلب منك (التاسك parsing متكرر)، والتفاصيل في `work/observations.md`.
+  - **الـ provider tags:** الـ providers بيزوّدوا على اسم الموديل (`FAST`، و `FP8`، و `Vertex`...)، فـ 253 اسم طلعوا 176 موديل بس. الـ dedup بـ `base_model()` بيشيلهم، والـ reasoning effort (`max`/`high`) بيفضل موديل لوحده. واتأكدنا إن كل مجموعة اتدمجت ليها نفس الـ index ونفس الـ license.
+  - **أعلى موديل:** Claude Fable 5.2 (max) = **65**. وأعلى open: Kimi K3.1 Pro = **46** (الـ 26). يعني توقّع الكاتبة لسه ماشي.
+  - **نفس الموديل:** Claude Opus 5.5 (max) على 4 platforms: **2.1x** في السعر (Google ضعف Anthropic)، و Bedrock بنفس السعر بس الـ errors الضعف (6.3% مقابل 3.2%). و gpt-oss-120b (high) عند 16 endpoint: **10.5x** في السعر، و **45x** في السرعة، والـ errors من 0% لـ 17.4%. **الأرخص (CoreWeave) error rate بتاعه 13.1%.**
+  - ⚠️ الأرقام دي صورة من يوم واحد (2026-11-13)، و Cost/Time per Task على benchmark بتاع AA مش على شغلك: للمقارنة بين الـ providers بس، مش لحساب الفاتورة.
+  - **لسه عليك في الـ PR:** جزء LMArena (أول 3 open في category قريبة من شغلك، وهل فيه category للعربي؟ واكتب تاريخ اليوم).
+- **مستنيين منك:** commit و push لـ Task 2 على `work/03-models-and-providers`.
+- **الجاي:** Task 3 (الوقت بيروح فين؟ cold start و keep_alive).
 
 ## سجل الخطوات
 | الخطوة | المواد (notes + tasks) | شغلك (PR) | ملاحظات |
