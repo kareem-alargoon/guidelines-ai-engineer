@@ -13,7 +13,7 @@
 
   | Task | الحالة |
   |---|:---:|
-  | 0 — تجهيز الخطوة | ⬜ |
+  | 0 — تجهيز الخطوة | ✅ |
   | 1 — Model card من Ollama | ⬜ |
   | 2 — قارئ الـ leaderboard | ⬜ |
   | 3 — الوقت بيروح فين؟ (cold start و keep_alive) | ⬜ |
@@ -22,8 +22,10 @@
   | 6 — Mini eval: الموديل الـ local كفاية؟ | ⬜ |
   | 7 — التكلفة والقرار | ⬜ |
 
-- **مستنيين منك:** commit و push لمواد Step 03 وتفتح PR (`step/03-models-and-providers`)، وبعد الـ merge تبدأ المذاكرة. وفي Task 0 ابعتلي مواصفات جهازك (CPU، و RAM، و GPU و VRAM).
-- **الجاي:** تذاكر بخطة القعدات في `steps/03-models-and-providers/README.md`، وتحل التاسكات على `work/03-models-and-providers`.
+- **Task 0 (2026-11-27):** فولدر `work/` اتعمل فيه `llm_client.py` (من Step 02) و venv جديد و `requirements.txt` (ASCII، و `httpx 0.29.0`، و `pydantic 2.14.4`)، و `python llm_client.py` رد من `qwen2.5:3b`. و `hardware.md` اتكتب: الـ desktop الشخصي (i5-14600K، و 32 GB DDR5، و Intel UHD 770 مدمج من غير VRAM)، يعني الموديلات هتشتغل على الـ CPU والـ RAM، والـ default context هيبقى 4K.
+  - ⚠️ في PowerShell 5.1، `pip freeze > requirements.txt` بيكتب **UTF-16** (git بيشوفه binary). استخدم `pip freeze | Out-File -Encoding ascii requirements.txt`.
+- **مستنيين منك:** commit و push لـ Task 0 على `work/03-models-and-providers`.
+- **الجاي:** Task 1 (Model card من Ollama).
 
 ## سجل الخطوات
 | الخطوة | المواد (notes + tasks) | شغلك (PR) | ملاحظات |
@@ -33,6 +35,6 @@
 | 03 — الموديلات والـ Providers | ✅ المصادر الخمسة اتشرحوا + التاسكات | ⬜ | التاسكات على Ollama local، و Claude API في Bonus بس |
 
 ## البيئة
-- الأجهزة: اللاب الشخصي، ولاب الشركة (من 2026-11-09). الاتنين Windows 11 + PyCharm.
+- الأجهزة: الـ **desktop الشخصي** (i5-14600K، و 32 GB DDR5، ومن غير GPU منفصل، شوف `steps/03-models-and-providers/work/hardware.md`)، ولاب الشركة (من 2026-11-09). الاتنين Windows 11 + PyCharm.
 - Python: 3.13، و venv لكل خطوة في `steps/NN-name/work/.venv` (مش على الـ git، فبيتعمل على كل جهاز بـ `pip install -r requirements.txt`).
 - Ollama: **0.34.4**، والموديل `qwen2.5:3b` (3.1B، و `Q4_K_M`، و 1.9GB).
