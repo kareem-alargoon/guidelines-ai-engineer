@@ -16,7 +16,7 @@
   | 0 — تجهيز الخطوة | ✅ |
   | 1 — Model card من Ollama | ✅ |
   | 2 — قارئ الـ leaderboard | ✅ |
-  | 3 — الوقت بيروح فين؟ (cold start و keep_alive) | ⬜ |
+  | 3 — الوقت بيروح فين؟ (cold start و keep_alive) | ✅ |
   | 4 — الـ context بياكل memory | ⬜ |
   | 5 — Providers زي drivers Laravel | ⬜ |
   | 6 — Mini eval: الموديل الـ local كفاية؟ | ⬜ |
@@ -35,8 +35,14 @@
   - **نفس الموديل:** Claude Opus 5.5 (max) على 4 platforms: **2.1x** في السعر (Google ضعف Anthropic)، و Bedrock بنفس السعر بس الـ errors الضعف (6.3% مقابل 3.2%). و gpt-oss-120b (high) عند 16 endpoint: **10.5x** في السعر، و **45x** في السرعة، والـ errors من 0% لـ 17.4%. **الأرخص (CoreWeave) error rate بتاعه 13.1%.**
   - ⚠️ الأرقام دي صورة من يوم واحد (2026-11-13)، و Cost/Time per Task على benchmark بتاع AA مش على شغلك: للمقارنة بين الـ providers بس، مش لحساب الفاتورة.
   - **LMArena (اتشاف live يوم 2026-11-27، والصفحة متحدّثة Nov 22):** في Coding + Open Source، أول 3: MiMo-V2.6-Pro (1,539)، و Kimi K3 (Max) (1,537)، و Kimi K3.1 Pro (Max) (1,535)، يعني متعادلين تقريباً. **مفيش category للعربي**، وأقرب حاجة Non-English. فالعربي محتاج eval بتاعك (Task 6).
-- **مستنيين منك:** commit و push لإجابات LMArena (Task 2) على `work/03-models-and-providers`.
-- **الجاي:** Task 3 (الوقت بيروح فين؟ cold start و keep_alive).
+- **Task 3 (2026-11-27، على الـ desktop الشخصي):** `ChatResult` بقى فيه `load_seconds` و `prompt_eval_seconds` و `eval_seconds` (بـ default، فالكود القديم شغّال) و `@property output_tokens_per_second` (÷ الـ eval مش الـ total)، و `chat()` بقى بياخد `keep_alive` في **body الـ request** (بـ `is not None` عشان `0` يتبعت). و `model_card.py` فيه `get_running_models()` من `/api/ps`. والتجربة `experiments/latency.py` (3 cold بـ `keep_alive=0`، و preload، و 5 warm). الكود كتبه المساعد بطلب منك، وإنت شغّلت التجارب.
+  - **Cold مقابل warm:** الـ load **1.57 ث** cold و **0.00** warm، والـ TTFT (load + prompt eval) **1.81 ث** مقابل **0.08 ث**. والتوليد ثابت **~28 tok/s** في الحالتين. يعني الـ load هو أغلب الـ TTFT، بس الـ eval هو أغلب الـ total.
+  - **PROCESSOR:** `100% CPU` (`size_vram = 0`)، و 2.16 GB في الـ memory (الملف 1.93 GB، والفرق KV cache)، و context 4,096.
+  - **Prompt caching:** نفس الـ prompt المتكرر prompt eval بتاعه نزل من 0.23 لـ 0.04 ث، و**الرد اتغيّر** (70 ← 86 token) مع إن `temperature=0`.
+  - ⚠️ **`localhost` على Windows كان بيضيّع ~2 ث في كل request** (IPv6 الأول). الـ default بقى `http://127.0.0.1:11434`. ده كان جزء من بطء Step 02.
+  - التفاصيل في `work/observations.md`.
+- **مستنيين منك:** commit و push لـ Task 3، وإجابات أسئلة Task 3 في الـ PR.
+- **الجاي:** Task 4 (الـ context بياكل memory).
 
 ## سجل الخطوات
 | الخطوة | المواد (notes + tasks) | شغلك (PR) | ملاحظات |

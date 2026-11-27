@@ -6,7 +6,9 @@ from typing import Any
 from enum import Enum
 from dataclasses import dataclass
 
-OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://localhost:11434").rstrip("/")
+# 127.0.0.1, not "localhost": on Windows "localhost" tries IPv6 (::1) first, Ollama only
+# listens on IPv4, and every request lost ~2 s before falling back (measured in Step 03, Task 3).
+OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://127.0.0.1:11434").rstrip("/")
 OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "qwen2.5:3b")
 TIMEOUT_SECONDS = 120
 
@@ -31,6 +33,18 @@ class ChatResult:
     output_tokens: int
     duration_seconds: float
     stop_reason: str
+    # Where the time went (Step 03, Task 3). Defaults keep old ChatResult(...) calls working.
+    load_seconds: float = 0.0  # loading the model from disk into memory (cold start)
+    prompt_eval_seconds: float = 0.0  # reading the prompt (prefill)
+    eval_seconds: float = 0.0  # generating the answer token by token (decode)
+
+    @property
+    def output_tokens_per_second(self) -> float:
+        # Generation speed only: divide by eval time, not total time,
+        # otherwise a cold start (load) makes the model look slow.
+        if self.eval_seconds <= 0:
+            return 0.0
+        return self.output_tokens / self.eval_seconds
 
 
 def convert_from_nanoseconds_to_seconds(nanoseconds: int) -> float:
@@ -104,7 +118,8 @@ def chat(
         max_tokens: int | None = None,
         stop: list[str] | None = None,
         format: dict[str, Any] | str | None = None,
-        context_size: int | None = None
+        context_size: int | None = None,
+        keep_alive: str | int | None = None
 ) -> ChatResult:
     """Send a chat request to Ollama and return a ChatResult.
 
@@ -132,6 +147,11 @@ def chat(
     if format:
         body["format"] = format
 
+    # keep_alive goes in the body itself, not in options. "10m", 3600, -1 (forever), 0 (unload now).
+    # Check `is not None`, not truthiness: keep_alive=0 is falsy but must still be sent.
+    if keep_alive is not None:
+        body["keep_alive"] = keep_alive
+
     response = send_request(url, body, TIMEOUT_SECONDS)
     handle_http_errors(response, model)
 
@@ -142,6 +162,9 @@ def chat(
         output_tokens=data.get("eval_count", 0),
         duration_seconds=convert_from_nanoseconds_to_seconds(data.get("total_duration", 0)),
         stop_reason=data.get("done_reason", "Unknown"),
+        load_seconds=convert_from_nanoseconds_to_seconds(data.get("load_duration", 0)),
+        prompt_eval_seconds=convert_from_nanoseconds_to_seconds(data.get("prompt_eval_duration", 0)),
+        eval_seconds=convert_from_nanoseconds_to_seconds(data.get("eval_duration", 0)),
     )
 
 
@@ -151,3 +174,6 @@ if __name__ == "__main__":
     print(chat_result.text)
     print(
         f"in: {chat_result.input_tokens} tokens | out: {chat_result.output_tokens} tokens | {chat_result.duration_seconds:.2f} s | stop_reason: {chat_result.stop_reason}")
+    print(
+        f"load: {chat_result.load_seconds:.2f} s | prompt eval: {chat_result.prompt_eval_seconds:.2f} s | "
+        f"eval: {chat_result.eval_seconds:.2f} s | {chat_result.output_tokens_per_second:.1f} tokens/s")

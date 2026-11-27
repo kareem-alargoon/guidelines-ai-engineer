@@ -17,10 +17,20 @@ class ModelCard:
     size_on_disk_gb: float
 
 
-def fetch_local_models() -> list[dict]:
-    """Raw entries from /api/tags (what `ollama ls` shows), one dict per model."""
+@dataclass
+class RunningModel:
+    name: str
+    size_gb: float
+    vram_gb: float
+    gpu_percent: float  # how much of the model is in GPU memory (VRAM)
+    context_length: int | None
+    expires_at: str
+
+
+def get_json(path: str) -> dict:
+    """GET an Ollama endpoint (like "/api/tags") and return the JSON body."""
     try:
-        response = httpx.get(OLLAMA_URL + "/api/tags", timeout=TIMEOUT_SECONDS)
+        response = httpx.get(OLLAMA_URL + path, timeout=TIMEOUT_SECONDS)
     except httpx.ConnectError as e:
         # Ollama is not running: no HTTP response at all, so no status_code to check.
         raise LLMError(f"Can't reach Ollama at {OLLAMA_URL}. Make sure the Ollama app is running.") from e
@@ -30,7 +40,12 @@ def fetch_local_models() -> list[dict]:
     if response.status_code != 200:
         raise LLMError(f"Ollama returned HTTP {response.status_code}: {response.text}")
 
-    return response.json()["models"]
+    return response.json()
+
+
+def fetch_local_models() -> list[dict]:
+    """Raw entries from /api/tags (what `ollama ls` shows), one dict per model."""
+    return get_json("/api/tags")["models"]
 
 
 def list_local_models() -> list[str]:
@@ -97,9 +112,46 @@ def print_table(cards: list[ModelCard]) -> None:
         )
 
 
+def get_running_models() -> list[RunningModel]:
+    """Models loaded in memory right now, from /api/ps (what `ollama ps` shows)."""
+    running = []
+    for entry in get_json("/api/ps")["models"]:
+        size = entry["size"]  # bytes in memory: weights + KV cache + overhead
+        size_vram = entry.get("size_vram", 0)  # the part of `size` that is on the GPU
+        running.append(RunningModel(
+            name=entry["name"],
+            size_gb=round(size / BYTES_PER_GB, 2),
+            vram_gb=round(size_vram / BYTES_PER_GB, 2),
+            # 0 VRAM -> 0% GPU = "100% CPU" in `ollama ps`. `if size` avoids dividing by zero.
+            gpu_percent=round(size_vram / size * 100, 1) if size else 0.0,
+            context_length=entry.get("context_length"),  # newer Ollama versions only
+            expires_at=entry.get("expires_at", ""),
+        ))
+    return running
+
+
+def print_running_models(models: list[RunningModel]) -> None:
+    if not models:
+        print("No models loaded in memory.")
+        return
+
+    header = f"{'NAME':<20}{'SIZE GB':>8}{'VRAM GB':>9}{'GPU %':>7}{'CONTEXT':>9}  EXPIRES AT"
+    print(header)
+    print("-" * len(header))
+    for model in models:
+        context = f"{model.context_length:,}" if model.context_length else "-"
+        print(
+            f"{model.name:<20}{model.size_gb:>8.2f}{model.vram_gb:>9.2f}{model.gpu_percent:>7.1f}"
+            f"{context:>9}  {model.expires_at}"
+        )
+
+
 if __name__ == "__main__":
     cards = [get_model_card(name) for name in list_local_models()]
     print_table(cards)
+
+    print()
+    print_running_models(get_running_models())
 
     # A model that isn't downloaded must raise LLMError with the `ollama pull` command.
     print()
