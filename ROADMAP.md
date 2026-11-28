@@ -13,8 +13,8 @@
 |:---:|:---:|---|---|---|
 | ✅ | 01 | `step/01-introduction` | مقدمة: يعني إيه AI Engineering | 📘 Ch.1 + Karpathy |
 | ✅ | 02 | `step/02-llm-fundamentals` | الـ LLMs من منظور المستخدم | 📘 Ch.2 + Karpathy Deep Dive |
-| 🟡 | 03 | `step/03-models-and-providers` | الموديلات والـ Providers (Cloud vs Local) | 📘 Ch.4 (Model Selection) + Ollama docs |
-| ⬜ | 04 | `step/04-llm-apis` | التعامل مع LLM APIs من Python | Anthropic Course + docs |
+| ✅ | 03 | `step/03-models-and-providers` | الموديلات والـ Providers (Cloud vs Local) | 📘 Ch.4 (Model Selection) + Ollama docs |
+| 🟡 | 04 | `step/04-llm-apis` | التعامل مع LLM APIs من Python | Anthropic Course + docs |
 | ⬜ | 05 | `step/05-prompt-engineering` | Prompt Engineering | 📘 Ch.5 + Anthropic Tutorial |
 | ⬜ | 06 | `step/06-ai-safety` | الأمان والـ Guardrails | 📘 Ch.5 (Defensive) + OWASP |
 | ⬜ | 07 | `step/07-embeddings` | Embeddings | 📗 Ch.2 + Simon Willison |
@@ -56,8 +56,8 @@
 
 ### 04 — التعامل مع LLM APIs من Python
 - ⭐ 🎓 **[Anthropic Courses](https://github.com/anthropics/courses)** — *Anthropic API Fundamentals*
-- ⭐ 📚 **Anthropic docs**: Messages API، Streaming، Structured outputs، Prompt caching
-- 📚 **Ollama API** (نفس الأفكار على موديل local)
+- ⭐ 📚 **Anthropic docs**: Messages API، Streaming، Structured outputs، Prompt caching (+ Token counting، و Errors، و Rate limits، و README الـ Python SDK)
+- 📚 **Ollama API** (نفس الأفكار على موديل local) + **[Anthropic compatibility](https://docs.ollama.com/api/anthropic-compatibility)**: الـ SDK الرسمي على موديل local من غير key
 - 📚 أدوات Python اللي هتظهر: **[httpx](https://www.python-httpx.org/)**، **[pydantic](https://docs.pydantic.dev/latest/)**، **[uv](https://docs.astral.sh/uv/)**، و 📰 **Real Python — [Async IO in Python](https://realpython.com/async-io-python/)**
 
 ### 05 — Prompt Engineering
