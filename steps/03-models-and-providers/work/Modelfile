@@ -1,0 +1,4 @@
+# qwen2.5:3b with an 8K context, for clients that can't send num_ctx (the OpenAI-compatible API).
+# Build:  ollama create qwen2.5-3b-8k -f Modelfile
+FROM qwen2.5:3b
+PARAMETER num_ctx 8192

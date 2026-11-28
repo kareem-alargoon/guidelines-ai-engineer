@@ -18,7 +18,7 @@
   | 2 — قارئ الـ leaderboard | ✅ |
   | 3 — الوقت بيروح فين؟ (cold start و keep_alive) | ✅ |
   | 4 — الـ context بياكل memory | ✅ |
-  | 5 — Providers زي drivers Laravel | ⬜ |
+  | 5 — Providers زي drivers Laravel | ✅ |
   | 6 — Mini eval: الموديل الـ local كفاية؟ | ⬜ |
   | 7 — التكلفة والقرار | ⬜ |
 
@@ -47,8 +47,13 @@
   - **PROCESSOR:** `100% CPU` و 0 VRAM في كل الأحجام، يعني **مفيش offloading** (مفيش VRAM يتعدّى). والحد عندك هو الـ RAM، و 3.37 GB بعيدة عنه جداً. والـ tok/s ثابت ~31 (الـ context محجوز بس مش مليان).
   - **تغيير الـ `num_ctx` = reload كامل** (~1.6–1.9 ث في كل سطر). ونفس الـ `num_ctx` مرتين: 1.89 ث ← 0.002 ث. يعني ثبّت رقم واحد في تطبيقك.
   - **Agent بـ 64K:** مش بـ `qwen2.5:3b` (أقصاه 32,768). الـ RAM تكفي، بس محتاج موديل تاني، وهيبقى بطيء على الـ CPU. التفاصيل في `work/observations.md`.
-- **مستنيين منك:** commit و push لـ Task 4، وإجابات أسئلة Tasks 3 و 4 في وصف الـ PR.
-- **الجاي:** Task 5 (Providers زي drivers Laravel).
+- **Task 5 (2026-11-28، على الـ desktop الشخصي):** `work/providers.py` فيه `LLMProvider` (ABC)، و `OllamaProvider` (wrapper على `llm_client.chat`، و `context_size` في الـ constructor)، و `OpenAICompatibleProvider` (httpx على `/v1/chat/completions`)، و `parse_openai_response` (pure)، و `get_provider()` (من `LLM_PROVIDER` و `LLM_MODEL` و `LLM_BASE_URL` و `LLM_API_KEY`)، و `UnsupportedParameterError`. و `test_providers.py` (8 حالات، من غير Ollama) passed. الكود كله كتبه المساعد بطلب منك.
+  - **الـ factory:** نفس سطر الكود رد من الاتنين بتغيير `$env:LLM_PROVIDER` بس، والـ key الناقص والـ provider الغلط بيرموا errors واضحة.
+  - **الـ Modelfile:** `qwen2.5-3b-8k` (`FROM qwen2.5:3b` + `num_ctx 8192`)، layer واحدة جديدة بس من غير weights. وبالـ OpenAI API: context **8192** و **2.41 GB** (نفس رقم Task 4).
+  - **نفس الموديل بالـ 2 APIs (`temperature=0`، و `seed=42`):** الـ input tokens اتطابقت في الـ 5، والنص في 4. **الـ prompt العربي اختلف بسبب الـ prompt caching مش الـ API**: أول request (من غير cache) بيطلّع رد، واللي بعده رد تاني، بأي API (اتأكدنا بالترتيب المعكوس).
+  - **اللي بيضيع في الـ standard API:** الـ timing كله (`load`، و `eval`، و tok/s) و `num_ctx`. واللي بيزيد: `cached_tokens`. التفاصيل في `work/observations.md`.
+- **مستنيين منك:** commit و push لـ Task 5، وإجابات أسئلة Tasks 3 و 4 و 5 في وصف الـ PR.
+- **الجاي:** Task 6 (Mini eval: الموديل الـ local كفاية؟).
 
 ## سجل الخطوات
 | الخطوة | المواد (notes + tasks) | شغلك (PR) | ملاحظات |

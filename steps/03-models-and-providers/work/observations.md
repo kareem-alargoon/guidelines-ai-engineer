@@ -226,3 +226,60 @@
 - **الـ RAM مش هي المشكلة:** بالـ ~40 MB لكل 1K، الـ 64K على موديل بنفس الشكل هتبقى ~5.8 GB (الـ KV cache ~2.4 GB)، وده يدخل بسهولة. حتى موديل أكبر (زي 7B) بـ 64K غالباً يدخل في الـ 32 GB، بس **لازم يتقاس**، لأن الـ cache بيعتمد على الـ architecture.
 - **المشكلة التانية: السرعة على الـ CPU.** قراية الـ prompt في Task 3 كانت ~170 token/ث (40 token في 0.23 ث). يعني agent بيبعت 64K token context (tool outputs، و files) ممكن يستنى **دقايق** قبل أول token، والتوليد نفسه هيبطأ لما الـ context يتملي. (تقدير تقريبي بالـ extrapolation، مش قياس.)
 - **الخلاصة:** agent بـ 64K على جهازك **محتاج موديل تاني** بيدعم context أطول (Qwen3 مثلاً أو غيره، اتأكد من `context_length` بـ Task 1)، **وهيبقى بطيء** على الـ CPU. فالـ agents الجد غالباً **cloud API** (Task 7) أو GPU. والجهاز ده كويس للتجربة والـ context القصير.
+
+## Task 5 — Providers زي drivers Laravel (2026-11-28)
+
+> **الجهاز:** الـ **desktop الشخصي**. Ollama **0.34.4**، و `qwen2.5:3b`.
+> **الكود:** `providers.py` (الـ contract و الـ 2 drivers و الـ factory)، و `test_providers.py` (`python test_providers.py`، من غير Ollama)، و `Modelfile`، و `experiments/same_model_two_apis.py` ← `experiments/results/same_model_two_apis.json`.
+> الكود كله كتبه المساعد بطلب منك، وإنت قريته.
+
+### 1. اللي اتبنى
+| الحتة | بتعمل إيه | المقابل في Laravel |
+|---|---|---|
+| `LLMProvider` (ABC) | الـ contract: `chat()` بالـ parameters المشتركة بس (`temperature`، و `max_tokens`، و `seed`، و `stop`) | `Illuminate\Contracts\Mail\Mailer` |
+| `OllamaProvider` | wrapper على `llm_client.chat` (الـ native `/api/chat`)، و `context_size` في الـ constructor | `SmtpTransport` |
+| `OpenAICompatibleProvider` | httpx على `{base_url}/chat/completions` بـ `Authorization: Bearer` | `SesTransport` (driver تاني لنفس الـ contract) |
+| `parse_openai_response` | pure function: JSON بتاع OpenAI ← `ChatResult` | `JsonResource` بالعكس |
+| `get_provider()` | بيقرا `LLM_PROVIDER` و `LLM_MODEL` و `LLM_BASE_URL` و `LLM_API_KEY` | `DatabaseManager` + `DB_CONNECTION` |
+| `UnsupportedParameterError(LLMError)` | الـ provider مبيقدرش يعمل المطلوب | `InvalidArgumentException: Driver [x] not supported` |
+
+- **Tests:** 8 حالات + 3 فرعية، كلها passed: الـ mapping، والرد المقطوع (`length`)، ومن غير `usage`، و `content: null`، و `choices: []`، والـ factory (default، و `openai_compat` كامل، والـ key ناقص، والـ URL ناقص، و provider غلط)، و `context_size` على الـ OpenAI API.
+- **الـ factory اشتغل:** نفس سطر الكود رد من `ollama` ومن `openai_compat` بتغيير `$env:LLM_PROVIDER` بس. و `'olama'` ← `Unknown LLM_PROVIDER='olama'. Use one of: ollama, openai_compat`.
+
+### 2. الـ mapping والـ features اللي بتضيع
+- الرد الحقيقي من `/v1` فيه `choices[0].message.content`، و `usage.prompt_tokens` / `completion_tokens`، و `finish_reason`. **ومفيش أي timing.**
+- فـ `duration_seconds` بنقيسه بـ `perf_counter` (وده فيه الـ HTTP كمان)، و `load_seconds` و `eval_seconds` بيفضلوا `0.0`، و `output_tokens_per_second = 0`. ⚠️ **الـ `0.0` هنا معناها "مش معروف" مش "صفر"**. الأنضف `float | None`، بس ده كان هيغيّر `llm_client` وتجارب Tasks 3–4، فسيبناه.
+- **في المقابل** `/v1` بيرجّع `prompt_tokens_details.cached_tokens` (34 من 35 في أول تجربة)، والـ native مبيرجّعهوش. يعني كل API بيدّي حاجات والتاني لأ.
+- **`length` مش معناه إن النص ناقص بعينك:** بـ `max_tokens=3` الرد كان "Hi there!" كامل بس `finish_reason="length"`. الـ native بـ `max_tokens=20` طلّع نفس النص في **4** tokens بـ `stop`: الـ token الرابع هو علامة نهاية الرد. يعني الموديل اتقطع قبل ما "يقفل".
+
+### 3. الـ Modelfile (`context_size` من غير `num_ctx`)
+- `OpenAICompatibleProvider(..., context_size=8192)` بيرمي `UnsupportedParameterError` **في الـ constructor**، والرسالة فيها الحل (Modelfile + `ollama create`).
+- `ollama create qwen2.5-3b-8k -f Modelfile`: **4 layers اتعمل لهم reuse** (منهم الـ weights)، و layer واحدة جديدة (`num_ctx 8192`). و `ollama list` بيقول 1.9 GB للاتنين بس الـ blob واحد على الـ disk. و `ollama show --parameters` ← `num_ctx 8192` بس (`qwen2.5:3b` أصلاً مفيهوش `PARAMETER`).
+- بالـ OpenAI API ومن غير `context_size`: `/api/ps` ← `qwen2.5-3b-8k:latest`، و context **8192**، و **2.41 GB**، و `100% CPU`. **نفس رقم سطر الـ 8K في Task 4 بالظبط.** ✅
+- ⚠️ كل **اسم موديل** مختلف = موديل منفصل في الـ memory و load جديد (نفس درس `num_ctx` في Task 4). لو استخدمت `qwen2.5:3b` و `qwen2.5-3b-8k` مع بعض، نفس الـ weights ممكن تتحمّل مرتين.
+
+### 4. نفس الموديل، API مختلف (سؤال 1 في الـ PR)
+**الـ setup:** `qwen2.5:3b` بالـ default context (4096) في الاتنين (عشان التبديل ميعملش reload)، و `temperature=0`، و `seed=42`، و `max_tokens=200`، و warm-up. لكل prompt: native ← openai_compat ← **native تاني** (control).
+
+| الـ prompt | compat = native؟ | native2 = native؟ | in (n/c) | out (n/c/n2) | الوقت n/c (ث) |
+|---|:---:|:---:|:---:|:---:|:---:|
+| Explain what an API is… | ✅ | ✅ | 39/39 | 44/44/44 | 1.78 / 1.87 |
+| اشرح يعني إيه cache… | ❌ | ❌ | 40/40 | 83/62/62 | 3.14 / 2.50 |
+| Write a Python function… prime | ✅ | ✅ | 41/41 | 200/200/200 | 7.32 / 7.65 |
+| What is the capital of Australia? | ✅ | ✅ | 41/41 | 3/3/3 | 0.19 / 0.27 |
+| List 5 fruits… | ✅ | ✅ | 42/42 | 14/14/14 | 0.58 / 0.64 |
+
+- **الـ input tokens اتطابقت في الـ 5** (39–42). يعني الـ `/v1` بيحوّل الـ `messages` لنفس النص بنفس الـ template. والـ output اتطابق في 4 من 5.
+- **الـ prompt العربي اختلف، بس مش بسبب الـ API:** الـ `native_again` **كمان** اختلف عن أول native، و **`openai_compat` == `native_again` حرف بحرف** (62 token). يعني أول request (الـ prompt مش في الـ cache) طلّع رد (83 token)، وكل الـ requests بعده (الـ prompt في الـ cache) طلّعوا رد تاني (62).
+- **اتأكدنا بالترتيب المعكوس:** unload، وبعدين **compat الأول** ← 83 token (نفس رد الـ native الأول)، و native بعده ← 62، و compat تالت ← 62 (== native). يعني **الفرق من الـ prompt caching** (نفس اللي شفناه في Task 3: 70 ← 86 token)، **مش من الـ API**: الحسابات على prompt جديد مقابل prompt من الـ cache بتختلف في الأرقام العشرية شوية، ومع `temperature=0` أي اختلاف صغير في أول token مختلف بيغيّر الرد كله بعده.
+- **ليه العربي بس؟** غالباً لأن الموديل الصغير "مش متأكد" في العربي (احتمالات الـ tokens قريبة من بعض)، فأي فرق صغير بيقلب الاختيار. وفي الإنجليزي الاختيار الأول واضح، فالفرق الصغير مبيأثرش. (تفسير محتمل، مش متقاس.)
+- **الوقت:** الـ compat أبطأ شوية في 4 من 5 (~0.06–0.33 ث)، لأن الرقم بتاعه فيه الـ HTTP و الـ JSON، والـ native `total_duration` بتاع السيرفر بس. في العربي الـ compat أسرع لأنه طلّع tokens أقل (62 مقابل 83). يعني **متقارنش أوقات اتقاست بطريقتين مختلفتين**.
+
+### 5. الدرس (سؤال 1 في الـ PR: "اعمل tests لما تبدّل الـ API")
+- **حتى على نفس الموديل ونفس السيرفر و `temperature=0`**، الرد مش مضمون يبقى نفس الحروف. فـ tests بتقارن النص بالظبط (`==`) هتفشل من غير ما يكون فيه bug.
+- **اللي يتختبر لما تبدّل API:** الـ mapping (pure tests زي `test_providers.py`)، والـ token counts، والـ stop reason، والـ features اللي بتختفي (الـ timing هنا، و `num_ctx`)، **وجودة** الرد على eval set (Task 6) مش تطابقه.
+- **والتبديل لـ provider تاني فعلاً** (موديل تاني، أو quantization تانية، أو hardware تاني) الفرق هيبقى أكبر بكتير من ده. فده بالظبط ليه الكتاب بيقول اعمل tests (evals) قبل ما تبدّل.
+
+### 6. سؤال التصميم (سؤال 2 في الـ PR)
+- **ليه `top_k` و `context_size` مش في `LLMProvider.chat()`؟** لأن الـ contract = **الجزء المشترك** بين كل الـ providers. `top_k` مش موجود في OpenAI API، و `context_size` مش موجود في أي API تقريباً غير Ollama native (وكمان تغييره بيعمل reload، فمكانه الـ constructor مش كل request). لو حطيتهم، كل driver هيضطر يتجاهلهم بصمت (bug مستخبي) أو يرمي error في نص الشغل.
+- **البديل لو تطبيق محتاجهم:** (1) **إعداد في الـ constructor** للـ driver اللي بيدعمه (زي `OllamaProvider(context_size=8192)`)، (2) أو **يتخبز في الموديل** (Modelfile)، (3) أو التطبيق يستخدم `OllamaProvider` مباشرة **ويعترف** إنه مربوط بـ Ollama (زي `DB::raw()` لما تحتاج feature خاصة بـ PostgreSQL)، (4) أو `extra: dict` في `chat()` بيتبعت كما هو، بس ده بيكسر فكرة الـ contract.
