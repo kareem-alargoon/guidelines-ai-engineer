@@ -1,0 +1,144 @@
+{
+    "date": "2026-11-28T09:53:26",
+    "machine": "personal desktop (i5-14600K, 32 GB DDR5, no dedicated GPU)",
+    "ollama_version": "0.34.4",
+    "model": "qwen2.5:3b",
+    "settings": {
+        "temperature": 0,
+        "seed": 42,
+        "max_tokens": 200
+    },
+    "order": "native, openai_compat, native_again for each prompt",
+    "results": [
+        {
+            "prompt": "Explain what an API is in two sentences.",
+            "compat_same_as_native": true,
+            "native_again_same_as_native": true,
+            "native": {
+                "text": "An API, or Application Programming Interface, is a set of rules and protocols for developing software applications. It allows different software components or services to communicate and interact with each other, enabling them to share data and functionality.",
+                "input_tokens": 39,
+                "output_tokens": 44,
+                "duration_seconds": 1.78,
+                "stop_reason": "stop"
+            },
+            "openai_compat": {
+                "text": "An API, or Application Programming Interface, is a set of rules and protocols for developing software applications. It allows different software components or services to communicate and interact with each other, enabling them to share data and functionality.",
+                "input_tokens": 39,
+                "output_tokens": 44,
+                "duration_seconds": 1.87,
+                "stop_reason": "stop"
+            },
+            "native_again": {
+                "text": "An API, or Application Programming Interface, is a set of rules and protocols for developing software applications. It allows different software components or services to communicate and interact with each other, enabling them to share data and functionality.",
+                "input_tokens": 39,
+                "output_tokens": 44,
+                "duration_seconds": 1.67,
+                "stop_reason": "stop"
+            }
+        },
+        {
+            "prompt": "اشرح يعني إيه cache في جملتين.",
+            "compat_same_as_native": false,
+            "native_again_same_as_native": false,
+            "native": {
+                "text": "في جملتين، يمكن وصف \"الخزن\" أو \"الcache\" كنظام يحتفظ بمعلومات مؤقتة في ذاكرة الوصول العاجل (RAM) لتسهيل الوصول إليها بسرعة عند الحاجة، بدلاً من الاحتفاظ بها في القرص الصلب الذي يستغرق وقتاً أطول للوصول إليه.",
+                "input_tokens": 40,
+                "output_tokens": 83,
+                "duration_seconds": 3.14,
+                "stop_reason": "stop"
+            },
+            "openai_compat": {
+                "text": "في جملتين، يمكن وصف \"الخزن\" أو \"الcache\" كنظام يحتفظ بمعلومات مؤقتة في مكان سريع للوصول إليها بسهولة، بدلاً من البحث عن المعلومات في مكان أبطأ مثل القرص الصلب.",
+                "input_tokens": 40,
+                "output_tokens": 62,
+                "duration_seconds": 2.5,
+                "stop_reason": "stop"
+            },
+            "native_again": {
+                "text": "في جملتين، يمكن وصف \"الخزن\" أو \"الcache\" كنظام يحتفظ بمعلومات مؤقتة في مكان سريع للوصول إليها بسهولة، بدلاً من البحث عن المعلومات في مكان أبطأ مثل القرص الصلب.",
+                "input_tokens": 40,
+                "output_tokens": 62,
+                "duration_seconds": 2.25,
+                "stop_reason": "stop"
+            }
+        },
+        {
+            "prompt": "Write a Python function that checks if a number is prime.",
+            "compat_same_as_native": true,
+            "native_again_same_as_native": true,
+            "native": {
+                "text": "Certainly! Below is a Python function that checks if a given number is prime. The function is named `is_prime` and it returns `True` if the number is prime, and `False` otherwise.\n\n```python\ndef is_prime(n):\n    \"\"\"\n    Check if a number is prime.\n\n    Parameters:\n    n (int): The number to check.\n\n    Returns:\n    bool: True if n is prime, False otherwise.\n    \"\"\"\n    if n <= 1:\n        return False\n    if n <= 3:\n        return True\n    if n % 2 == 0 or n % 3 == 0:\n        return False\n    i = 5\n    while i * i <= n:\n        if n % i == 0 or n % (i + 2) == 0:\n            return False\n        i += 6\n    return True\n```\n\n### Explanation:\n- **Base Cases**: If `n` is less than",
+                "input_tokens": 41,
+                "output_tokens": 200,
+                "duration_seconds": 7.32,
+                "stop_reason": "length"
+            },
+            "openai_compat": {
+                "text": "Certainly! Below is a Python function that checks if a given number is prime. The function is named `is_prime` and it returns `True` if the number is prime, and `False` otherwise.\n\n```python\ndef is_prime(n):\n    \"\"\"\n    Check if a number is prime.\n\n    Parameters:\n    n (int): The number to check.\n\n    Returns:\n    bool: True if n is prime, False otherwise.\n    \"\"\"\n    if n <= 1:\n        return False\n    if n <= 3:\n        return True\n    if n % 2 == 0 or n % 3 == 0:\n        return False\n    i = 5\n    while i * i <= n:\n        if n % i == 0 or n % (i + 2) == 0:\n            return False\n        i += 6\n    return True\n```\n\n### Explanation:\n- **Base Cases**: If `n` is less than",
+                "input_tokens": 41,
+                "output_tokens": 200,
+                "duration_seconds": 7.65,
+                "stop_reason": "length"
+            },
+            "native_again": {
+                "text": "Certainly! Below is a Python function that checks if a given number is prime. The function is named `is_prime` and it returns `True` if the number is prime, and `False` otherwise.\n\n```python\ndef is_prime(n):\n    \"\"\"\n    Check if a number is prime.\n\n    Parameters:\n    n (int): The number to check.\n\n    Returns:\n    bool: True if n is prime, False otherwise.\n    \"\"\"\n    if n <= 1:\n        return False\n    if n <= 3:\n        return True\n    if n % 2 == 0 or n % 3 == 0:\n        return False\n    i = 5\n    while i * i <= n:\n        if n % i == 0 or n % (i + 2) == 0:\n            return False\n        i += 6\n    return True\n```\n\n### Explanation:\n- **Base Cases**: If `n` is less than",
+                "input_tokens": 41,
+                "output_tokens": 200,
+                "duration_seconds": 7.27,
+                "stop_reason": "length"
+            }
+        },
+        {
+            "prompt": "What is the capital of Australia? Answer in one word.",
+            "compat_same_as_native": true,
+            "native_again_same_as_native": true,
+            "native": {
+                "text": "Canberra",
+                "input_tokens": 41,
+                "output_tokens": 3,
+                "duration_seconds": 0.19,
+                "stop_reason": "stop"
+            },
+            "openai_compat": {
+                "text": "Canberra",
+                "input_tokens": 41,
+                "output_tokens": 3,
+                "duration_seconds": 0.27,
+                "stop_reason": "stop"
+            },
+            "native_again": {
+                "text": "Canberra",
+                "input_tokens": 41,
+                "output_tokens": 3,
+                "duration_seconds": 0.12,
+                "stop_reason": "stop"
+            }
+        },
+        {
+            "prompt": "List 5 fruits, one per line, no extra text.",
+            "compat_same_as_native": true,
+            "native_again_same_as_native": true,
+            "native": {
+                "text": "Apple\nBanana\nOrange\nGrape\nStrawberry",
+                "input_tokens": 42,
+                "output_tokens": 14,
+                "duration_seconds": 0.58,
+                "stop_reason": "stop"
+            },
+            "openai_compat": {
+                "text": "Apple\nBanana\nOrange\nGrape\nStrawberry",
+                "input_tokens": 42,
+                "output_tokens": 14,
+                "duration_seconds": 0.64,
+                "stop_reason": "stop"
+            },
+            "native_again": {
+                "text": "Apple\nBanana\nOrange\nGrape\nStrawberry",
+                "input_tokens": 42,
+                "output_tokens": 14,
+                "duration_seconds": 0.5,
+                "stop_reason": "stop"
+            }
+        }
+    ]
+}

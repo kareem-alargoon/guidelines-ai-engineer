@@ -1,0 +1,64 @@
+{
+    "date": "2026-11-28T08:53:58",
+    "machine": "personal desktop (i5-14600K, 32 GB DDR5, no dedicated GPU)",
+    "ollama_version": "0.34.4",
+    "model": "qwen2.5:3b",
+    "prompt": "Say hello in one short sentence.",
+    "max_tokens": 50,
+    "rows": [
+        {
+            "requested_context": null,
+            "allocated_context": 4096,
+            "size_gb": 2.16,
+            "vram_gb": 0.0,
+            "gpu_percent": 0.0,
+            "load_seconds": 1.55,
+            "tokens_per_second": 31.2
+        },
+        {
+            "requested_context": 2048,
+            "allocated_context": 2048,
+            "size_gb": 2.09,
+            "vram_gb": 0.0,
+            "gpu_percent": 0.0,
+            "load_seconds": 1.61,
+            "tokens_per_second": 30.6
+        },
+        {
+            "requested_context": 4096,
+            "allocated_context": 4096,
+            "size_gb": 2.16,
+            "vram_gb": 0.0,
+            "gpu_percent": 0.0,
+            "load_seconds": 1.6,
+            "tokens_per_second": 31.9
+        },
+        {
+            "requested_context": 8192,
+            "allocated_context": 8192,
+            "size_gb": 2.41,
+            "vram_gb": 0.0,
+            "gpu_percent": 0.0,
+            "load_seconds": 1.87,
+            "tokens_per_second": 30.5
+        },
+        {
+            "requested_context": 16384,
+            "allocated_context": 16384,
+            "size_gb": 2.73,
+            "vram_gb": 0.0,
+            "gpu_percent": 0.0,
+            "load_seconds": 1.86,
+            "tokens_per_second": 30.7
+        },
+        {
+            "requested_context": 32768,
+            "allocated_context": 32768,
+            "size_gb": 3.37,
+            "vram_gb": 0.0,
+            "gpu_percent": 0.0,
+            "load_seconds": 1.87,
+            "tokens_per_second": 32.3
+        }
+    ]
+}

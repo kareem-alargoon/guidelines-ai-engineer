@@ -1,0 +1,145 @@
+{
+    "date": "2026-11-27T15:33:55",
+    "machine": "personal desktop (i5-14600K, 32 GB DDR5, no dedicated GPU)",
+    "ollama_version": "0.34.4",
+    "model": "qwen2.5:3b",
+    "prompt": "Explain in two sentences what a REST API is.",
+    "temperature": 0,
+    "max_tokens": 100,
+    "requests": [
+        {
+            "kind": "cold",
+            "run": 1,
+            "load_seconds": 1.571,
+            "prompt_eval_seconds": 0.241,
+            "eval_seconds": 2.524,
+            "total_seconds": 4.34,
+            "ttft_seconds": 1.812,
+            "input_tokens": 40,
+            "output_tokens": 70,
+            "tokens_per_second": 27.7,
+            "wall_seconds": 4.441
+        },
+        {
+            "kind": "cold",
+            "run": 2,
+            "load_seconds": 1.554,
+            "prompt_eval_seconds": 0.243,
+            "eval_seconds": 2.445,
+            "total_seconds": 4.246,
+            "ttft_seconds": 1.797,
+            "input_tokens": 40,
+            "output_tokens": 70,
+            "tokens_per_second": 28.6,
+            "wall_seconds": 4.458
+        },
+        {
+            "kind": "cold",
+            "run": 3,
+            "load_seconds": 1.581,
+            "prompt_eval_seconds": 0.236,
+            "eval_seconds": 2.504,
+            "total_seconds": 4.33,
+            "ttft_seconds": 1.817,
+            "input_tokens": 40,
+            "output_tokens": 70,
+            "tokens_per_second": 27.9,
+            "wall_seconds": 4.499
+        },
+        {
+            "kind": "warm",
+            "run": 1,
+            "load_seconds": 0.003,
+            "prompt_eval_seconds": 0.232,
+            "eval_seconds": 2.431,
+            "total_seconds": 2.674,
+            "ttft_seconds": 0.235,
+            "input_tokens": 40,
+            "output_tokens": 70,
+            "tokens_per_second": 28.8,
+            "wall_seconds": 2.818
+        },
+        {
+            "kind": "warm",
+            "run": 2,
+            "load_seconds": 0.003,
+            "prompt_eval_seconds": 0.037,
+            "eval_seconds": 3.031,
+            "total_seconds": 3.075,
+            "ttft_seconds": 0.04,
+            "input_tokens": 40,
+            "output_tokens": 86,
+            "tokens_per_second": 28.4,
+            "wall_seconds": 3.233
+        },
+        {
+            "kind": "warm",
+            "run": 3,
+            "load_seconds": 0.002,
+            "prompt_eval_seconds": 0.036,
+            "eval_seconds": 3.035,
+            "total_seconds": 3.077,
+            "ttft_seconds": 0.038,
+            "input_tokens": 40,
+            "output_tokens": 86,
+            "tokens_per_second": 28.3,
+            "wall_seconds": 3.183
+        },
+        {
+            "kind": "warm",
+            "run": 4,
+            "load_seconds": 0.002,
+            "prompt_eval_seconds": 0.036,
+            "eval_seconds": 3.063,
+            "total_seconds": 3.104,
+            "ttft_seconds": 0.038,
+            "input_tokens": 40,
+            "output_tokens": 86,
+            "tokens_per_second": 28.1,
+            "wall_seconds": 3.256
+        },
+        {
+            "kind": "warm",
+            "run": 5,
+            "load_seconds": 0.002,
+            "prompt_eval_seconds": 0.035,
+            "eval_seconds": 3.007,
+            "total_seconds": 3.047,
+            "ttft_seconds": 0.037,
+            "input_tokens": 40,
+            "output_tokens": 86,
+            "tokens_per_second": 28.6,
+            "wall_seconds": 3.149
+        }
+    ],
+    "preload_wall_seconds": 1.657,
+    "averages": {
+        "cold": {
+            "load_seconds": 1.569,
+            "prompt_eval_seconds": 0.24,
+            "eval_seconds": 2.491,
+            "total_seconds": 4.305,
+            "ttft_seconds": 1.809,
+            "tokens_per_second": 28.067
+        },
+        "warm": {
+            "load_seconds": 0.002,
+            "prompt_eval_seconds": 0.075,
+            "eval_seconds": 2.913,
+            "total_seconds": 2.995,
+            "ttft_seconds": 0.078,
+            "tokens_per_second": 28.44
+        }
+    },
+    "running_models_after_cold": [],
+    "running_models_after_warm": [
+        {
+            "name": "qwen2.5:3b",
+            "size_gb": 2.16,
+            "vram_gb": 0.0,
+            "gpu_percent": 0.0,
+            "context_length": 4096,
+            "expires_at": "2026-11-27T15:38:55.1758543+02:00"
+        }
+    ]
+}
