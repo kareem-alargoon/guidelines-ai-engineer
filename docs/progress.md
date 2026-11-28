@@ -52,7 +52,7 @@
   - **الـ Modelfile:** `qwen2.5-3b-8k` (`FROM qwen2.5:3b` + `num_ctx 8192`)، layer واحدة جديدة بس من غير weights. وبالـ OpenAI API: context **8192** و **2.41 GB** (نفس رقم Task 4).
   - **نفس الموديل بالـ 2 APIs (`temperature=0`، و `seed=42`):** الـ input tokens اتطابقت في الـ 5، والنص في 4. **الـ prompt العربي اختلف بسبب الـ prompt caching مش الـ API**: أول request (من غير cache) بيطلّع رد، واللي بعده رد تاني، بأي API (اتأكدنا بالترتيب المعكوس).
   - **اللي بيضيع في الـ standard API:** الـ timing كله (`load`، و `eval`، و tok/s) و `num_ctx`. واللي بيزيد: `cached_tokens`. التفاصيل في `work/observations.md`.
-- **مستنيين منك:** commit و push لـ Task 5، وإجابات أسئلة Tasks 3 و 4 و 5 في وصف الـ PR.
+- **مستنيين منك:** إجابات أسئلة Tasks 3 و 4 و 5 في وصف الـ PR.
 - **الجاي:** Task 6 (Mini eval: الموديل الـ local كفاية؟).
 
 ## سجل الخطوات
