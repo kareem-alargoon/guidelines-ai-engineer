@@ -16,7 +16,7 @@ from statistics import mean
 
 from pydantic import BaseModel, ValidationError
 
-from llm_client import ChatResult, Role, chat
+from llm_client import ChatResult, Role, chat, load_model as preload_model, unload_model
 from model_card import get_json, get_model_card, get_running_models, list_local_models
 
 # Change this when you run it on the work laptop: latency and tok/s depend on the hardware.
@@ -39,6 +39,9 @@ LATENCY_THRESHOLD_SECONDS = 30.0  # a background job, so total time matters, not
 
 FIELDS = ("vendor", "date", "total", "currency")
 TOTAL_TOLERANCE = 0.01  # one piastre / cent
+# A receipt answer is ~50 tokens. The cap stops a small model that gets stuck
+# (e.g. endless whitespace inside the JSON) from running until the 120 s timeout.
+MAX_TOKENS = 256
 
 # Arabic letters that people (and models) write in more than one way.
 ARABIC_VARIANTS = str.maketrans({"أ": "ا", "إ": "ا", "آ": "ا", "ى": "ي", "ة": "ه"})
@@ -77,7 +80,7 @@ def extract(text: str, model: str) -> tuple[Receipt | None, ChatResult]:
         {"role": Role.SYSTEM.value, "content": SYSTEM_PROMPT},
         {"role": Role.USER.value, "content": text},
     ]
-    result = chat(messages, model, temperature=0, format=Receipt.model_json_schema())
+    result = chat(messages, model, temperature=0, max_tokens=MAX_TOKENS, format=Receipt.model_json_schema())
     try:
         return Receipt.model_validate_json(result.text), result
     except ValidationError:
@@ -109,7 +112,7 @@ def score(predicted: Receipt | None, expected: dict) -> dict[str, bool]:
     if predicted is None:
         return {field: False for field in FIELDS}
 
-    accepted_names = {normalize_name(n) for n in [expected["vendor"], *expected["vendor_aliases"]]}
+    accepted_names = {normalize_name(n) for n in [expected["vendor"], *expected.get("vendor_aliases", [])]}
     return {
         "vendor": normalize_name(predicted.vendor) in accepted_names,
         "date": predicted.date.strip() == expected["date"],
@@ -130,13 +133,8 @@ def load_model(model: str) -> float:
     and the average latency is the warm one, like a server that keeps the model loaded.
     """
     start = time.perf_counter()
-    chat([], model)
+    preload_model(model)
     return round(time.perf_counter() - start, 2)
-
-
-def unload_model(model: str) -> None:
-    """keep_alive=0 = free the memory now, so the next candidate doesn't share RAM with this one."""
-    chat([], model, keep_alive=0)
 
 
 def evaluate_receipt(receipt: dict, model: str) -> dict:
@@ -171,7 +169,8 @@ def evaluate_model(model: str, receipts: list[dict]) -> dict:
         print(f"  {mark} receipt {row['id']:>2} ({row['language']:<5}) {row['latency_seconds']:>6.2f} s")
         results.append(row)
 
-    # Read memory while the model is still loaded, then free it for the next candidate.
+    # Read memory while the model is still loaded, then free it (keep_alive=0)
+    # so the next candidate doesn't share RAM with this one.
     running = next((m for m in get_running_models() if m.name == model), None)
     unload_model(model)
 
@@ -276,6 +275,9 @@ def main() -> None:
     passed = [r["model"] for r in reports if r["passed"]]
     print(f"\nUsefulness threshold (use_case.md): {limits}, latency < {LATENCY_THRESHOLD_SECONDS:.0f} s")
     print(f"Passed: {', '.join(passed) if passed else 'none'}")
+    # The license is a hard attribute (Task 1), but its name isn't standard across models,
+    # so the code can't judge it. PASS above = the numbers only.
+    print("[!] PASS checks accuracy and latency only. Read each model's LICENSE before a commercial use.")
 
     for report in reports:
         print_errors(report)

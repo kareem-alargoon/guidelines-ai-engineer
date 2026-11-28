@@ -79,7 +79,11 @@ CACHED_RATIO = 0.5      # system prompt ~172 of 330.5 tokens (Qwen tokenizer, me
 
 def load_local_result(path: Path = EVAL_FILE, model: str = LOCAL_MODEL) -> dict:
     data = json.loads(path.read_text(encoding="utf-8"))
-    return next(m["summary"] for m in data["models"] if m["model"] == model)
+    for m in data["models"]:
+        if m["model"] == model:
+            return m["summary"]
+    found = ", ".join(m["model"] for m in data["models"])
+    raise ValueError(f"{model} is not in {path.name} (found: {found}). Run experiments.model_eval for it first.")
 
 
 def main() -> None:
@@ -107,7 +111,9 @@ def main() -> None:
     print(f"  - the machine itself (desktop, CPU only), electricity, updates and someone who maintains it")
     print(f"  - speed: {local['avg_latency_seconds']} s/receipt on CPU = ~{compute_minutes:.0f} min of compute a day "
           f"(fine for a background job)")
-    print(f"  - license: {local['license']} = non-commercial. A commercial app needs another model (Task 6)")
+    # Not hard-coded as "non-commercial": change LOCAL_MODEL and the license changes too.
+    print(f"  - license: {local['license']}. Read it before a commercial use "
+          f"(qwen-research = non-commercial only, Task 1)")
 
     print("\n[!] Estimate, not an invoice: these token counts come from the Qwen tokenizer.")
     print("    Claude counts tokens with its own tokenizer (newer models ~30% more tokens, pricing p.2).")

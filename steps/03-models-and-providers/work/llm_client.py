@@ -123,6 +123,10 @@ def chat(
 ) -> ChatResult:
     """Send a chat request to Ollama and return a ChatResult.
 
+    keep_alive: how long the model stays loaded after this request ("10m", 3600 seconds,
+    -1 = forever, 0 = unload right after). None = Ollama's default (5 minutes).
+    The result also has the time split: load_seconds, prompt_eval_seconds, eval_seconds.
+
     Raises LLMError for every expected failure (Ollama not running, timeout,
     model not found, any other HTTP error), so callers only need to catch one type.
     """
@@ -166,6 +170,16 @@ def chat(
         prompt_eval_seconds=convert_from_nanoseconds_to_seconds(data.get("prompt_eval_duration", 0)),
         eval_seconds=convert_from_nanoseconds_to_seconds(data.get("eval_duration", 0)),
     )
+
+
+def load_model(model: str | None = None) -> None:
+    """Empty request = load the model into memory and keep it (default keep_alive, 5 minutes)."""
+    chat([], model)
+
+
+def unload_model(model: str | None = None) -> None:
+    """Empty request + keep_alive=0 = free the model's memory now (like `ollama stop`)."""
+    chat([], model, keep_alive=0)
 
 
 if __name__ == "__main__":

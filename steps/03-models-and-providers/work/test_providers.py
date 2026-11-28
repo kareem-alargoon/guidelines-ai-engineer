@@ -35,39 +35,49 @@ def openai_response(content: str | None, finish_reason: str, usage: dict | None 
 
 USAGE = {"prompt_tokens": 35, "prompt_tokens_details": {"cached_tokens": 34}, "completion_tokens": 4, "total_tokens": 39}
 
-# 1. Normal answer: every field is mapped, and duration is the one we measured.
-result = parse_openai_response(openai_response("Hi there!", "stop", USAGE), duration_seconds=0.42)
-assert result.text == "Hi there!"
-assert result.input_tokens == 35
-assert result.output_tokens == 4
-assert result.stop_reason == "stop"
-assert result.duration_seconds == 0.42
-# No timing breakdown in the OpenAI response, so these stay at their defaults.
-assert result.load_seconds == 0.0 and result.eval_seconds == 0.0
-assert result.output_tokens_per_second == 0.0
 
-# 2. Cut by max_tokens: finish_reason "length", even when the text looks complete.
-cut_usage = {"prompt_tokens": 35, "completion_tokens": 3, "total_tokens": 38}
-result = parse_openai_response(openai_response("Hi there!", "length", cut_usage), duration_seconds=0.3)
-assert result.stop_reason == "length"
-assert result.output_tokens == 3
+# --- parse_openai_response(): pure mapping, no network ---
 
-# 3. No usage block: tokens fall back to 0 instead of crashing.
-result = parse_openai_response(openai_response("Hi", "stop"), duration_seconds=0.1)
-assert result.input_tokens == 0 and result.output_tokens == 0
+def test_normal_answer_is_mapped():
+    result = parse_openai_response(openai_response("Hi there!", "stop", USAGE), duration_seconds=0.42)
+    assert result.text == "Hi there!"
+    assert result.input_tokens == 35
+    assert result.output_tokens == 4
+    assert result.stop_reason == "stop"
+    assert result.duration_seconds == 0.42  # the one we measured
+    # No timing breakdown in the OpenAI response, so these stay at their defaults.
+    assert result.load_seconds == 0.0 and result.eval_seconds == 0.0
+    assert result.output_tokens_per_second == 0.0
 
-# 3b. content is null (a tool call answer): text becomes "".
-result = parse_openai_response(openai_response(None, "tool_calls", USAGE), duration_seconds=0.1)
-assert result.text == ""
-assert result.stop_reason == "tool_calls"
 
-# 4. Empty choices: a clear LLMError, not an IndexError.
-try:
-    parse_openai_response({"choices": [], "usage": USAGE}, duration_seconds=0.1)
-except LLMError as e:
-    assert "No choices" in str(e)
-else:
-    raise AssertionError("Empty choices should raise LLMError")
+def test_cut_by_max_tokens():
+    # finish_reason "length", even when the text looks complete.
+    cut_usage = {"prompt_tokens": 35, "completion_tokens": 3, "total_tokens": 38}
+    result = parse_openai_response(openai_response("Hi there!", "length", cut_usage), duration_seconds=0.3)
+    assert result.stop_reason == "length"
+    assert result.output_tokens == 3
+
+
+def test_no_usage_block():
+    # Tokens fall back to 0 instead of crashing.
+    result = parse_openai_response(openai_response("Hi", "stop"), duration_seconds=0.1)
+    assert result.input_tokens == 0 and result.output_tokens == 0
+
+
+def test_null_content_from_a_tool_call():
+    result = parse_openai_response(openai_response(None, "tool_calls", USAGE), duration_seconds=0.1)
+    assert result.text == ""
+    assert result.stop_reason == "tool_calls"
+
+
+def test_empty_choices_is_an_llm_error():
+    # A clear LLMError, not an IndexError.
+    try:
+        parse_openai_response({"choices": [], "usage": USAGE}, duration_seconds=0.1)
+    except LLMError as e:
+        assert "No choices" in str(e)
+    else:
+        raise AssertionError("Empty choices should raise LLMError")
 
 
 # --- get_provider(): the factory reads env vars ---
@@ -100,36 +110,44 @@ def raises_llm_error(**env: str) -> str:
     raise AssertionError(f"Expected LLMError for {env}")
 
 
-# 5. Nothing set: Ollama native with the default model.
-provider = provider_from_env()
-assert isinstance(provider, OllamaProvider)
-assert provider.model == "qwen2.5:3b"
+def test_default_is_ollama():
+    provider = provider_from_env()
+    assert isinstance(provider, OllamaProvider)
+    assert provider.model == "qwen2.5:3b"
 
-# 5b. openai_compat with everything set (no request is sent, only the object is built).
-provider = provider_from_env(LLM_PROVIDER=" OpenAI_Compat ", LLM_MODEL="qwen2.5-3b-8k",
-                             LLM_BASE_URL="http://127.0.0.1:11434/v1/", LLM_API_KEY="ollama")
-assert isinstance(provider, OpenAICompatibleProvider)
-assert provider.model == "qwen2.5-3b-8k"
-assert provider.base_url == "http://127.0.0.1:11434/v1"  # trailing slash removed
 
-# 6. openai_compat without a key: a clear error that names the variable.
-message = raises_llm_error(LLM_PROVIDER="openai_compat", LLM_BASE_URL="http://127.0.0.1:11434/v1")
-assert "LLM_API_KEY" in message
+def test_openai_compat_with_everything_set():
+    # No request is sent, only the object is built.
+    provider = provider_from_env(LLM_PROVIDER=" OpenAI_Compat ", LLM_MODEL="qwen2.5-3b-8k",
+                                 LLM_BASE_URL="http://127.0.0.1:11434/v1/", LLM_API_KEY="ollama")
+    assert isinstance(provider, OpenAICompatibleProvider)
+    assert provider.model == "qwen2.5-3b-8k"
+    assert provider.base_url == "http://127.0.0.1:11434/v1"  # trailing slash removed
 
-# 6b. openai_compat without a base URL.
-assert "LLM_BASE_URL" in raises_llm_error(LLM_PROVIDER="openai_compat", LLM_API_KEY="ollama")
 
-# 7. Unknown provider: the error lists the allowed values.
-message = raises_llm_error(LLM_PROVIDER="olama")
-assert "'olama'" in message and "ollama" in message and "openai_compat" in message
+def test_openai_compat_needs_key_and_url():
+    assert "LLM_API_KEY" in raises_llm_error(LLM_PROVIDER="openai_compat", LLM_BASE_URL="http://127.0.0.1:11434/v1")
+    assert "LLM_BASE_URL" in raises_llm_error(LLM_PROVIDER="openai_compat", LLM_API_KEY="ollama")
 
-# 8. context_size over the OpenAI API fails in the constructor, and the message gives the fix.
-try:
-    OpenAICompatibleProvider("http://127.0.0.1:11434/v1", "ollama", "qwen2.5:3b", context_size=8192)
-except UnsupportedParameterError as e:
-    assert "Modelfile" in str(e)
-    assert isinstance(e, LLMError)  # one except LLMError still catches it
-else:
-    raise AssertionError("context_size should raise UnsupportedParameterError")
 
-print("All provider tests passed")
+def test_unknown_provider_lists_the_allowed_values():
+    message = raises_llm_error(LLM_PROVIDER="olama")
+    assert "'olama'" in message and "ollama" in message and "openai_compat" in message
+
+
+def test_context_size_over_openai_api_fails_in_constructor():
+    try:
+        OpenAICompatibleProvider("http://127.0.0.1:11434/v1", "ollama", "qwen2.5:3b", context_size=8192)
+    except UnsupportedParameterError as e:
+        assert "Modelfile" in str(e)  # the message gives the fix
+        assert isinstance(e, LLMError)  # one except LLMError still catches it
+    else:
+        raise AssertionError("context_size should raise UnsupportedParameterError")
+
+
+if __name__ == "__main__":
+    tests = [f for name, f in dict(globals()).items() if name.startswith("test_")]
+    for test in tests:
+        test()
+        print(f"OK  {test.__name__}")
+    print(f"\n{len(tests)} tests passed")

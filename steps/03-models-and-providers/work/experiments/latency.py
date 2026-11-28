@@ -9,7 +9,7 @@ from statistics import mean
 import json
 import time
 
-from llm_client import chat, Role, ChatResult, OLLAMA_MODEL
+from llm_client import chat, load_model, unload_model, Role, ChatResult, OLLAMA_MODEL
 from model_card import get_json, get_running_models, print_running_models
 
 # Change this when you run it on the work laptop: the numbers depend on the hardware.
@@ -24,19 +24,14 @@ WARM_RUNS = 5
 RESULTS_FILE = Path(__file__).parent / "results" / "latency.json"
 
 
-def unload() -> None:
-    """Empty request + keep_alive=0 = unload the model now (like `ollama stop`)."""
-    chat([], keep_alive=0)
-
-
 def preload() -> float:
-    """Empty request with no keep_alive = load the model and keep it (default 5 minutes).
+    """Load the model and keep it (default keep_alive, 5 minutes).
 
     Returns the wall-clock seconds measured here: for an empty request Ollama answers
     with done_reason "load" and no load_duration, so we time it ourselves.
     """
     start = time.perf_counter()
-    chat([])
+    load_model()
     return time.perf_counter() - start
 
 
@@ -94,7 +89,7 @@ def main() -> None:
     rows = []
 
     # Start from a known state: nothing loaded, so the first request is really cold.
-    unload()
+    unload_model()
 
     print(f"Cold: {COLD_RUNS} requests with keep_alive=0 (the model is unloaded after each one)...")
     for run in range(1, COLD_RUNS + 1):

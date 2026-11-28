@@ -279,10 +279,11 @@ def print_providers(model: str, rows: list[Endpoint]) -> None:
         cheapest = min(with_cost, key=lambda e: e.cost_per_task)
         priciest = max(with_cost, key=lambda e: e.cost_per_task)
         print(f"  Cheapest:          {label(cheapest)} (${cheapest.cost_per_task:.2f})")
-        ratio = priciest.cost_per_task / cheapest.cost_per_task
+        # A few endpoints show "$0.00" (rounded, or free): no ratio then, instead of ZeroDivisionError.
+        ratio = f"{priciest.cost_per_task / cheapest.cost_per_task:.1f}x" if cheapest.cost_per_task else "n/a ($0.00)"
         print(
             f"  Priciest/cheapest: {label(priciest)} ${priciest.cost_per_task:.2f} "
-            f"/ ${cheapest.cost_per_task:.2f} = {ratio:.1f}x"
+            f"/ ${cheapest.cost_per_task:.2f} = {ratio}"
         )
     if with_time:
         fastest = min(with_time, key=lambda e: e.time_per_task_min)
