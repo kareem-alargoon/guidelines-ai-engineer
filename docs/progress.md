@@ -17,7 +17,7 @@
   | 1 — Model card من Ollama | ✅ |
   | 2 — قارئ الـ leaderboard | ✅ |
   | 3 — الوقت بيروح فين؟ (cold start و keep_alive) | ✅ |
-  | 4 — الـ context بياكل memory | ⬜ |
+  | 4 — الـ context بياكل memory | ✅ |
   | 5 — Providers زي drivers Laravel | ⬜ |
   | 6 — Mini eval: الموديل الـ local كفاية؟ | ⬜ |
   | 7 — التكلفة والقرار | ⬜ |
@@ -41,8 +41,14 @@
   - **Prompt caching:** نفس الـ prompt المتكرر prompt eval بتاعه نزل من 0.23 لـ 0.04 ث، و**الرد اتغيّر** (70 ← 86 token) مع إن `temperature=0`.
   - ⚠️ **`localhost` على Windows كان بيضيّع ~2 ث في كل request** (IPv6 الأول). الـ default بقى `http://127.0.0.1:11434`. ده كان جزء من بطء Step 02.
   - التفاصيل في `work/observations.md`.
-- **مستنيين منك:** commit و push لـ Task 3، وإجابات أسئلة Task 3 في الـ PR.
-- **الجاي:** Task 4 (الـ context بياكل memory).
+- **Task 4 (2026-11-28، على الـ desktop الشخصي):** `experiments/context_memory.py` بيعمل `unload()` مرة واحدة، وبعدها لكل `context_size` في `[None, 2048, …, 32768]` بيبعت request قصير ويقرا `/api/ps` (من غير unload بين الأحجام، وده مقصود). والنتايج في `experiments/results/context_memory.json`. إنت كتبت `measure()`، والمساعد صلّح فيها سطرين وكتب `main()` والحفظ بطلب منك.
+  - **الـ default الحقيقي = 4,096:** من غير `num_ctx` الحجز طلع 4,096، ونفس حجم الـ 4,096 الصريح (2.16 GB). يعني الـ FAQ وصفحة Context length صح، وصفحة الـ Modelfile (2048) غلط.
+  - **الـ memory مقابل `num_ctx`:** 2.09 GB (2K) ← 2.16 (4K) ← 2.41 (8K) ← 2.73 (16K) ← **3.37 GB (32K)**، يعني **+1.28 GB** بنفس الـ prompt القصير. الزيادة خطية (~40 MB لكل 1K) وقريبة من حساب الـ KV cache (~36 KB لكل token بـ f16).
+  - **PROCESSOR:** `100% CPU` و 0 VRAM في كل الأحجام، يعني **مفيش offloading** (مفيش VRAM يتعدّى). والحد عندك هو الـ RAM، و 3.37 GB بعيدة عنه جداً. والـ tok/s ثابت ~31 (الـ context محجوز بس مش مليان).
+  - **تغيير الـ `num_ctx` = reload كامل** (~1.6–1.9 ث في كل سطر). ونفس الـ `num_ctx` مرتين: 1.89 ث ← 0.002 ث. يعني ثبّت رقم واحد في تطبيقك.
+  - **Agent بـ 64K:** مش بـ `qwen2.5:3b` (أقصاه 32,768). الـ RAM تكفي، بس محتاج موديل تاني، وهيبقى بطيء على الـ CPU. التفاصيل في `work/observations.md`.
+- **مستنيين منك:** commit و push لـ Task 4، وإجابات أسئلة Tasks 3 و 4 في وصف الـ PR.
+- **الجاي:** Task 5 (Providers زي drivers Laravel).
 
 ## سجل الخطوات
 | الخطوة | المواد (notes + tasks) | شغلك (PR) | ملاحظات |
