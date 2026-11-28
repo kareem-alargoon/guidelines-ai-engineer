@@ -20,6 +20,7 @@ resources/
 | 01 | `books/ai-engineering-chip-huyen.pdf` (Ch.1)، و `videos/01-karpathy-intro-to-llms.md`، و `articles/01-swyx-rise-of-the-ai-engineer.pdf` |
 | 02 | الكتاب (Ch.2)، و `videos/02-karpathy-deep-dive-into-llms.md`، و `videos/02-3blue1brown-llms-explained-briefly.md`، و `articles/02-anthropic-context-windows.pdf` |
 | 03 | الكتاب (Ch.4 + ملحق Ch.3)، و `articles/03-ollama-*.pdf` (10 صفحات)، و `articles/03-anthropic-*.pdf` (4 صفحات)، و `articles/03-artificial-analysis-*` (3 صفحات، `.md` و `.pdf`)، و `articles/03-lmarena-*` (صفحتين) — كلهم snapshot يوم 2026-11-13 |
+| 04 | `articles/04-anthropic-course-0N-*.ipynb` (6 notebooks من *API Fundamentals*)، و `articles/04-anthropic-*.pdf` (7 صفحات: Messages API، و Streaming، و Structured outputs، و Prompt caching، و Token counting، و Errors، و Rate limits)، و `articles/04-anthropic-sdk-python-readme.md`، و `articles/04-ollama-*.pdf` (5 صفحات، منهم Anthropic compatibility)، و `articles/04-httpx-async.pdf`، و `articles/04-pydantic-models.pdf`، و `articles/04-uv-projects.pdf`، و `articles/04-realpython-async-io.pdf` — كلهم snapshot يوم 2026-11-28 |
 
 باقي المصادر بنرفعها **خطوة بخطوة** قبل ما نبدأ كل خطوة، مش مرة واحدة.
 

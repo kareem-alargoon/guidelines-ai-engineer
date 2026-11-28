@@ -1231,3 +1231,495 @@
 - **ليه يهمك؟** ده بالظبط "أحسن أداء مقابل فلوسك" بتاع الكتاب.
 - **المقابل في Laravel:** مقارنة خطط hosting على السعر والأداء.
 - **إمتى:** لما الميزانية جزء من القرار.
+
+
+---
+
+## Step 04 — التعامل مع LLM APIs من Python (المصدر 1)
+> المصدر: Anthropic Courses — *API Fundamentals* — الشرح في [`steps/04-llm-apis/notes/01-anthropic-course-api-fundamentals.md`](../steps/04-llm-apis/notes/01-anthropic-course-api-fundamentals.md)
+
+### Official SDK (مقابل raw HTTP)
+📍 الكورس lesson 1 · README الـ SDK
+- **إيه هو؟** library رسمية من الـ provider (`pip install anthropic`) فوق الـ HTTP API: headers جاهزة، و typed objects، و retries، و streaming helpers، و exceptions مقسّمة.
+- **مثال:** `Anthropic().messages.create(...)` بدل `httpx.post("https://api.anthropic.com/v1/messages", ...)`.
+- **ليه اتعمل؟** عشان ماتكتبش نفس الـ boilerplate (auth، و retries، و parsing) في كل مشروع.
+- **المقابل في Laravel:** `stripe/stripe-php` بدل `Http::post()` على Stripe API.
+- **إمتى / إمتى لأ:** دايماً في تطبيق حقيقي. الـ raw HTTP عشان تفهم، أو لو مفيش SDK للغتك.
+
+### Messages API
+📍 الكورس lesson 2 · Using the Messages API ص 1–3
+- **إيه هو؟** الـ endpoint الأساسي لـ Claude (`POST /v1/messages`): `model` و `max_tokens` و `messages` (إجباريين)، و `system` parameter لوحده، والرد فيه `content` و `stop_reason` و `usage`.
+- **مثال:** `messages=[{"role": "user", "content": "Hi"}]` و `system="You are terse."`.
+- **ليه اتعمل؟** شكل واحد للمحادثات (stateless: بتبعت التاريخ كله كل مرة).
+- **المقابل في Laravel:** REST endpoint بـ JSON body ثابت الشكل.
+- **إمتى:** أي استخدام لـ Claude بتتحكم فيه بنفسك (مقابل Managed Agents).
+
+### Content Blocks
+📍 الكورس lesson 2 (Inspecting the response) · Messages API ص 4–6
+- **إيه هو؟** `content` (في الـ request أو الرد) = **list of blocks**، كل block ليه `type`: `text`، و `image`، و `tool_use`، و `thinking`...
+- **مثال:** رد فيه thinking block في `index: 0` والنص في `index: 1`، فـ `content[0].text` يقع.
+- **ليه اتعمل؟** عشان الرد يقدر يجمع أنواع مختلفة (نص + طلب tool + تفكير).
+- **المقابل في Laravel:** API بيرجّع `data` كـ array of typed items.
+- **إمتى:** دايماً اقرا النص من **أول block نوعه `text`**، مش `content[0]`.
+
+### Prefill
+📍 الكورس lesson 2 (Putting words in Claude's mouth) · Messages API ص 4–6
+- **إيه هو؟** assistant message في **آخر** `messages` فيها بداية الرد، والموديل يكمّل منها.
+- **مثال:** `{"role": "assistant", "content": "The answer is ("}` ← الرد `"C"`.
+- **ليه اتعمل؟** تتحكم في بداية وشكل الرد.
+- **المقابل في Laravel:** —
+- **إمتى / إمتى لأ:** ⏳ **مرفوض (400) على Claude 4.6+**. البديل: structured outputs أو تعليمات في الـ system. لسه شغّال على موديلات كتير في Ollama.
+
+### Server-Sent Events (SSE)
+📍 الكورس lesson 5 · Streaming ص 1–7
+- **إيه هو؟** طريقة streaming فوق HTTP: نص بيتبعت حتة حتة، كل event = سطر `event: <type>` + سطر `data: <json>` + سطر فاضي.
+- **مثال:** `event: content_block_delta` / `data: {"delta": {"type": "text_delta", "text": "Hello"}}`.
+- **ليه اتعمل؟** السيرفر يبعت للـ client وهو بيولّد، والـ connection تفضل عايشة.
+- **المقابل في Laravel:** `response()->eventStream()`.
+- **إمتى:** الـ chat و أي UI يوزر مستني فيه. مش ضروري للـ background jobs.
+
+### Stream Events (message_start ← deltas ← message_stop)
+📍 الكورس lesson 5 · Streaming ص 2–3
+- **إيه هو؟** ترتيب ثابت: `message_start` (فيه input tokens) ← لكل block: `content_block_start` و `content_block_delta`× و `content_block_stop` ← `message_delta` (stop_reason و output tokens **تراكمي**) ← `message_stop`. وفيه `ping` و `error`.
+- **مثال:** النص من `content_block_delta` اللي `delta.type == "text_delta"`.
+- **ليه اتعمل؟** كل حاجة ليها event، فتقدر تعرض النص وتجمع الـ usage وتعرف السبب.
+- **المقابل في Laravel:** webhook events من Stripe بأنواع.
+- **إمتى:** لو بتعمل parse بإيدك. الـ SDK بيديك `text_stream` و `get_final_message()`.
+
+---
+
+## Step 04 — التعامل مع LLM APIs من Python (المصدر 2)
+> المصدر: Anthropic docs — Messages API، و Streaming، و Structured outputs — الشرح في [`steps/04-llm-apis/notes/02-anthropic-messages-streaming-structured.md`](../steps/04-llm-apis/notes/02-anthropic-messages-streaming-structured.md)
+
+### API Versioning (`anthropic-version`)
+📍 Messages API ص 2
+- **إيه هو؟** header في كل request بيحدد نسخة سلوك الـ API (بتاريخ). الكود القديم بيفضل على سلوك نسخته.
+- **مثال:** من `2026-10-21` الـ sampling parameters اتشالوا خالص.
+- **ليه اتعمل؟** الـ API يتطوّر من غير ما يكسر الكود الموجود.
+- **المقابل في Laravel:** `/api/v1` مقابل `/api/v2`، أو `Accept: application/vnd.app.v2+json`.
+- **إمتى:** خليك عارف أنهي version الـ SDK بيبعته، واقرا الـ migration guides.
+
+### Sampling Parameters Removal
+📍 Messages API ص 2
+- **إيه هو؟** `temperature` و `top_p` و `top_k` مش مدعومين على Claude 4.7+ (أي قيمة غير الـ default ← 400)، وعلى أي موديل بـ API version `2026-10-21`.
+- **مثال:** `temperature=0` لـ Opus 5.5 ← 400.
+- **ليه اتعمل؟** الـ docs بتقول: وجّه الموديل بالـ prompt بدل كده.
+- **المقابل في Laravel:** method اتعملها deprecate واتشالت في major version.
+- **إمتى:** الـ provider بتاعك لازم يتعامل معاها صراحةً (error واضح أو مايبعتهاش). Ollama لسه بيقبلها.
+
+### Stop Reason: refusal
+📍 Messages API ص 2 · Structured outputs ص 13
+- **إيه هو؟** `stop_reason: "refusal"` لما Claude يرفض لأسباب أمان، ومعاه `stop_details`. الـ status 200 وبتدفع الـ tokens.
+- **مثال:** structured output رجع refusal ← الرد ممكن مايمشيش على الـ schema.
+- **ليه اتعمل؟** تفرّق الرفض عن الرد العادي في الكود.
+- **المقابل في Laravel:** —
+- **إمتى:** شيك `stop_reason` دايماً قبل ما تستخدم الرد (`max_tokens`، و `refusal`، و `tool_use`).
+
+### Synthetic Assistant Messages
+📍 Messages API ص 3
+- **إيه هو؟** assistant turns في التاريخ إنت كاتبها بنفسك (مش جاية من الموديل فعلاً).
+- **مثال:** few-shot: user (tweet) ← assistant (`POSITIVE`) ← user (tweet جديد).
+- **ليه اتعمل؟** الـ API stateless، فأي تاريخ بتبعته الموديل بيتعامل معاه كأنه حصل.
+- **المقابل في Laravel:** seeders لداتا تجريبية.
+- **إمتى:** few-shot examples، أو تكمّل محادثة اتعملت بموديل تاني.
+
+### Mid-conversation System Message
+📍 Messages API ص 4
+- **إيه هو؟** `{"role": "system"}` **بعد** user turn (مش أول رسالة) على الموديلات الجديدة، بنفس سلطة الـ `system` field.
+- **مثال:** تعليمات جديدة في نص المحادثة من غير ما تعدّل الـ `system` الأصلي.
+- **ليه اتعمل؟** تضيف تعليمات من غير ما تمسح الـ prompt cache.
+- **المقابل في Laravel:** —
+- **إمتى / إمتى لأ:** ⚠️ مش زي `{"role": "system"}` بتاع Ollama/OpenAI اللي بيبقى أول رسالة.
+
+### Unknown Event Types (forward compatibility)
+📍 Streaming ص 3 · Errors ص 4
+- **إيه هو؟** أنواع events (أو errors) جديدة ممكن تتضاف، والكود لازم **يتجاهل** اللي مايعرفهوش.
+- **مثال:** `match event["type"]: ... case _: pass`.
+- **ليه اتعمل؟** الـ API يضيف features من غير ما يكسر الـ clients.
+- **المقابل في Laravel:** `default => null` في webhook handler.
+- **إمتى:** أي parser لـ stream أو events.
+
+### Stream Error Recovery
+📍 Streaming ص 15–16
+- **إيه هو؟** لو الـ stream وقع: احفظ اللي وصل، وابعت request يكمّل (Claude 4.6+: **user message** فيها الجزء + "كمّل"، و 4.5 وأقدم: prefill)، وكمّل.
+- **مثال:** "Your previous response was interrupted and ended with [...]. Continue from where you left off."
+- **ليه اتعمل؟** ماتدفعش وتستنى الرد من الأول.
+- **المقابل في Laravel:** resumable uploads.
+- **إمتى:** ردود طويلة. والـ thinking والـ tool_use مايتكمّلوش جزئياً.
+
+### SDK Schema Transformation
+📍 Structured outputs ص 3–4
+- **إيه هو؟** الـ SDK بيشيل الـ constraints اللي الـ API مش بيدعمها (`minimum`، و `maxLength`...) من الـ schema، ويكتبها في الـ description، ويضيف `additionalProperties: false`، وبعدين يعمل validate للرد على الـ schema الأصلي.
+- **مثال:** `Field(ge=0)` ← الـ grammar مش بيمنع السالب، بس `parse()` بيرفضه.
+- **ليه اتعمل؟** تستخدم Pydantic models عادية من غير ما تقلق من حدود الـ grammar.
+- **المقابل في Laravel:** —
+- **إمتى:** `messages.parse(output_format=Model)`. و `transform_schema()` لو عايز تشوف الـ schema المتحوّل.
+
+### Grammar Compilation Cache
+📍 Structured outputs ص 9–10
+- **إيه هو؟** أول request بـ schema جديد أبطأ (compile للـ grammar)، وبعدها بيتعمله cache 24 ساعة. تغيير **شكل** الـ schema بيعيد الـ compile.
+- **مثال:** أول إيصال في eval بـ Claude أبطأ من الباقي.
+- **ليه اتعمل؟** الـ constrained decoding محتاج grammar جاهز.
+- **المقابل في Laravel:** `php artisan route:cache` / الـ view compilation أول مرة.
+- **إمتى:** وإنت بتقيس latency، افصل أول request.
+
+### Zero Data Retention (ZDR)
+📍 Messages API ص 10 · Structured outputs ص 18 · Prompt caching (Data retention)
+- **إيه هو؟** اتفاق إن Anthropic ماتخزّنش الـ prompts والردود. الـ messages و structured outputs و caching eligible (بس الـ JSON schemas بتتعملها cache 24 ساعة).
+- **مثال:** ماتحطش داتا حساسة في أسماء الـ properties أو الـ enums.
+- **ليه اتعمل؟** للشركات اللي عندها متطلبات privacy أو HIPAA.
+- **المقابل في Laravel:** —
+- **إمتى / إمتى لأ:** ⚠️ اتفاق مش feature بتتفعّل لوحدها، والداتا لسه **بتخرج** من جهازك.
+
+---
+
+## Step 04 — التعامل مع LLM APIs من Python (المصدر 3)
+> المصدر: Anthropic docs — Prompt caching، و Token counting — الشرح في [`steps/04-llm-apis/notes/03-anthropic-prompt-caching-token-counting.md`](../steps/04-llm-apis/notes/03-anthropic-prompt-caching-token-counting.md)
+
+### Cache Breakpoint (`cache_control`)
+📍 Prompt caching (Explicit cache breakpoints)
+- **إيه هو؟** علامة على block بتقول "اعمل cache للـ prefix لحد هنا". الـ write بيحصل عند الـ breakpoint بس، والـ key = hash تراكمي لكل اللي قبله (tools ← system ← messages).
+- **مثال:** `"cache_control": {"type": "ephemeral"}` على آخر block في الـ system.
+- **ليه اتعمل؟** تحدد بالظبط إيه الجزء الثابت اللي يتعاد استخدامه.
+- **المقابل في Laravel:** `Cache::remember($key, ...)` بس الـ key = hash للـ prefix.
+- **إمتى:** على **آخر block ثابت**، مش على block بيتغيّر (timestamp أو رسالة اليوزر).
+
+### Automatic مقابل Explicit Caching
+📍 Prompt caching (Automatic caching)
+- **إيه هو؟** Automatic: `cache_control` واحد top-level والـ breakpoint بيروح لآخر block لوحده ويتحرك. Explicit: إنت بتحط الـ breakpoints (لحد 4).
+- **مثال:** chat ← automatic. system ثابت + إيصال بيتغيّر ← explicit على الـ system.
+- **ليه اتعمل؟** الـ automatic أسهل للمحادثات، والـ explicit لما الأجزاء بتتغيّر بسرعات مختلفة.
+- **المقابل في Laravel:** —
+- **إمتى / إمتى لأ:** الـ automatic بيفشل لو آخر block بيتغيّر كل request.
+
+### Cache TTL (5m / 1h)
+📍 Prompt caching (How it works، و 1-hour cache)
+- **إيه هو؟** الـ cache بيعيش 5 دقايق (بيتجدد ببلاش مع كل read)، أو ساعة بسعر أعلى. والمدة من **بداية** الـ request.
+- **مثال:** `{"type": "ephemeral", "ttl": "1h"}`.
+- **ليه اتعمل؟** توازن بين الـ memory عند Anthropic واحتياجك.
+- **المقابل في Laravel:** الـ TTL في `Cache::put($k, $v, 300)`.
+- **إمتى:** 5m لو الـ requests أكتر من كل 5 دقايق، و 1h لو بين 5 دقايق وساعة.
+
+### Cache Write مقابل Cache Read
+📍 Prompt caching (Pricing)
+- **إيه هو؟** الـ write = 1.25x سعر الـ input (5m) أو 2x (1h)، والـ read = 0.1x (0.05x لـ Opus/Sonnet 5.5، و 0.025x لـ Fable).
+- **مثال:** prefix اتكتب ومااتقراش تاني ← دفعت 25% زيادة على الفاضي.
+- **ليه اتعمل؟** الـ write فيه تكلفة تخزين، والـ read بيوفّر حساب.
+- **المقابل في Laravel:** —
+- **إمتى:** الـ caching بيكسب بس لو نفس الـ prefix اتقرا كذا مرة خلال الـ TTL.
+
+### Minimum Cacheable Length
+📍 Prompt caching (Cache limitations)
+- **إيه هو؟** أقل طول prompt يتعمله cache: 512 token (Haiku/Sonnet/Opus 5.5، و Fable)، و 1,024، و 2,048، و 4,096 (Haiku 4.5) للأقدم. والأقصر **مش بيتعمله cache ومن غير error**.
+- **مثال:** system الإيصالات (~172 token) على Haiku 5.5 ← `cache_creation = 0` و `cache_read = 0`.
+- **ليه اتعمل؟** —
+- **المقابل في Laravel:** —
+- **إمتى:** شيك الـ usage. ولو قريب من الحد، طوّل الـ prefix (few-shot مثلاً).
+
+### Lookback Window (20 blocks)
+📍 Prompt caching (How automatic prefix checking works)
+- **إيه هو؟** لو مفيش entry عند الـ breakpoint، الـ API بيرجع لورا لحد 20 block يدوّر على **writes قديمة** (مش على محتوى ثابت).
+- **مثال:** محادثة زادت 20 block من آخر write ← miss، والحل breakpoint تاني.
+- **ليه اتعمل؟** تحط breakpoint واحد والـ API يلاقي أطول prefix اتكتب.
+- **المقابل في Laravel:** —
+- **إمتى:** محادثات طويلة جداً أو tool calls كتير.
+
+### Cache Invalidation Hierarchy
+📍 Prompt caching (What invalidates the cache)
+- **إيه هو؟** tools ← system ← messages. تغيير في مستوى بيمسحه هو وكل اللي بعده.
+- **مثال:** تعديل tool definition ← كل الـ cache. تغيير `tool_choice` أو إضافة صورة ← messages بس. تغيير `output_config.format` ← الـ cache.
+- **ليه اتعمل؟** الـ cache prefix-based.
+- **المقابل في Laravel:** cache tags متداخلة.
+- **إمتى:** حط اللي بيتغيّر قليل في الأول، واللي بيتغيّر كتير في الآخر.
+
+### Usage Breakdown (input مقابل cache tokens)
+📍 Prompt caching (Tracking cache performance) · Rate limits (Cache-aware ITPM)
+- **إيه هو؟** في Anthropic: `input_tokens` (بعد آخر breakpoint) و `cache_creation_input_tokens` و `cache_read_input_tokens` **منفصلين**، والإجمالي = مجموعهم. في OpenAI و Ollama الـ cached **جزء** من الـ input.
+- **مثال:** read 100,000 + creation 0 + input 50 = 100,050.
+- **ليه اتعمل؟** كل نوع ليه سعر.
+- **المقابل في Laravel:** API بيرجّع السعر "شامل" مقابل "من غير" الضريبة.
+- **إمتى:** أي cost calculation أو abstraction فوق كذا provider: normalize لمعنى واحد.
+
+### Cache Pre-warming
+📍 Prompt caching (Pre-warming the cache)
+- **إيه هو؟** request بـ `max_tokens: 0` بيكتب الـ cache ويرجع فوراً من غير توليد (0 output tokens)، قبل ما اليوزرز ييجوا.
+- **مثال:** pre-warm للـ system prompt وقت ما الـ app يقوم، وكل 5 دقايق.
+- **ليه اتعمل؟** أول يوزر ياخد TTFT أحسن.
+- **المقابل في Laravel:** cache warming command في الـ deploy.
+- **إمتى / إمتى لأ:** مش مع streaming ولا structured outputs ولا batches. الـ breakpoint explicit على الجزء المشترك.
+
+### Token Counting Endpoint
+📍 Token counting ص 1، و Supported models
+- **إيه هو؟** `POST /v1/messages/count_tokens` (`client.messages.count_tokens`) بيعدّ input tokens لـ request قبل ما تبعته، بـ tokenizer الموديل اللي تحدده. ببلاش بـ rate limit منفصل.
+- **مثال:** system + "Hello, Claude" = 14 token. tool واحد = ~400.
+- **ليه اتعمل؟** تدير التكلفة والـ limits والـ routing قبل الإرسال.
+- **المقابل في Laravel:** —
+- **إمتى / إمتى لأ:** محتاج key. مش مدعوم في Ollama compatibility. الرقم تقدير ومن غير caching.
+
+### Tokenizer Change (+30%)
+📍 Token counting (Supported models، و Fable/Mythos)
+- **إيه هو؟** Claude Opus 4.7 وأحدث (و Fable و Mythos 5.x) بيستخدموا tokenizer جديد بيطلّع ~30% tokens أكتر من موديلات Claude الأقدم لنفس النص.
+- **مثال:** prompt كان 1,000 token على Sonnet 4.6 ← ~1,300 على Opus 5.5.
+- **ليه اتعمل؟** —
+- **المقابل في Laravel:** —
+- **إمتى:** ⚠️ النسبة **Claude مقابل Claude**، مش مقابل Qwen. اعدّ على الموديل اللي هتستخدمه.
+
+---
+
+## Step 04 — التعامل مع LLM APIs من Python (المصدر 4)
+> المصدر: Anthropic docs — Errors، و Rate limits، و README الـ SDK — الشرح في [`steps/04-llm-apis/notes/04-anthropic-errors-rate-limits-sdk.md`](../steps/04-llm-apis/notes/04-anthropic-errors-rate-limits-sdk.md)
+
+### Retryable مقابل Non-retryable Errors
+📍 Errors ص 1–3
+- **إيه هو؟** retryable: connection errors، و timeouts، و 408، و 409، و 429، و 5xx، و 529. non-retryable: 400، و 401، و 402، و 403، و 404، و 413.
+- **مثال:** 401 (key غلط) هيفشل كل مرة، و 529 (overloaded) ممكن يعدّي بعد ثواني.
+- **ليه اتعمل؟** الإعادة في المشاكل المؤقتة بس.
+- **المقابل في Laravel:** `Http::retry(3, 100, fn ($e) => $e instanceof ConnectionException)`.
+- **إمتى:** أي client لـ API حقيقي.
+
+### Exponential Backoff
+📍 Errors ص 3 (Retries)
+- **إيه هو؟** الانتظار بين المحاولات بيتضاعف (0.5، 1، 2، 4، 8 ث)، وغالباً مع jitter.
+- **مثال:** الـ SDK بيعمل 0.5 لـ 8 ث، ومحاولتين by default.
+- **ليه اتعمل؟** السيرفر المضغوط ياخد فرصة يتعافى، والـ clients ماتعيدش كلها في نفس اللحظة.
+- **المقابل في Laravel:** `public $backoff = [1, 5, 10];` في الـ Job.
+- **إمتى:** مع أي retry، إلا لو فيه `retry-after`.
+
+### `retry-after` و `x-should-retry`
+📍 Errors ص 3 · Rate limits (Response headers)
+- **إيه هو؟** `x-should-retry` (true/false) بيقولك تعيد ولا لأ (وليه الأولوية). `retry-after` بيقولك تستنى كام ثانية.
+- **مثال:** 500 بـ `x-should-retry: false` ← ماتعيدش. 429 بـ `retry-after: 20` ← استنى 20.
+- **ليه اتعمل؟** السيرفر أعرف بحالته من الـ client.
+- **المقابل في Laravel:** `Retry-After` header في الـ 429 بتاعة `ThrottleRequests`.
+- **إمتى:** دايماً قبل الـ backoff بتاعك.
+
+### Error Code (مقابل Error Type)
+📍 Errors ص 4–5
+- **إيه هو؟** `error.details.error_code` بيحدد السبب بالظبط جوه نفس الـ type.
+- **مثال:** 429 `rate_limit_error` عادي مقابل 429 بـ `enforced_spend_limit_reached` (الفلوس خلصت، ماتعيدش).
+- **ليه اتعمل؟** الـ type الواحد بيغطي أسباب بمعالجات مختلفة.
+- **المقابل في Laravel:** —
+- **إمتى:** قبل ما تقرر تعيد. وماتعملش match على نص الـ message.
+
+### Exception Hierarchy (catch narrow first)
+📍 Errors ص 5–6 (SDK error types)
+- **إيه هو؟** exceptions الـ SDK متداخلة (`APIError` ← `APIStatusError` ← `RateLimitError` ← `EnforcedSpendLimitReachedError`)، والـ class بتمسك الـ subclasses.
+- **مثال:** `except EnforcedSpendLimitReachedError` لازم قبل `except RateLimitError`.
+- **ليه اتعمل؟** تمسك عام أو خاص حسب احتياجك.
+- **المقابل في Laravel:** `catch (ModelNotFoundException)` قبل `catch (Exception)`.
+- **إمتى:** وترجمها لـ `LLMError` بتاعك عشان الـ abstraction.
+
+### Request ID
+📍 Errors ص 6–7
+- **إيه هو؟** `request-id` header (`req_...`) في كل رد، وفي `request_id` في الـ error body، و `message._request_id` في Python.
+- **مثال:** `log.error("...", request_id=e.request_id)`.
+- **ليه اتعمل؟** تتبّع request معيّن مع الـ support.
+- **المقابل في Laravel:** correlation ID في الـ logs.
+- **إمتى:** log مع كل error (وفي production مع كل request).
+
+### Spend Limit مقابل Spend Cap
+📍 Rate limits (Spend limits)
+- **إيه هو؟** Spend cap = حد Anthropic الشهري للـ tier (429، ومن غير `retry-after`، لحد أول الشهر). Spend limit = حد إنت حاطه (400).
+- **مثال:** Start tier cap = $500 في الشهر.
+- **ليه اتعمل؟** حماية من الصرف الزيادة.
+- **المقابل في Laravel:** —
+- **إمتى:** حط spend limit صغير أول ما تعمل key للتجارب.
+
+### Token Bucket
+📍 Rate limits (About rate limits)
+- **إيه هو؟** خوارزمية الـ rate limiting: الـ capacity بتتملي باستمرار لحد الحد الأقصى، مش بتتصفّر كل دقيقة. والـ limit ممكن يتطبّق على فترات أقصر (60 RPM ≈ 1 في الثانية).
+- **مثال:** burst من 10 requests في ثانية ممكن ياخد 429 وإنت تحت الـ 60/دقيقة.
+- **ليه اتعمل؟** يسمح بـ bursts صغيرة ويمنع الكبيرة.
+- **المقابل في Laravel:** `RateLimiter` و `ThrottleRequests`.
+- **إمتى:** وزّع الـ requests بدل ما تبعتها مرة واحدة.
+
+### RPM / ITPM / OTPM
+📍 Rate limits (Rate limits، والجداول)
+- **إيه هو؟** 3 limits لكل model class: requests، و input tokens، و output tokens في الدقيقة.
+- **مثال:** Haiku 5.5 في Start: 4,000 RPM، و 2M ITPM، و 400K OTPM.
+- **ليه اتعمل؟** الحمل مش بس عدد requests، كمان حجمها.
+- **المقابل في Laravel:** —
+- **إمتى:** الـ OTPM بيتحسب على الـ tokens الحقيقية مش `max_tokens`.
+
+### Cache-aware ITPM
+📍 Rate limits (Cache-aware ITPM)
+- **إيه هو؟** الـ ITPM بيعدّ `input_tokens` و `cache_creation` بس، مش `cache_read`.
+- **مثال:** ITPM 2M و 80% cache hits ← 10M input في الدقيقة.
+- **ليه اتعمل؟** تشجيع الـ caching.
+- **المقابل في Laravel:** —
+- **إمتى:** الـ caching بيزوّد الـ throughput مش بس بيوفّر فلوس.
+
+### Ramp Limits
+📍 Rate limits (Ramp limits)
+- **إيه هو؟** حد على **سرعة زيادة** استخدامك: أعلى استخدام مؤخراً + step. زيادة مفاجئة ← 429 (`ramp_limit_exceeded`) حتى تحت الـ limits.
+- **مثال:** `gather` على 5,000 إيصال من حساب ساكت.
+- **ليه اتعمل؟** حماية الـ capacity من القفزات.
+- **المقابل في Laravel:** —
+- **إمتى:** ابدأ الـ bulk jobs بمعدل قليل وزوّد تدريجي، أو استخدم Batches (مافيهاش ramp limits).
+
+---
+
+## Step 04 — التعامل مع LLM APIs من Python (المصدر 5)
+> المصدر: Ollama docs — API، و Streaming، و Structured outputs، و Anthropic compatibility — الشرح في [`steps/04-llm-apis/notes/05-ollama-api-and-anthropic-compat.md`](../steps/04-llm-apis/notes/05-ollama-api-and-anthropic-compat.md)
+
+### NDJSON مقابل SSE
+📍 Ollama Streaming ص 1 · Anthropic Streaming ص 6
+- **إيه هو؟** NDJSON: كل سطر JSON كامل (Ollama native، وآخر سطر `done: true`). SSE: events بأنواع (`event:` + `data:`) (Anthropic، و Ollama `/v1/messages`).
+- **مثال:** NDJSON ← `json.loads(line)`. SSE ← شيل `data: ` وبعدين `json.loads` وفلتر على النوع.
+- **ليه اتعمل؟** NDJSON أبسط، و SSE أغنى (أنواع blocks، و ping، و errors).
+- **المقابل في Laravel:** JSON log lines مقابل `eventStream()`.
+- **إمتى:** حسب الـ API. والـ `stream` default في Ollama `true` وفي Anthropic `false`.
+
+### Anthropic-compatible API (Ollama)
+📍 Anthropic compatibility ص 1–4
+- **إيه هو؟** Ollama بيقدّم `/v1/messages` بنفس شكل Anthropic، فالـ SDK الرسمي يشتغل على موديل local بـ `base_url="http://127.0.0.1:11434"` و `api_key="ollama"`.
+- **مثال:** `anthropic.Anthropic(base_url=..., api_key="ollama").messages.create(model="qwen2.5:3b", ...)`.
+- **ليه اتعمل؟** أدوات زي Claude Code والكود المكتوب لـ Anthropic يشتغلوا على موديلات local.
+- **المقابل في Laravel:** Mailpit local بدل SMTP حقيقي.
+- **إمتى:** تتعلم وتجرّب ببلاش ومن غير ما الداتا تخرج. ⚠️ مش لقياس جودة أو tokens أو caching بتاع Claude.
+
+### API Compatibility Subset
+📍 Anthropic compatibility ص 5–9
+- **إيه هو؟** الـ "compatible" API بيدعم **جزء** من الأصلي. Ollama مش بيدعم: count_tokens، و prompt caching، و batches، و citations، و PDFs، و server-sent errors، والصور بـ URL. والـ tokens بـ tokenizer الموديل الـ local.
+- **مثال:** `temperature` بيتقبل في Ollama ويترفض في Claude الجديد.
+- **ليه اتعمل؟** —
+- **المقابل في Laravel:** SQLite في الـ tests مقابل MySQL في production (معظمه زي بعض، مش كله).
+- **إمتى:** اقرا جدول "Not supported" قبل ما تفترض إن الكود هيتنقل.
+
+### Base URL Swapping
+📍 Ollama API Introduction ص 1 · Anthropic compatibility ص 2–3
+- **إيه هو؟** نفس الكود والـ SDK، وتغيّر `base_url` و `api_key` (من environment variables) عشان تكلّم provider تاني.
+- **مثال:** `LLM_BASE_URL=http://127.0.0.1:11434` و `LLM_API_KEY=ollama` ← local. من غيرهم ← Anthropic.
+- **ليه اتعمل؟** تبدّل الـ provider من غير ما تلمس الكود.
+- **المقابل في Laravel:** `DB_HOST` و `MAIL_HOST` في `.env`.
+- **إمتى:** dev local و production cloud. وجرّب على الـ provider الحقيقي قبل ما تعتمد.
+
+### `prompt_eval_cached_count`
+📍 Ollama `/api/chat` ص 4
+- **إيه هو؟** عدد tokens الـ prompt اللي Ollama قراها من الـ cache، وهو **جزء** من `prompt_eval_count`. و `prompt_eval_duration` = وقت الجزء اللي مش متعمله cache بس.
+- **مثال:** `prompt_eval_count: 330` و `prompt_eval_cached_count: 172`.
+- **ليه اتعمل؟** تشوف الـ caching برقم مش بالوقت بس.
+- **المقابل في Laravel:** —
+- **إمتى:** ⚠️ عكس Anthropic (المنفصل). حوّل للـ شكل اللي الـ abstraction بتاعك بيستخدمه.
+
+### Schema Grounding في الـ Prompt
+📍 Ollama Structured outputs ص 2
+- **إيه هو؟** تبعت الـ JSON schema (أو وصف الـ fields) **في الـ prompt كمان**، مش في `format` بس.
+- **مثال:** "Return JSON matching this schema: {...}" + `format=Receipt.model_json_schema()`.
+- **ليه اتعمل؟** الـ grammar بيضمن الشكل، والـ prompt بيفهّم الموديل المعنى.
+- **المقابل في Laravel:** —
+- **إمتى:** في Ollama (نصيحة الـ docs). في Claude، Claude بيضيف system prompt بالـ format لوحده.
+
+---
+
+## Step 04 — التعامل مع LLM APIs من Python (المصدر 6)
+> المصدر: uv، و Pydantic، و HTTPX Async — الشرح في [`steps/04-llm-apis/notes/06-httpx-pydantic-uv.md`](../steps/04-llm-apis/notes/06-httpx-pydantic-uv.md)
+
+### uv و pyproject.toml و Lockfile
+📍 uv: Working on projects ص 1–6
+- **إيه هو؟** uv بيدير المشروع كله: `pyproject.toml` (المتطلبات)، و `uv.lock` (النسخ بالظبط، cross-platform)، و `.venv`. و `uv add`، و `uv sync`، و `uv run`.
+- **مثال:** `uv add httpx` ← بيحدّث الـ 3 مرة واحدة. `uv run python x.py` ← بيتأكد إن البيئة متطابقة الأول.
+- **ليه اتعمل؟** بديل أسرع وأوضح لـ pip + venv + requirements.txt.
+- **المقابل في Laravel:** Composer (`composer.json`، و `composer.lock`، و `vendor/`).
+- **إمتى:** أي مشروع Python جديد. اعمل commit لـ `pyproject.toml` و `uv.lock`، مش `.venv`.
+
+### Connection Pooling (client واحد)
+📍 HTTPX Async ص 2
+- **إيه هو؟** الـ client بيحتفظ بـ connections مفتوحة ويعيد استخدامها، فـ client واحد لكل الـ requests مش client لكل request.
+- **مثال:** `client = httpx.AsyncClient()` مرة واحدة، أو `Anthropic()` مرة واحدة.
+- **ليه اتعمل؟** توفّر الـ TCP و TLS handshakes.
+- **المقابل في Laravel:** singleton في الـ service container بدل `new Client()` في loop.
+- **إمتى:** دايماً، خصوصاً مع HTTPS والـ async.
+
+### Response Streaming (`iter_lines`)
+📍 HTTPX Async ص 2–3
+- **إيه هو؟** `with client.stream(...) as r:` وبعدين `r.iter_lines()` (أو `aiter_lines()` في الـ async) تقرا الرد سطر سطر وهو جاي.
+- **مثال:** NDJSON أو SSE من LLM.
+- **ليه اتعمل؟** `.json()` بيستنى الرد كله.
+- **المقابل في Laravel:** `'stream' => true` في Guzzle و `getBody()->read()`.
+- **إمتى:** أي streaming response. والـ `with` يضمن إن الـ connection تتقفل.
+
+### Pydantic Validation Modes
+📍 Pydantic Models (Validating data)
+- **إيه هو؟** Python mode (`Model(...)`، و `model_validate(dict)`)، و JSON mode (`model_validate_json(str)`، أسرع للـ JSON)، و strings mode. والسلوك ممكن يختلف (مثلاً رقم لـ field نوعه `str`).
+- **مثال:** `Receipt.model_validate_json(result.text)`.
+- **ليه اتعمل؟** الداتا جاية بأشكال مختلفة.
+- **المقابل في Laravel:** —
+- **إمتى:** رد الـ LLM نص ← `model_validate_json`. وماتستخدمش `model_construct()` مع داتا مش موثوقة.
+
+### ValidationError.errors()
+📍 Pydantic Models (Error handling)
+- **إيه هو؟** `ValidationError` واحد فيه **كل** الأخطاء، و `e.errors()` list فيها `loc` و `msg` و `type` و `input` لكل واحد.
+- **مثال:** `loc=('list_of_ints', 2)` = العنصر رقم 2.
+- **ليه اتعمل؟** تعرف كل المشاكل مرة واحدة ومكانها.
+- **المقابل في Laravel:** `$validator->errors()` بـ `items.2.price`.
+- **إمتى:** سجّل الـ errors بدل `None` عشان الـ error analysis.
+
+### Extra Data Policy (`forbid`)
+📍 Pydantic Models (Extra data)
+- **إيه هو؟** `ConfigDict(extra=...)`: `ignore` (الـ default، الـ keys الزيادة بتتشال)، و `forbid` (error)، و `allow` (بتتحفظ).
+- **مثال:** `extra="forbid"` يكشف لو الموديل زوّد fields.
+- **ليه اتعمل؟** تتحكم في الداتا الغير متوقعة.
+- **المقابل في Laravel:** `$fillable` الصارم.
+- **إمتى:** مع ردود الـ LLM لو عايز تكتشف الانحراف. (Claude structured outputs أصلاً بيمنع الزيادة.)
+
+---
+
+## Step 04 — التعامل مع LLM APIs من Python (المصدر 7)
+> المصدر: Real Python — *Python's asyncio* — الشرح في [`steps/04-llm-apis/notes/07-realpython-asyncio.md`](../steps/04-llm-apis/notes/07-realpython-asyncio.md)
+
+### Concurrency مقابل Parallelism
+📍 A First Look at Async I/O
+- **إيه هو؟** Parallelism: حاجات في نفس اللحظة بالظبط (cores مختلفة). Concurrency: حاجات بتتداخل (مش لازم في نفس اللحظة). asyncio = concurrency في thread واحد.
+- **مثال:** بطلة الشطرنج ضد 24 (واحدة بس، بتلف على الترابيزات).
+- **ليه اتعمل؟** —
+- **المقابل في Laravel:** PHP-FPM workers (parallel) مقابل `Http::pool()` (concurrent).
+- **إمتى:** asyncio للـ I/O، و multiprocessing للـ CPU.
+
+### I/O-bound مقابل CPU-bound
+📍 A First Look at Async I/O · When to Use Async I/O
+- **إيه هو؟** I/O-bound: أغلب الوقت انتظار (شبكة، ملفات). CPU-bound: الـ CPU شغّال طول الوقت.
+- **مثال:** Claude API = I/O-bound من ناحيتك. Ollama على الـ CPU بتاعك = الحساب على نفس الجهاز.
+- **ليه اتعمل؟** —
+- **المقابل في Laravel:** —
+- **إمتى:** الـ async بيفيد الـ I/O-bound بس.
+
+### Coroutine و Event Loop
+📍 Coroutines and Coroutine Functions · The Async I/O Event Loop
+- **إيه هو؟** `async def` = coroutine function، ونداها بيرجّع coroutine object (مش بينفّذ). الـ event loop (`asyncio.run`) بيشغّلهم، و `await` بيسلّم التحكم وقت الانتظار.
+- **مثال:** `asyncio.run(main())`، و `await asyncio.sleep(1)`.
+- **ليه اتعمل؟** cooperative multitasking من غير threads.
+- **المقابل في Laravel:** Guzzle promises (تقريباً).
+- **إمتى / إمتى لأ:** ⚠️ `await` ناقص = الكود مش بيتنفّذ (warning "never awaited").
+
+### Blocking Call في كود async
+📍 Coroutines and Coroutine Functions · When to Use Async I/O
+- **إيه هو؟** نداء sync (`time.sleep`، و `httpx.post`، و `Anthropic().messages.create`) جوه `async def` بيوقف الـ event loop كله.
+- **مثال:** `gather` على 10 `httpx.post` = نفس وقت الـ sync.
+- **ليه اتعمل؟** —
+- **المقابل في Laravel:** —
+- **إمتى:** استخدم النسخ الـ async: `httpx.AsyncClient`، و `AsyncAnthropic`، و `asyncio.sleep`.
+
+### `asyncio.gather` مقابل `as_completed`
+📍 Other asyncio Tools
+- **إيه هو؟** `gather`: يستنى الكل والنتايج **بترتيب الـ inputs**. `as_completed`: النتايج **بترتيب ما بتخلص**. و `create_task`: يبدأ في الخلفية (ولازم await وإلا يتلغي).
+- **مثال:** eval بيقارن بالـ index ← `gather`. progress bar ← `as_completed`.
+- **ليه اتعمل؟** احتياجات مختلفة.
+- **المقابل في Laravel:** `Http::pool()` بيرجّع بالترتيب.
+- **إمتى:** حسب محتاج الترتيب ولا السرعة في المعالجة.
+
+### Producer/Consumer Queue (bounded concurrency)
+📍 Coroutine and Queue Integration
+- **إيه هو؟** producer بيحط في `asyncio.Queue`، و N consumers بيسحبوا، و sentinel (`None`) لكل consumer عشان يقف. N = حد الـ concurrency.
+- **مثال:** 1,000 إيصال، و 4 workers ← 4 requests في أي لحظة.
+- **ليه اتعمل؟** `gather` على كله = burst يضرب الـ rate limits أو يخنق الـ server.
+- **المقابل في Laravel:** Queue + `queue:work` × 4 (بس الـ asyncio.Queue في الـ memory).
+- **إمتى:** أي batch كبير على API أو server محدود.
+
+### `return_exceptions=True`
+📍 Async Exception Handling
+- **إيه هو؟** في `gather`، الـ exceptions بترجع كقيم في list النتايج بدل ما أول واحد يطلع ويضيّع الباقي. ومعاه `ExceptionGroup` و `except*` (3.11+).
+- **مثال:** إيصال عمل timeout ← نتيجته exception، والـ 14 التانيين موجودين.
+- **ليه اتعمل؟** الفشل الجزئي مايوقفش الكل.
+- **المقابل في Laravel:** `Http::pool()` وتشيك `->ok()` لكل response.
+- **إمتى:** الـ evals والـ batches.
