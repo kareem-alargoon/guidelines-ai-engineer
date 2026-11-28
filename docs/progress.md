@@ -19,7 +19,7 @@
   | 3 — الوقت بيروح فين؟ (cold start و keep_alive) | ✅ |
   | 4 — الـ context بياكل memory | ✅ |
   | 5 — Providers زي drivers Laravel | ✅ |
-  | 6 — Mini eval: الموديل الـ local كفاية؟ | ⬜ |
+  | 6 — Mini eval: الموديل الـ local كفاية؟ | ✅ |
   | 7 — التكلفة والقرار | ⬜ |
 
 - **Task 0 (2026-11-27):** فولدر `work/` اتعمل فيه `llm_client.py` (من Step 02) و venv جديد و `requirements.txt` (ASCII، و `httpx 0.29.0`، و `pydantic 2.14.4`)، و `python llm_client.py` رد من `qwen2.5:3b`. و `hardware.md` اتكتب: الـ desktop الشخصي (i5-14600K، و 32 GB DDR5، و Intel UHD 770 مدمج من غير VRAM)، يعني الموديلات هتشتغل على الـ CPU والـ RAM، والـ default context هيبقى 4K.
@@ -52,8 +52,13 @@
   - **الـ Modelfile:** `qwen2.5-3b-8k` (`FROM qwen2.5:3b` + `num_ctx 8192`)، layer واحدة جديدة بس من غير weights. وبالـ OpenAI API: context **8192** و **2.41 GB** (نفس رقم Task 4).
   - **نفس الموديل بالـ 2 APIs (`temperature=0`، و `seed=42`):** الـ input tokens اتطابقت في الـ 5، والنص في 4. **الـ prompt العربي اختلف بسبب الـ prompt caching مش الـ API**: أول request (من غير cache) بيطلّع رد، واللي بعده رد تاني، بأي API (اتأكدنا بالترتيب المعكوس).
   - **اللي بيضيع في الـ standard API:** الـ timing كله (`load`، و `eval`، و tok/s) و `num_ctx`. واللي بيزيد: `cached_tokens`. التفاصيل في `work/observations.md`.
-- **مستنيين منك:** إجابات أسئلة Tasks 3 و 4 و 5 في وصف الـ PR.
-- **الجاي:** Task 6 (Mini eval: الموديل الـ local كفاية؟).
+- **Task 6 (2026-11-28، على الـ desktop الشخصي):** `experiments/model_eval.py` (`Receipt` بـ pydantic، و `extract()` بـ `format` = JSON schema و `temperature=0`، و `score()` بقواعد في الـ docstring، وجدول، وفحص الـ threshold، وطباعة الغلط) ← `experiments/results/model_eval.json`، و `test_model_eval.py` (9 tests لـ `score()`، passed). والداتا `data/receipts.json` (15 إيصال وهمي كتبه المساعد). الكود كله كتبه المساعد بطلب منك، وإنت شغّلته.
+  - **`qwen2.5:3b`:** total **100%**، و date **100%**، و vendor 80%، و currency 93.3%، وكل الحقول 73.3% (عربي 4/4، ومخلوط 2/4)، و **2.85 ث** للإيصال، و 330.5 in / 49.8 out tokens، و 26.6 tok/s، و 2.16 GB على الـ CPU. يعني **عدّى أرقام الـ threshold** (≥ 95% و < 30 ث).
+  - **بس مينفعش تجارياً:** الـ license `qwen-research` (hard attribute من Task 1). فمفيش موديل عدّى بكل الشروط، والخطوة الجاية حسب الـ workflow هي البدائل الـ Apache 2.0 (`qwen2.5:1.5b` و `qwen2.5:7b`). **الـ 3 موديلات الاختيارية اتعملهم skip** (إنت قررت متنزّلش)، والسكربت بيشغّلهم لوحده لو اتسطّبوا.
+  - **Error analysis:** الـ 4 غلطات كلها **نسخ من غير تصليح** (OCR noise في الـ vendor في 7 و 15، والاسمين مع بعض في 11، و `SR` بدل `SAR` في 9). والـ total (`float`) اتصلّح حتى من `2l5.75`، وده غالباً من الـ schema. والـ prompt injection في إيصال 13 اتجاهل.
+  - ⚠️ 15 إيصال وهمي = regression test، مش قرار: بالـ rule of three، الـ 15/15 معناها إن الدقة غالباً > 80% بس. التفاصيل في `work/observations.md`.
+- **مستنيين منك:** إجابات أسئلة Tasks 3 و 4 و 5 و 6 في وصف الـ PR.
+- **الجاي:** Task 7 (التكلفة والقرار).
 
 ## سجل الخطوات
 | الخطوة | المواد (notes + tasks) | شغلك (PR) | ملاحظات |
