@@ -20,7 +20,7 @@
   | 4 — الـ context بياكل memory | ✅ |
   | 5 — Providers زي drivers Laravel | ✅ |
   | 6 — Mini eval: الموديل الـ local كفاية؟ | ✅ |
-  | 7 — التكلفة والقرار | ⬜ |
+  | 7 — التكلفة والقرار | ✅ |
 
 - **Task 0 (2026-11-27):** فولدر `work/` اتعمل فيه `llm_client.py` (من Step 02) و venv جديد و `requirements.txt` (ASCII، و `httpx 0.29.0`، و `pydantic 2.14.4`)، و `python llm_client.py` رد من `qwen2.5:3b`. و `hardware.md` اتكتب: الـ desktop الشخصي (i5-14600K، و 32 GB DDR5، و Intel UHD 770 مدمج من غير VRAM)، يعني الموديلات هتشتغل على الـ CPU والـ RAM، والـ default context هيبقى 4K.
   - ⚠️ في PowerShell 5.1، `pip freeze > requirements.txt` بيكتب **UTF-16** (git بيشوفه binary). استخدم `pip freeze | Out-File -Encoding ascii requirements.txt`.
@@ -57,7 +57,12 @@
   - **بس مينفعش تجارياً:** الـ license `qwen-research` (hard attribute من Task 1). فمفيش موديل عدّى بكل الشروط، والخطوة الجاية حسب الـ workflow هي البدائل الـ Apache 2.0 (`qwen2.5:1.5b` و `qwen2.5:7b`). **الـ 3 موديلات الاختيارية اتعملهم skip** (إنت قررت متنزّلش)، والسكربت بيشغّلهم لوحده لو اتسطّبوا.
   - **Error analysis:** الـ 4 غلطات كلها **نسخ من غير تصليح** (OCR noise في الـ vendor في 7 و 15، والاسمين مع بعض في 11، و `SR` بدل `SAR` في 9). والـ total (`float`) اتصلّح حتى من `2l5.75`، وده غالباً من الـ schema. والـ prompt injection في إيصال 13 اتجاهل.
   - ⚠️ 15 إيصال وهمي = regression test، مش قرار: بالـ rule of three، الـ 15/15 معناها إن الدقة غالباً > 80% بس. التفاصيل في `work/observations.md`.
-- **مستنيين منك:** إجابات أسئلة Tasks 3 و 4 و 5 و 6 في وصف الـ PR.
+- **Task 7 (2026-11-28):** `work/data/prices.json` (المساعد، من صفحة Anthropic Pricing، **snapshot يوم 2026-11-13**: Haiku 5.5، و Sonnet 5.5، و Opus 5.5، و Fable 5.2)، و `work/cost.py` (`Price`، و `load_prices()`، و `request_cost()` فيها `cached_tokens` **جزء من** الـ input و `batch` = 50% بيتجمع مع الـ cache، و `monthly_cost()`، وجدول بالـ tokens الحقيقية من Task 6)، و `test_cost.py` (7 tests، منهم مثال Anthropic بالظبط: **$0.50** و **$0.348**، passed). الكود كتبه المساعد بطلب منك، وإنت شغّلته.
+  - **الجدول (80 إيصال × 22 يوم شغل = 1,760 في الشهر، و 330.5 in / 49.8 out):** Haiku 5.5 **$0.10** في الشهر، و Sonnet $2.04، و Opus $4.08، و Fable **$8.16**. والـ batch بيقسمهم نصين. يعني **التكلفة مش هي اللي بتحسم** على الحجم ده.
+  - ⚠️ تقدير مش فاتورة: الـ tokens بـ tokenizer الـ Qwen (Claude الجديد ~30% أكتر). وعمود الـ cache (الـ system prompt ~172 token = 50% من الـ input) غالباً مش هيشتغل بسبب الحد الأدنى للـ caching، وده هنتأكد منه في Step 04.
+  - **`work/model_decision.md`** (مسودة من المساعد بطلب منك، راجعها وعدّلها): **local بشرط موديل Apache 2.0 يعدّي الـ eval**، والـ API مرفوض حالياً بسبب الـ **privacy** مش التكلفة. والخطوة الجاية `qwen2.5:7b` وبعدها الـ 50 إيصال الحقيقيين. التفاصيل في `work/observations.md`.
+- **التاسكات الأساسية كلها خلصت ✅.** الجاي: الـ Bonus (اختياري) وفتح الـ PR.
+- **مستنيين منك:** إجابات أسئلة Tasks 3 و 4 و 5 و 6 (و 7) في وصف الـ PR.
 - **الجاي:** Task 7 (التكلفة والقرار).
 
 ## سجل الخطوات
